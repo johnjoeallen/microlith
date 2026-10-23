@@ -23,6 +23,12 @@ public class ModuleSupportAutoConfiguration {
     }
 
     @Bean
+    @org.springframework.context.annotation.Profile("demo")
+    FaultControl faultControl() {
+        return new FaultControl();
+    }
+
+    @Bean
     ConnectionBudgetCheck connectionBudgetCheck(Environment environment, ModuleProperties properties) {
         return new ConnectionBudgetCheck(environment, properties);
     }

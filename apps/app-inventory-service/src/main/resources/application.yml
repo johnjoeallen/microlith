@@ -31,3 +31,6 @@ modules:
       password: inventory_app
       migration-username: inventory_migrator
       migration-password: inventory_migrator
+  catalog:
+    enabled: false
+    url: http://localhost:8082/rpc/catalog

@@ -1,4 +1,7 @@
 package com.acme.orders.api;
 
-public record Order(String orderId, String requestId, String customerId, String sku, int quantity, OrderStatus status) {
+import java.util.List;
+
+public record Order(String orderId, String requestId, String customerId, OrderStatus status, List<OrderLine> lines,
+        long subtotalCents, long discountCents, long shippingCents, long totalCents, String failureReason) {
 }

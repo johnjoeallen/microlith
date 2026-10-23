@@ -28,6 +28,6 @@ class ApplicationTests {
         ApplicationModules modules = ApplicationModules.of(Application.class);
         modules.verify();
         assertThat(modules.stream().map(m -> m.getIdentifier().toString()))
-                .containsExactlyInAnyOrderElementsOf(Stream.of("inventory").toList());
+                .containsExactlyInAnyOrderElementsOf(Stream.of("catalog", "inventory").toList());
     }
 }

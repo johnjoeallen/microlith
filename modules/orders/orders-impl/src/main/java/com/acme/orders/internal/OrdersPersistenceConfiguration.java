@@ -22,11 +22,7 @@ import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.transaction.PlatformTransactionManager;
 
-/**
- * Everything this module needs to talk to its own database. JPA was chosen (as requested) with one
- * EntityManagerFactory and one transaction manager per module; no bean is @Primary, so nothing can pick them up by
- * accident.
- */
+/** Everything this module needs to talk to its own database: one pool, Flyway, EntityManagerFactory and transaction manager. */
 @ModuleConfiguration(module = "orders")
 @EnableJpaRepositories(basePackages = "com.acme.orders.internal", entityManagerFactoryRef = "ordersEmf",
         transactionManagerRef = "ordersTm")

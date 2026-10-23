@@ -13,10 +13,23 @@
     <module>platform/rpc-api</module>
     <module>platform/module-support</module>
     <module>platform/rpc-spring-boot-starter</module>
+    <module>modules/catalog/catalog-api</module>
+    <module>modules/catalog/catalog-impl</module>
+    <module>modules/customers/customers-api</module>
+    <module>modules/customers/customers-impl</module>
+    <module>modules/pricing/pricing-api</module>
+    <module>modules/pricing/pricing-impl</module>
     <module>modules/inventory/inventory-api</module>
     <module>modules/inventory/inventory-impl</module>
+    <module>modules/payments/payments-api</module>
+    <module>modules/payments/payments-impl</module>
+    <module>modules/shipping/shipping-api</module>
+    <module>modules/shipping/shipping-impl</module>
+    <module>modules/notifications/notifications-api</module>
+    <module>modules/notifications/notifications-impl</module>
     <module>modules/orders/orders-api</module>
     <module>modules/orders/orders-impl</module>
+    <module>apps/demo-scenarios</module>
     <module>apps/app-modulith</module>
     <module>apps/app-macro</module>
     <module>apps/app-orders-service</module>
@@ -68,9 +81,23 @@
       <dependency><groupId>${project.groupId}</groupId><artifactId>module-support</artifactId><version>${project.version}</version><type>test-jar</type></dependency>
       <dependency><groupId>${project.groupId}</groupId><artifactId>rpc-spring-boot-starter</artifactId><version>${project.version}</version></dependency>
 
+      <dependency><groupId>${project.groupId}</groupId><artifactId>demo-scenarios</artifactId><version>${project.version}</version></dependency>
+
       <!-- modules: adding a module means adding two lines here -->
+      <dependency><groupId>${project.groupId}</groupId><artifactId>catalog-api</artifactId><version>${project.version}</version></dependency>
+      <dependency><groupId>${project.groupId}</groupId><artifactId>catalog-impl</artifactId><version>${project.version}</version></dependency>
+      <dependency><groupId>${project.groupId}</groupId><artifactId>customers-api</artifactId><version>${project.version}</version></dependency>
+      <dependency><groupId>${project.groupId}</groupId><artifactId>customers-impl</artifactId><version>${project.version}</version></dependency>
+      <dependency><groupId>${project.groupId}</groupId><artifactId>pricing-api</artifactId><version>${project.version}</version></dependency>
+      <dependency><groupId>${project.groupId}</groupId><artifactId>pricing-impl</artifactId><version>${project.version}</version></dependency>
       <dependency><groupId>${project.groupId}</groupId><artifactId>inventory-api</artifactId><version>${project.version}</version></dependency>
       <dependency><groupId>${project.groupId}</groupId><artifactId>inventory-impl</artifactId><version>${project.version}</version></dependency>
+      <dependency><groupId>${project.groupId}</groupId><artifactId>payments-api</artifactId><version>${project.version}</version></dependency>
+      <dependency><groupId>${project.groupId}</groupId><artifactId>payments-impl</artifactId><version>${project.version}</version></dependency>
+      <dependency><groupId>${project.groupId}</groupId><artifactId>shipping-api</artifactId><version>${project.version}</version></dependency>
+      <dependency><groupId>${project.groupId}</groupId><artifactId>shipping-impl</artifactId><version>${project.version}</version></dependency>
+      <dependency><groupId>${project.groupId}</groupId><artifactId>notifications-api</artifactId><version>${project.version}</version></dependency>
+      <dependency><groupId>${project.groupId}</groupId><artifactId>notifications-impl</artifactId><version>${project.version}</version></dependency>
       <dependency><groupId>${project.groupId}</groupId><artifactId>orders-api</artifactId><version>${project.version}</version></dependency>
       <dependency><groupId>${project.groupId}</groupId><artifactId>orders-impl</artifactId><version>${project.version}</version></dependency>
     </dependencies>

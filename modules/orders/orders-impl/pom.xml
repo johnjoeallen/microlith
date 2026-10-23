@@ -13,7 +13,12 @@
 
   <dependencies>
     <dependency><groupId>com.acme.macro</groupId><artifactId>orders-api</artifactId></dependency>
+    <dependency><groupId>com.acme.macro</groupId><artifactId>customers-api</artifactId></dependency>
+    <dependency><groupId>com.acme.macro</groupId><artifactId>pricing-api</artifactId></dependency>
+    <dependency><groupId>com.acme.macro</groupId><artifactId>shipping-api</artifactId></dependency>
     <dependency><groupId>com.acme.macro</groupId><artifactId>inventory-api</artifactId></dependency>
+    <dependency><groupId>com.acme.macro</groupId><artifactId>payments-api</artifactId></dependency>
+    <dependency><groupId>com.acme.macro</groupId><artifactId>notifications-api</artifactId></dependency>
     <dependency><groupId>com.acme.macro</groupId><artifactId>module-support</artifactId></dependency>
   </dependencies>
 

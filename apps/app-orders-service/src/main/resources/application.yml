@@ -31,6 +31,21 @@ modules:
       password: orders_app
       migration-username: orders_migrator
       migration-password: orders_migrator
+  customers:
+    enabled: false
+    url: http://localhost:8085/rpc/customers
+  pricing:
+    enabled: false
+    url: http://localhost:8083/rpc/pricing
+  shipping:
+    enabled: false
+    url: http://localhost:8087/rpc/shipping
   inventory:
     enabled: false
     url: http://localhost:8084/rpc/inventory
+  payments:
+    enabled: false
+    url: http://localhost:8086/rpc/payments
+  notifications:
+    enabled: false
+    url: http://localhost:8088/rpc/notifications

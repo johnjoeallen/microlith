@@ -1,9 +1,18 @@
 package com.acme.inventory.internal;
 
+import com.acme.inventory.api.ReservationStatus;
+import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Table;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "reservation")
@@ -19,21 +28,23 @@ class ReservationEntity {
     @Column(name = "order_id", nullable = false)
     private String orderId;
 
-    @Column(name = "sku", nullable = false)
-    private String sku;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false)
+    private ReservationStatus status;
 
-    @Column(name = "quantity", nullable = false)
-    private int quantity;
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "reservation_line", joinColumns = @JoinColumn(name = "reservation_id"))
+    private List<ReservedLineEmbeddable> lines = new ArrayList<>();
 
     protected ReservationEntity() {
     }
 
-    ReservationEntity(String reservationId, String requestId, String orderId, String sku, int quantity) {
+    ReservationEntity(String reservationId, String requestId, String orderId, List<ReservedLineEmbeddable> lines) {
         this.reservationId = reservationId;
         this.requestId = requestId;
         this.orderId = orderId;
-        this.sku = sku;
-        this.quantity = quantity;
+        this.status = ReservationStatus.RESERVED;
+        this.lines = new ArrayList<>(lines);
     }
 
     String getReservationId() {
@@ -44,11 +55,15 @@ class ReservationEntity {
         return orderId;
     }
 
-    String getSku() {
-        return sku;
+    ReservationStatus getStatus() {
+        return status;
     }
 
-    int getQuantity() {
-        return quantity;
+    void setStatus(ReservationStatus status) {
+        this.status = status;
+    }
+
+    List<ReservedLineEmbeddable> getLines() {
+        return lines;
     }
 }

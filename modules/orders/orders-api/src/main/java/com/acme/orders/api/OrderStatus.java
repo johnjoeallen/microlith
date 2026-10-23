@@ -1,7 +1,5 @@
 package com.acme.orders.api;
 
 public enum OrderStatus {
-    PENDING,
-    CONFIRMED,
-    REJECTED
+    PENDING, RESERVED, AUTHORIZED, CONFIRMED, REJECTED, FAILED
 }

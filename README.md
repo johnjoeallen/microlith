@@ -74,6 +74,44 @@ curl -s -X POST localhost:8084/rpc/inventory/getStock -H 'Content-Type: applicat
 `app-modulith` serves no RPC (`rpc.server.enabled=false`); `app-macro` runs all modules (`monolith` profile by default).
 Bindings per target module: `modules.<name>.binding` = `local` | `loopback-codec` | `loopback-http` | `remote`.
 
+## The order-fulfilment domain (stage 5)
+
+Eight modules, each with its own `-api`, `-impl`, schema, Flyway location and pool. They call each other only through
+`@RpcApi` interfaces (graph from section 16.1, checked exactly by `DependencyGraphTests`):
+
+| Module | Calls |
+| --- | --- |
+| `catalog`, `customers` | none |
+| `pricing` | catalog, customers |
+| `inventory` | catalog |
+| `payments`, `notifications` | customers |
+| `shipping` | customers, inventory |
+| `orders` | customers, pricing, shipping, inventory, payments, notifications |
+
+`orders.placeOrder(requestId, customerId, lines)` is a saga that lives in `orders` only: customer check, pricing quote,
+shipping quote, reserve stock, authorize payment, create shipment, capture, notify. The order state
+(`PENDING -> RESERVED -> AUTHORIZED -> CONFIRMED`, or `REJECTED` / `FAILED`) is persisted, every step is idempotent through
+a request id derived from the order's (`<requestId>:reserve`, `:authorize`, `:ship`, `:capture`), and a repeated call resumes
+where the order stopped. Compensations (`inventory.release`, `payments.void`) and the confirmation message go through
+a module-local outbox written in the same transaction as the state change; a relay retries them with exponential backoff
+(`modules.orders.outbox.*`), so a callee outage never fails the order. The relay scans the database only when woken by a
+commit, while work is pending, or on a slow idle scan (`idle-scan-interval`, 60s), so an idle module holds no connection.
+
+`payments.voidAuthorization` is the design's `payments.void` (Java cannot name a method `void`).
+
+Demo data (profile `demo`): products `sku-widget` (1000), `sku-gadget` (2500), `sku-oos` (no stock), `sku-undeliverable`
+(shipping always fails); customers `cust-standard`, `cust-gold` (10% off), `cust-declined` (card is declined). Amounts are cents.
+
+```bash
+call() { curl -s -X POST localhost:8080/rpc/orders -H 'Content-Type: application/json' -d "{\"jsonrpc\":\"2.0\",\"method\":\"orders.placeOrder\",\"params\":{\"requestId\":\"$1\",\"customerId\":\"$2\",\"lines\":[{\"sku\":\"$3\",\"quantity\":$4}]},\"id\":1}"; echo; }
+call happy-1      cust-standard sku-widget        2   # CONFIRMED, total 2700
+call gold-1       cust-gold     sku-widget        2   # CONFIRMED, 200 off, total 2500
+call oos-1        cust-standard sku-oos           1   # error 1001 OutOfStockException
+call declined-1   cust-declined sku-widget        1   # REJECTED, reservation released by the relay
+call undeliver-1  cust-standard sku-undeliverable 1   # FAILED, payment voided and stock released by the relay
+call happy-1      cust-standard sku-widget        2   # same requestId: the same order, nothing duplicated
+```
+
 ## Layout
 
 | Path | Purpose |
@@ -81,6 +119,7 @@ Bindings per target module: `modules.<name>.binding` = `local` | `loopback-codec
 | `platform/rpc-api` | `@RpcApi`, RPC exceptions (no Spring) |
 | `platform/module-support` | module stereotypes, enablement, per-module persistence helpers |
 | `platform/rpc-spring-boot-starter` | JSON-RPC server, client proxies, registrar |
+| `apps/demo-scenarios` | the section 16.5 scenarios and API contracts, written once against the `-api` artifacts (tests only) |
 | `modules/<m>/<m>-api` | interface, record DTOs, exceptions; the only thing other modules may depend on |
 | `modules/<m>/<m>-impl` | implementation, persistence, migrations |
 | `apps/*` | deployable assemblies (`app-modulith`, `app-macro`, per-service apps) |

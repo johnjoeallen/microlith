@@ -17,7 +17,7 @@ class ApplicationTests {
 
     @DynamicPropertySource
     static void database(DynamicPropertyRegistry registry) {
-        SharedPostgres.register(registry, "orders", "inventory");
+        SharedPostgres.register(registry, "catalog", "customers", "pricing", "inventory", "payments", "shipping", "notifications", "orders");
     }
 
     @Test
@@ -29,6 +29,6 @@ class ApplicationTests {
         ApplicationModules modules = ApplicationModules.of(Application.class);
         modules.verify();
         assertThat(modules.stream().map(m -> m.getIdentifier().toString()))
-                .containsExactlyInAnyOrderElementsOf(Stream.of("inventory", "orders").toList());
+                .containsExactlyInAnyOrderElementsOf(Stream.of("catalog", "customers", "inventory", "notifications", "orders", "payments", "pricing", "shipping").toList());
     }
 }

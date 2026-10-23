@@ -7,6 +7,7 @@ import static org.awaitility.Awaitility.await;
 import com.acme.inventory.api.InventoryApi;
 import com.acme.inventory.api.StockLevel;
 import com.acme.orders.api.OrderNotFoundException;
+import java.util.Map;
 import com.acme.orders.api.OrdersApi;
 import io.macroservice.platform.rpc.RpcErrorCodes;
 import io.macroservice.platform.rpc.RpcException;
@@ -54,9 +55,9 @@ class ConnectionBehaviourTests {
     void aDisabledModuleOpensNoConnectionsAndHasNoPool() throws Exception {
         PostgreSQLContainer db = SharedPostgres.newContainer();
         try {
-            ConfigurableApplicationContext context = apps.start(false, TestApps.args("--spring.profiles.active=demo",
-                    "--modules.orders.enabled=true", "--modules.inventory.enabled=false", "--modules.inventory.url=http://127.0.0.1:1/rpc/inventory"),
-                    SharedPostgres.args(db, "orders", "inventory"));
+            String[] others = TestApps.MODULES.stream().filter(m -> !m.equals("inventory")).toArray(String[]::new);
+            ConfigurableApplicationContext context = apps.start(false, TestApps.demo(), TestApps.topology(Map.of(), others),
+                    SharedPostgres.args(db, others));
             assertThat(context.containsBean("inventoryDataSource")).isFalse();
             assertThat(context.containsBean("inventoryMigration")).isFalse();
             assertThat(context.containsBean("ordersDataSource")).isTrue();
@@ -74,14 +75,15 @@ class ConnectionBehaviourTests {
     void anIdleModuleGivesItsConnectionsBack() throws Exception {
         PostgreSQLContainer db = SharedPostgres.newContainer();
         try {
-            ConfigurableApplicationContext context = apps.start(false, TestApps.ALL_LOCAL, SharedPostgres.args(db, "orders", "inventory"),
+            ConfigurableApplicationContext context = apps.start(false, TestApps.demo(), TestApps.topology(Map.of(), TestApps.MODULES.toArray(String[]::new)),
+                    SharedPostgres.args(db, TestApps.MODULES.toArray(String[]::new)),
                     TestApps.args("--modules.orders.datasource.idle-timeout=10s", "--modules.inventory.datasource.idle-timeout=10s"));
             // migrations are finished and closed; the runtime pools (minimum-idle 0) have not opened anything yet
             assertThat(connectionsOf(db, "macro-orders")).isZero();
             assertThat(connectionsOf(db, "macro-inventory")).isZero();
 
             assertThatThrownBy(() -> context.getBean(OrdersApi.class).getOrder("nope")).isInstanceOf(OrderNotFoundException.class);
-            assertThat(context.getBean(InventoryApi.class).getStock("sku-1")).isEqualTo(new StockLevel("sku-1", 100));
+            assertThat(context.getBean(InventoryApi.class).getStock("sku-widget")).isEqualTo(new StockLevel("sku-widget", 100, "wh-1"));
             assertThat(connectionsOf(db, "macro-orders") + connectionsOf(db, "macro-inventory")).isPositive();
 
             await().atMost(Duration.ofSeconds(40)).pollInterval(Duration.ofMillis(500)).untilAsserted(() ->
@@ -100,8 +102,7 @@ class ConnectionBehaviourTests {
         }
         PostgreSQLContainer db = new PostgreSQLContainer(SharedPostgres.IMAGE);
         try {
-            ConfigurableApplicationContext context = apps.start(false, TestApps.args("--spring.profiles.active=demo",
-                    "--modules.orders.enabled=true", "--modules.inventory.enabled=false", "--modules.inventory.url=http://127.0.0.1:1/rpc/inventory",
+            ConfigurableApplicationContext context = apps.start(false, TestApps.demo(), TestApps.topology(Map.of(), "orders"), TestApps.args(
                     "--modules.orders.datasource.url=jdbc:postgresql://localhost:" + port + "/test",
                     "--modules.orders.datasource.username=test", "--modules.orders.datasource.password=test",
                     "--modules.orders.datasource.migration-username=test", "--modules.orders.datasource.migration-password=test",
@@ -123,7 +124,7 @@ class ConnectionBehaviourTests {
 
     @Test
     void theBulkheadRejectsExcessCallsWhileThePoolIsExhaustedAndNothingDeadlocks() throws Exception {
-        ConfigurableApplicationContext context = apps.start(false, TestApps.ALL_LOCAL, SharedPostgres.args("orders", "inventory"), TestApps.args(
+        ConfigurableApplicationContext context = apps.start(false, TestApps.allLocal(), TestApps.args(
                 "--modules.inventory.binding=loopback-codec", "--modules.inventory.datasource.max-pool-size=2",
                 "--modules.inventory.datasource.connection-timeout=4s", "--modules.inventory.bulkhead.max-wait=300ms"));
         InventoryApi inventory = context.getBean(InventoryApi.class);
@@ -132,21 +133,21 @@ class ConnectionBehaviourTests {
         Connection first = pool.getConnection();
         Connection second = pool.getConnection();
         try {
-            Future<StockLevel> one = executor.submit(() -> inventory.getStock("sku-1"));
-            Future<StockLevel> two = executor.submit(() -> inventory.getStock("sku-1"));
+            Future<StockLevel> one = executor.submit(() -> inventory.getStock("sku-widget"));
+            Future<StockLevel> two = executor.submit(() -> inventory.getStock("sku-widget"));
             Thread.sleep(500); // both calls hold a permit and wait for a connection
 
             long begin = System.nanoTime();
-            assertThatThrownBy(() -> inventory.getStock("sku-1")).isInstanceOf(RpcException.class)
+            assertThatThrownBy(() -> inventory.getStock("sku-widget")).isInstanceOf(RpcException.class)
                     .hasMessageContaining("Module 'inventory' is overloaded").extracting(e -> ((RpcException) e).code())
                     .isEqualTo(RpcErrorCodes.OVERLOADED);
             assertThat(TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - begin)).isLessThan(2000);
 
             first.close();
             second.close();
-            assertThat(one.get(5, TimeUnit.SECONDS)).isEqualTo(new StockLevel("sku-1", 100));
-            assertThat(two.get(5, TimeUnit.SECONDS)).isEqualTo(new StockLevel("sku-1", 100));
-            assertThat(inventory.getStock("sku-1")).isEqualTo(new StockLevel("sku-1", 100));
+            assertThat(one.get(5, TimeUnit.SECONDS)).isEqualTo(new StockLevel("sku-widget", 100, "wh-1"));
+            assertThat(two.get(5, TimeUnit.SECONDS)).isEqualTo(new StockLevel("sku-widget", 100, "wh-1"));
+            assertThat(inventory.getStock("sku-widget")).isEqualTo(new StockLevel("sku-widget", 100, "wh-1"));
         } finally {
             first.close();
             second.close();
@@ -156,7 +157,7 @@ class ConnectionBehaviourTests {
 
     @Test
     void poolMetricsAreTaggedByModule() throws Exception {
-        ConfigurableApplicationContext context = apps.start(false, TestApps.ALL_LOCAL, SharedPostgres.args("orders", "inventory"), TestApps.args(
+        ConfigurableApplicationContext context = apps.start(false, TestApps.allLocal(), TestApps.args(
                 "--modules.inventory.binding=loopback-codec", "--modules.inventory.datasource.max-pool-size=1",
                 "--modules.inventory.datasource.connection-timeout=500ms"));
         MeterRegistry registry = context.getBean(MeterRegistry.class);
@@ -171,7 +172,7 @@ class ConnectionBehaviourTests {
             System.gc();
             assertThat(registry.get("macro.db.pool.connections").tag("module", "inventory").tag("state", "active").gauge().value())
                     .isEqualTo(1.0); // a real number, not NaN from a collected weak reference
-            assertThatThrownBy(() -> context.getBean(InventoryApi.class).getStock("sku-1")).isInstanceOf(RuntimeException.class);
+            assertThatThrownBy(() -> context.getBean(InventoryApi.class).getStock("sku-widget")).isInstanceOf(RuntimeException.class);
         }
         assertThat(registry.get("macro.db.pool.timeouts").tag("module", "inventory").counter().count()).isGreaterThanOrEqualTo(1);
         assertThat(registry.get("macro.db.pool.timeouts").tag("module", "orders").counter().count()).isZero();

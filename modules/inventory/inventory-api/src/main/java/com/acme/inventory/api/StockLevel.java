@@ -1,4 +1,4 @@
 package com.acme.inventory.api;
 
-public record StockLevel(String sku, int available) {
+public record StockLevel(String sku, int available, String warehouse) {
 }

@@ -4,9 +4,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.acme.orders.api.Order;
+import com.acme.orders.api.OrderLine;
 import com.acme.orders.api.OrderStatus;
 import com.acme.orders.api.OrdersApi;
-import com.acme.orders.api.PlaceOrderRequest;
 import io.macroservice.platform.support.ModuleSettings;
 import io.macroservice.platform.support.testing.SharedPostgres;
 import java.sql.Connection;
@@ -14,12 +14,15 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.testcontainers.postgresql.PostgreSQLContainer;
 
-/** The same module code runs on one instance with two schemas, on two instances, and with the production role model. */
+/** The same module code runs on one instance with eight schemas, on two instances, and with the production role model. */
 class PersistenceLayoutTests {
 
     private final TestApps apps = new TestApps();
@@ -48,26 +51,28 @@ class PersistenceLayoutTests {
 
     private static void placeAnOrder(ConfigurableApplicationContext context) {
         OrdersApi orders = context.getBean(OrdersApi.class);
-        Order order = orders.placeOrder(new PlaceOrderRequest("req-1", "cust-1", "sku-1", 2));
+        List<OrderLine> lines = List.of(new OrderLine("sku-widget", 2));
+        Order order = orders.placeOrder("req-1", "cust-standard", lines);
         assertThat(order.status()).isEqualTo(OrderStatus.CONFIRMED);
-        assertThat(orders.placeOrder(new PlaceOrderRequest("req-1", "cust-1", "sku-1", 2))).isEqualTo(order);
+        assertThat(orders.placeOrder("req-1", "cust-standard", lines)).isEqualTo(order);
         assertThat(orders.getOrder(order.orderId())).isEqualTo(order);
     }
 
     @Test
-    void oneInstanceTwoSchemas() throws Exception {
-        ConfigurableApplicationContext context = apps.start(false, TestApps.ALL_LOCAL, SharedPostgres.args("orders", "inventory"));
+    void oneInstanceEightSchemas() throws Exception {
+        ConfigurableApplicationContext context = apps.start(false, TestApps.allLocal());
         placeAnOrder(context);
         PostgreSQLContainer db = SharedPostgres.INSTANCE;
-        String orders = schemaOf(context, "orders");
-        String inventory = schemaOf(context, "inventory");
-        assertThat(orders).isNotEqualTo(inventory);
-        assertThat(tables(db, orders, "orders")).isEqualTo(1);
-        assertThat(tables(db, orders, "stock")).isZero();
-        assertThat(tables(db, inventory, "stock")).isEqualTo(1);
-        assertThat(tables(db, inventory, "orders")).isZero();
-        assertThat(tables(db, orders, "flyway_schema_history")).isEqualTo(1);
-        assertThat(tables(db, inventory, "flyway_schema_history")).isEqualTo(1);
+        assertThat(TestApps.MODULES.stream().map(m -> schemaOf(context, m)).distinct()).hasSize(8);
+        assertThat(tables(db, schemaOf(context, "orders"), "orders")).isEqualTo(1);
+        assertThat(tables(db, schemaOf(context, "orders"), "outbox")).isEqualTo(1);
+        assertThat(tables(db, schemaOf(context, "orders"), "stock")).isZero();
+        assertThat(tables(db, schemaOf(context, "inventory"), "stock")).isEqualTo(1);
+        assertThat(tables(db, schemaOf(context, "inventory"), "orders")).isZero();
+        assertThat(tables(db, schemaOf(context, "catalog"), "product")).isEqualTo(1);
+        for (String module : TestApps.MODULES) {
+            assertThat(tables(db, schemaOf(context, module), "flyway_schema_history")).as(module).isEqualTo(1);
+        }
     }
 
     @Test
@@ -75,8 +80,9 @@ class PersistenceLayoutTests {
         PostgreSQLContainer first = SharedPostgres.newContainer();
         PostgreSQLContainer second = SharedPostgres.newContainer();
         try {
-            ConfigurableApplicationContext context = apps.start(false, TestApps.ALL_LOCAL,
-                    SharedPostgres.args(first, "orders"), SharedPostgres.args(second, "inventory"));
+            ConfigurableApplicationContext context = apps.start(false, TestApps.demo(), TestApps.topology(Map.of(), TestApps.MODULES.toArray(String[]::new)),
+                    SharedPostgres.args(first, "orders", "pricing", "payments", "notifications"),
+                    SharedPostgres.args(second, "catalog", "customers", "inventory", "shipping"));
             placeAnOrder(context);
             assertThat(tables(first, schemaOf(context, "orders"), "orders")).isEqualTo(1);
             assertThat(tables(first, schemaOf(context, "inventory"), "stock")).isZero();
@@ -93,27 +99,29 @@ class PersistenceLayoutTests {
     void runtimeRolesSeeOnlyTheirOwnSchema() throws Exception {
         PostgreSQLContainer db = SharedPostgres.newContainer("db/bootstrap.sql");
         try {
-            String url = db.getJdbcUrl();
-            ConfigurableApplicationContext context = apps.start(false, TestApps.ALL_LOCAL, TestApps.args(
-                    "--modules.orders.datasource.url=" + url, "--modules.orders.datasource.username=orders_app",
-                    "--modules.orders.datasource.password=orders_app", "--modules.orders.datasource.migration-username=orders_migrator",
-                    "--modules.orders.datasource.migration-password=orders_migrator",
-                    "--modules.inventory.datasource.url=" + url, "--modules.inventory.datasource.username=inventory_app",
-                    "--modules.inventory.datasource.password=inventory_app", "--modules.inventory.datasource.migration-username=inventory_migrator",
-                    "--modules.inventory.datasource.migration-password=inventory_migrator"));
+            List<String> args = new ArrayList<>();
+            for (String m : TestApps.MODULES) {
+                String p = "--modules." + m + ".datasource.";
+                args.addAll(List.of(p + "url=" + db.getJdbcUrl(), p + "username=" + m + "_app", p + "password=" + m + "_app",
+                        p + "migration-username=" + m + "_migrator", p + "migration-password=" + m + "_migrator"));
+            }
+            ConfigurableApplicationContext context = apps.start(false, TestApps.demo(), TestApps.topology(Map.of(), TestApps.MODULES.toArray(String[]::new)),
+                    args.toArray(String[]::new));
             placeAnOrder(context);
 
-            try (Connection orders = DriverManager.getConnection(url, "orders_app", "orders_app")) {
-                assertThat(count(orders, "select count(*) from orders")).isEqualTo(1);
-                assertThatThrownBy(() -> count(orders, "select count(*) from inventory.stock"))
-                        .isInstanceOf(SQLException.class).hasMessageContaining("permission denied");
-                assertThatThrownBy(() -> orders.createStatement().execute("create table orders.extra (id int)"))
-                        .isInstanceOf(SQLException.class).hasMessageContaining("permission denied");
-            }
-            try (Connection inventory = DriverManager.getConnection(url, "inventory_app", "inventory_app")) {
-                assertThat(count(inventory, "select count(*) from reservation")).isEqualTo(1);
-                assertThatThrownBy(() -> count(inventory, "select count(*) from orders.orders"))
-                        .isInstanceOf(SQLException.class).hasMessageContaining("permission denied");
+            // every runtime role reads its own schema and none of the others'
+            for (String own : TestApps.MODULES) {
+                try (Connection c = DriverManager.getConnection(db.getJdbcUrl(), own + "_app", own + "_app")) {
+                    for (String other : TestApps.MODULES) {
+                        if (!other.equals(own)) {
+                            assertThatThrownBy(() -> c.createStatement().executeQuery("select * from " + other + ".flyway_schema_history"))
+                                    .as("%s_app reading %s", own, other).isInstanceOf(SQLException.class).hasMessageContaining("permission denied");
+                        }
+                    }
+                    assertThat(count(c, "select count(*) from flyway_schema_history")).isPositive();
+                    assertThatThrownBy(() -> c.createStatement().execute("create table " + own + ".extra (id int)"))
+                            .isInstanceOf(SQLException.class).hasMessageContaining("permission denied");
+                }
             }
         } finally {
             apps.close();

@@ -13,6 +13,7 @@
 
   <dependencies>
     <dependency><groupId>com.acme.macro</groupId><artifactId>inventory-api</artifactId></dependency>
+    <dependency><groupId>com.acme.macro</groupId><artifactId>catalog-api</artifactId></dependency>
     <dependency><groupId>com.acme.macro</groupId><artifactId>module-support</artifactId></dependency>
   </dependencies>
 

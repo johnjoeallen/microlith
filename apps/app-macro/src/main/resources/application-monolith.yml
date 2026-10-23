@@ -1,13 +1,29 @@
 # Every module in one process, one PostgreSQL instance. Stage 6 replaces this with the full profile set.
 modules:
-  orders:
+  catalog:
     enabled: true
     datasource:
       url: jdbc:postgresql://localhost:5432/macro
-      username: orders_app
-      password: orders_app
-      migration-username: orders_migrator
-      migration-password: orders_migrator
+      username: catalog_app
+      password: catalog_app
+      migration-username: catalog_migrator
+      migration-password: catalog_migrator
+  customers:
+    enabled: true
+    datasource:
+      url: jdbc:postgresql://localhost:5432/macro
+      username: customers_app
+      password: customers_app
+      migration-username: customers_migrator
+      migration-password: customers_migrator
+  pricing:
+    enabled: true
+    datasource:
+      url: jdbc:postgresql://localhost:5432/macro
+      username: pricing_app
+      password: pricing_app
+      migration-username: pricing_migrator
+      migration-password: pricing_migrator
   inventory:
     enabled: true
     datasource:
@@ -16,3 +32,35 @@ modules:
       password: inventory_app
       migration-username: inventory_migrator
       migration-password: inventory_migrator
+  payments:
+    enabled: true
+    datasource:
+      url: jdbc:postgresql://localhost:5432/macro
+      username: payments_app
+      password: payments_app
+      migration-username: payments_migrator
+      migration-password: payments_migrator
+  shipping:
+    enabled: true
+    datasource:
+      url: jdbc:postgresql://localhost:5432/macro
+      username: shipping_app
+      password: shipping_app
+      migration-username: shipping_migrator
+      migration-password: shipping_migrator
+  notifications:
+    enabled: true
+    datasource:
+      url: jdbc:postgresql://localhost:5432/macro
+      username: notifications_app
+      password: notifications_app
+      migration-username: notifications_migrator
+      migration-password: notifications_migrator
+  orders:
+    enabled: true
+    datasource:
+      url: jdbc:postgresql://localhost:5432/macro
+      username: orders_app
+      password: orders_app
+      migration-username: orders_migrator
+      migration-password: orders_migrator
