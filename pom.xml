@@ -29,8 +29,8 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
     <!-- Versions: looked up on Maven Central (repo1.maven.org) on 2026-10-23; all at least two weeks old. -->
-    <spring-boot.version>4.1.1</spring-boot.version>             <!-- released 2026-08-20; 4.1.2 is newer than two weeks -->
-    <spring-modulith.version>2.1.1</spring-modulith.version>     <!-- released 2026-08-25; built against Boot 4.1.1 -->
+    <spring-boot.version>4.1.2</spring-boot.version>             <!-- released 2026-10-22; two-week rule waived by the user on 2026-10-23 -->
+    <spring-modulith.version>2.1.2</spring-modulith.version>     <!-- released 2026-10-22; two-week rule waived by the user on 2026-10-23 -->
     <archunit.version>1.5.1</archunit.version>                   <!-- used from stage 2 -->
     <!-- Managed through the Boot BOM: Flyway 12.4.0, Testcontainers 2.0.5, Hibernate 7.4.13, PostgreSQL driver 42.7.14, Jackson 3.1.7 -->
 
