@@ -9,11 +9,28 @@ spring:
   threads:
     virtual:
       enabled: true
-  datasource:
-    url: jdbc:postgresql://localhost:5432/macro   # placeholder; real per-module datasources arrive in stage 4
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,metrics
+  endpoint:
+    health:
+      group:
+        readiness:
+          include: readinessState,modules
+  health:
+    probes:
+      enabled: true
 modules:
   orders:
     enabled: true
+    datasource:
+      url: jdbc:postgresql://localhost:5432/macro
+      username: orders_app
+      password: orders_app
+      migration-username: orders_migrator
+      migration-password: orders_migrator
   inventory:
     enabled: false
     url: http://localhost:8084/rpc/inventory

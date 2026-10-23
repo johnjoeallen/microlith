@@ -9,6 +9,7 @@ import com.acme.inventory.api.Reservation;
 import com.acme.inventory.api.ReserveRequest;
 import com.acme.inventory.api.StockLevel;
 import io.macroservice.platform.rpc.RpcClientProxy;
+import io.macroservice.platform.support.testing.SharedPostgres;
 import io.macroservice.platform.rpc.RpcUnavailableException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -25,9 +26,7 @@ class InventoryContractTests {
 
     enum Mode { LOCAL, LOOPBACK_CODEC, LOOPBACK_HTTP, REMOTE }
 
-    private static final String[] COMMON = {
-            "--modules.orders.enabled=false", "--modules.orders.url=http://127.0.0.1:1/rpc/orders",
-            "--spring.datasource.url=jdbc:postgresql://localhost:5432/macro"};
+    private static final String[] COMMON = TestApps.ORDERS_ELSEWHERE;
 
     private final java.util.List<ConfigurableApplicationContext> contexts = new java.util.ArrayList<>();
 
@@ -37,7 +36,9 @@ class InventoryContractTests {
     }
 
     private ConfigurableApplicationContext start(boolean web, String... args) {
-        String[] all = java.util.stream.Stream.concat(java.util.Arrays.stream(COMMON), java.util.Arrays.stream(args)).toArray(String[]::new);
+        boolean database = java.util.Arrays.asList(args).contains("--modules.inventory.enabled=true");
+        String[] all = java.util.stream.Stream.of(COMMON, args, database ? SharedPostgres.args("inventory") : new String[0])
+                .flatMap(java.util.Arrays::stream).toArray(String[]::new);
         ConfigurableApplicationContext context = new SpringApplicationBuilder(Application.class)
                 .web(web ? org.springframework.boot.WebApplicationType.SERVLET : org.springframework.boot.WebApplicationType.NONE)
                 .run(all);

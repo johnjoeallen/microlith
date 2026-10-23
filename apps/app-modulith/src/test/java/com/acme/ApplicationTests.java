@@ -12,11 +12,21 @@ import com.acme.orders.api.OrdersApi;
 import com.acme.orders.api.PlaceOrderRequest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import io.macroservice.platform.support.testing.SharedPostgres;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.modulith.core.ApplicationModules;
 
 @SpringBootTest(properties = "spring.main.web-application-type=none")
+@ActiveProfiles("demo")
 class ApplicationTests {
+
+    @DynamicPropertySource
+    static void database(DynamicPropertyRegistry registry) {
+        SharedPostgres.register(registry, "orders", "inventory");
+    }
 
     @Autowired
     OrdersApi orders;

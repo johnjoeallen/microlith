@@ -17,7 +17,47 @@ mvn -q verify -pl modules/orders/orders-impl -am   # one module and what it need
 scripts/check-boundaries.sh      # proves the Maven boundary rules fail on forbidden dependencies
 ```
 
-## Run two services locally (stage 3)
+## Databases (stage 4)
+
+Each module owns a schema, a DDL-capable migration role and a DML-only runtime role (`docs/db/bootstrap.sql`).
+Three PostgreSQL instances are available for the local demo (A 5432, B 5433, C 5434), each bootstrapped on first start:
+
+```bash
+docker compose -f docker-compose.demo.yml up -d --wait
+docker compose -f docker-compose.demo.yml down -v        # stop and wipe
+```
+
+Persistence is JPA (Hibernate + Spring Data), one `EntityManagerFactory` and transaction manager per module, and
+Flyway per module (`classpath:db/migration/<module>`, plus `classpath:db/demo/<module>` seed data in the `demo` profile).
+A database that is down at startup does not stop the application: the module reports not-ready on
+`/actuator/health/readiness` and the migration is retried in the background. Liveness is unaffected.
+
+Per-module pool settings (`modules.<name>.datasource.*`): `max-pool-size` (3), `minimum-idle` (0), `idle-timeout` (30s),
+`max-lifetime` (10m), `connection-timeout` (5s). `platform.db.connection-budget` warns when the enabled modules' pools add
+up to more (`platform.db.enforce-budget=true` fails startup). The RPC server limits concurrent calls per module to the
+pool size (`modules.<name>.bulkhead.max-concurrent-calls`, `max-wait`) and answers `-32002` beyond that.
+Pool metrics: `macro.db.pool.connections{module,state}` and `macro.db.pool.timeouts{module}`.
+
+### Shape 1: one process, one PostgreSQL
+
+```bash
+java -jar apps/app-modulith/target/app-modulith-0.1.0-SNAPSHOT.jar --spring.profiles.active=demo --rpc.server.enabled=true
+curl -s -X POST localhost:8080/rpc/orders -H 'Content-Type: application/json' \
+  -d '{"jsonrpc":"2.0","method":"orders.placeOrder","params":{"request":{"requestId":"m-1","customerId":"cust-1","sku":"sku-1","quantity":2}},"id":1}'
+```
+
+(`app-modulith` serves no RPC by default; the override is only there so you can use curl.)
+
+### Shape 2: two processes, two PostgreSQL instances (orders on A, inventory on B)
+
+```bash
+java -jar apps/app-inventory-service/target/app-inventory-service-0.1.0-SNAPSHOT.jar --spring.profiles.active=demo &   # :8084, instance B
+java -jar apps/app-orders-service/target/app-orders-service-0.1.0-SNAPSHOT.jar &                                     # :8081, instance A
+curl -s -X POST localhost:8081/rpc/orders -H 'Content-Type: application/json' \
+  -d '{"jsonrpc":"2.0","method":"orders.placeOrder","params":{"request":{"requestId":"s-1","customerId":"cust-1","sku":"sku-1","quantity":2}},"id":1}'
+```
+
+## Two services, raw JSON-RPC and the alias (stage 3)
 
 ```bash
 java -jar apps/app-inventory-service/target/app-inventory-service-0.1.0-SNAPSHOT.jar &   # :8084

@@ -20,10 +20,21 @@
     <dependency><groupId>org.springframework.modulith</groupId><artifactId>spring-modulith-core</artifactId><scope>test</scope></dependency>
     <dependency><groupId>com.acme.macro</groupId><artifactId>module-support</artifactId><type>test-jar</type><scope>test</scope></dependency>
     <dependency><groupId>com.tngtech.archunit</groupId><artifactId>archunit</artifactId><scope>test</scope></dependency>
+    <dependency><groupId>org.testcontainers</groupId><artifactId>testcontainers-postgresql</artifactId><scope>test</scope></dependency>
   </dependencies>
 
   <build>
     <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <systemPropertyVariables>
+            <!-- let the idle-connection test observe Hikari's housekeeping within seconds, not minutes -->
+            <com.zaxxer.hikari.housekeeping.periodMs>1000</com.zaxxer.hikari.housekeeping.periodMs>
+          </systemPropertyVariables>
+        </configuration>
+      </plugin>
       <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>

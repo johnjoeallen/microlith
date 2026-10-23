@@ -4,11 +4,21 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
+import io.macroservice.platform.support.testing.SharedPostgres;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.modulith.core.ApplicationModules;
 
 @SpringBootTest(properties = "spring.main.web-application-type=none")
+@ActiveProfiles({"monolith", "demo"})
 class ApplicationTests {
+
+    @DynamicPropertySource
+    static void database(DynamicPropertyRegistry registry) {
+        SharedPostgres.register(registry, "orders", "inventory");
+    }
 
     @Test
     void contextLoads() {

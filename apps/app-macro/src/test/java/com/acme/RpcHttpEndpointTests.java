@@ -19,9 +19,11 @@ class RpcHttpEndpointTests {
 
     @BeforeAll
     static void start() {
-        server = new SpringApplicationBuilder(Application.class).web(WebApplicationType.SERVLET).run(
-                "--server.port=0", "--modules.orders.enabled=false", "--modules.orders.url=http://127.0.0.1:1/rpc/orders",
-                "--modules.inventory.enabled=true", "--spring.datasource.url=jdbc:postgresql://localhost:5432/macro");
+        String[] args = java.util.stream.Stream.concat(java.util.stream.Stream.of(
+                "--server.port=0", "--spring.profiles.active=demo", "--modules.orders.enabled=false",
+                "--modules.orders.url=http://127.0.0.1:1/rpc/orders", "--modules.inventory.enabled=true"),
+                java.util.Arrays.stream(io.macroservice.platform.support.testing.SharedPostgres.args("inventory"))).toArray(String[]::new);
+        server = new SpringApplicationBuilder(Application.class).web(WebApplicationType.SERVLET).run(args);
         http = RestClient.builder().baseUrl("http://localhost:" + server.getEnvironment().getProperty("local.server.port")).build();
     }
 

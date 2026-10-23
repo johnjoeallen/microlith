@@ -13,6 +13,7 @@ import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
+import io.macroservice.platform.support.ModuleProperties;
 import tools.jackson.databind.json.JsonMapper;
 
 @AutoConfiguration
@@ -34,6 +35,11 @@ public class RpcAutoConfiguration {
             ObjectProvider<RpcHeaderPropagator> propagators) {
         return new RpcClientProxyFactory(mapper.getIfAvailable(() -> JsonMapper.builder().build()),
                 propagators.orderedStream().toList());
+    }
+
+    @Bean
+    ModuleBulkhead moduleBulkhead(ModuleProperties properties) {
+        return new ModuleBulkhead(properties);
     }
 
     @Bean

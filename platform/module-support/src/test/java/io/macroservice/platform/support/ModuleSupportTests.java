@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 
+@org.junit.jupiter.api.extension.ExtendWith(org.springframework.boot.test.system.OutputCaptureExtension.class)
 class ModuleSupportTests {
 
     private final ApplicationContextRunner runner = new ApplicationContextRunner()
@@ -93,6 +94,31 @@ class ModuleSupportTests {
     void disabledWithUrlAndNoImplementationStarts() {
         runner.withUserConfiguration(NoImplFixtureConfig.class)
                 .withPropertyValues("modules.bar.url=http://localhost:1/rpc/bar")
+                .run(context -> assertThat(context).hasNotFailed());
+    }
+
+    @Test
+    void budgetBelowTheLimitIsSilentAndAboveWarns(org.springframework.boot.test.system.CapturedOutput output) {
+        // two enabled modules, default max-pool-size 3 each = 6
+        runner.withPropertyValues("modules.a.enabled=true", "modules.b.enabled=true", "platform.db.connection-budget=6")
+                .run(context -> assertThat(context).hasNotFailed());
+        assertThat(output.getAll()).doesNotContain("Connection budget exceeded");
+        runner.withPropertyValues("modules.a.enabled=true", "modules.b.enabled=true", "platform.db.connection-budget=5")
+                .run(context -> assertThat(context).hasNotFailed());
+        assertThat(output.getAll()).contains("Connection budget exceeded").contains("a=3, b=3").contains("connection-budget is 5");
+    }
+
+    @Test
+    void budgetIsEnforcedWhenAskedTo() {
+        runner.withPropertyValues("modules.a.enabled=true", "modules.b.enabled=true", "modules.b.datasource.max-pool-size=10",
+                "platform.db.connection-budget=12", "platform.db.enforce-budget=true")
+                .run(context -> assertFailure(context.getStartupFailure(), "Connection budget exceeded: enabled modules have max-pool-size 13"));
+    }
+
+    @Test
+    void disabledModulesDoNotCountAgainstTheBudget() {
+        runner.withPropertyValues("modules.a.enabled=true", "modules.b.enabled=false", "modules.b.datasource.max-pool-size=50",
+                "platform.db.connection-budget=3", "platform.db.enforce-budget=true")
                 .run(context -> assertThat(context).hasNotFailed());
     }
 

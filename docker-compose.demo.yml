@@ -1,0 +1,29 @@
+# Three PostgreSQL instances for the local demo (section 16.3 of the design).
+# A (5432) is the shared instance; B (5433) and C (5434) are the extra instances for split databases.
+# Every instance gets the per-module schemas and roles from docs/db/bootstrap.sql on first start.
+#   docker compose -f docker-compose.demo.yml up -d
+#   docker compose -f docker-compose.demo.yml down -v      # also wipes the data
+x-postgres: &postgres
+  image: postgres:17-alpine
+  environment:
+    POSTGRES_USER: postgres
+    POSTGRES_PASSWORD: postgres
+    POSTGRES_DB: macro
+  volumes:
+    - ./docs/db/bootstrap.sql:/docker-entrypoint-initdb.d/10-bootstrap.sql:ro
+  healthcheck:
+    test: ["CMD-SHELL", "pg_isready -U postgres -d macro"]
+    interval: 2s
+    timeout: 3s
+    retries: 30
+
+services:
+  pg-a:
+    <<: *postgres
+    ports: ["5432:5432"]
+  pg-b:
+    <<: *postgres
+    ports: ["5433:5432"]
+  pg-c:
+    <<: *postgres
+    ports: ["5434:5432"]

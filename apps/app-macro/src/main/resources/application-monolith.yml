@@ -1,9 +1,18 @@
-# Every module in one process. Stage 6 replaces this with the full profile set.
-spring:
-  datasource:
-    url: jdbc:postgresql://localhost:5432/macro   # placeholder; real per-module datasources arrive in stage 4
+# Every module in one process, one PostgreSQL instance. Stage 6 replaces this with the full profile set.
 modules:
   orders:
     enabled: true
+    datasource:
+      url: jdbc:postgresql://localhost:5432/macro
+      username: orders_app
+      password: orders_app
+      migration-username: orders_migrator
+      migration-password: orders_migrator
   inventory:
     enabled: true
+    datasource:
+      url: jdbc:postgresql://localhost:5432/macro
+      username: inventory_app
+      password: inventory_app
+      migration-username: inventory_migrator
+      migration-password: inventory_migrator
