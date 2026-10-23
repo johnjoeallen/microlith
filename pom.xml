@@ -13,6 +13,7 @@
     <module>platform/rpc-api</module>
     <module>platform/module-support</module>
     <module>platform/rpc-spring-boot-starter</module>
+    <module>platform/demo-support</module>
     <module>modules/catalog/catalog-api</module>
     <module>modules/catalog/catalog-impl</module>
     <module>modules/customers/customers-api</module>
@@ -32,8 +33,14 @@
     <module>apps/demo-scenarios</module>
     <module>apps/app-modulith</module>
     <module>apps/app-macro</module>
-    <module>apps/app-orders-service</module>
+    <module>apps/app-catalog-service</module>
+    <module>apps/app-customers-service</module>
+    <module>apps/app-pricing-service</module>
     <module>apps/app-inventory-service</module>
+    <module>apps/app-payments-service</module>
+    <module>apps/app-shipping-service</module>
+    <module>apps/app-notifications-service</module>
+    <module>apps/app-orders-service</module>
   </modules>
 
   <properties>
@@ -80,6 +87,7 @@
       <dependency><groupId>${project.groupId}</groupId><artifactId>module-support</artifactId><version>${project.version}</version></dependency>
       <dependency><groupId>${project.groupId}</groupId><artifactId>module-support</artifactId><version>${project.version}</version><type>test-jar</type></dependency>
       <dependency><groupId>${project.groupId}</groupId><artifactId>rpc-spring-boot-starter</artifactId><version>${project.version}</version></dependency>
+      <dependency><groupId>${project.groupId}</groupId><artifactId>demo-support</artifactId><version>${project.version}</version></dependency>
 
       <dependency><groupId>${project.groupId}</groupId><artifactId>demo-scenarios</artifactId><version>${project.version}</version></dependency>
 

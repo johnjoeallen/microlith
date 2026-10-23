@@ -1,0 +1,27 @@
+# Database layout for the groups: front on instance A (5432), fulfilment on B (5433), accounts on C (5434).
+# Combine with a group profile, for example --spring.profiles.active=fulfilment,split-dbs.
+modules:
+  catalog:
+    datasource:
+      url: jdbc:postgresql://localhost:5433/macro
+  customers:
+    datasource:
+      url: jdbc:postgresql://localhost:5434/macro
+  pricing:
+    datasource:
+      url: jdbc:postgresql://localhost:5433/macro
+  inventory:
+    datasource:
+      url: jdbc:postgresql://localhost:5433/macro
+  payments:
+    datasource:
+      url: jdbc:postgresql://localhost:5434/macro
+  shipping:
+    datasource:
+      url: jdbc:postgresql://localhost:5433/macro
+  notifications:
+    datasource:
+      url: jdbc:postgresql://localhost:5432/macro
+  orders:
+    datasource:
+      url: jdbc:postgresql://localhost:5432/macro

@@ -9,6 +9,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
+import org.slf4j.MDC;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -112,6 +113,18 @@ public class OutboxRelay {
 
     private void dispatch(OutboxEntryEntity entry) {
         Map<String, String> args = Payload.decode(entry.getPayload());
+        String correlationId = args.get(Payload.CORRELATION_KEY);
+        if (correlationId != null) {
+            MDC.put("correlationId", correlationId);
+        }
+        try {
+            call(entry, args);
+        } finally {
+            MDC.remove("correlationId");
+        }
+    }
+
+    private void call(OutboxEntryEntity entry, Map<String, String> args) {
         switch (entry.getTarget()) {
             case "inventory.release" -> inventory.release(entry.getRequestId(), args.get("reservationId"));
             case "payments.void" -> payments.voidAuthorization(entry.getRequestId(), args.get("authId"));

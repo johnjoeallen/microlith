@@ -1,0 +1,27 @@
+# Only 'payments' in this process; every other module is reached over JSON-RPC at its own port.
+server:
+  port: 8086
+modules:
+  catalog:
+    enabled: false
+    url: http://localhost:8082/rpc/catalog
+  customers:
+    enabled: false
+    url: http://localhost:8085/rpc/customers
+  pricing:
+    enabled: false
+    url: http://localhost:8083/rpc/pricing
+  inventory:
+    enabled: false
+    url: http://localhost:8084/rpc/inventory
+  payments:
+    enabled: true
+  shipping:
+    enabled: false
+    url: http://localhost:8087/rpc/shipping
+  notifications:
+    enabled: false
+    url: http://localhost:8088/rpc/notifications
+  orders:
+    enabled: false
+    url: http://localhost:8081/rpc/orders

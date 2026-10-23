@@ -1,0 +1,26 @@
+# Every module in this process, but every call goes through a client proxy (loopback-http).
+modules:
+  catalog:
+    enabled: true
+    binding: loopback-http
+  customers:
+    enabled: true
+    binding: loopback-http
+  pricing:
+    enabled: true
+    binding: loopback-http
+  inventory:
+    enabled: true
+    binding: loopback-http
+  payments:
+    enabled: true
+    binding: loopback-http
+  shipping:
+    enabled: true
+    binding: loopback-http
+  notifications:
+    enabled: true
+    binding: loopback-http
+  orders:
+    enabled: true
+    binding: loopback-http

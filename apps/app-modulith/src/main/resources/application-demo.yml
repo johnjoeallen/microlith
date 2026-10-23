@@ -1,0 +1,6 @@
+# The demo needs a way to call orders (the public entry point) over HTTP, so the RPC server is switched on, but only
+# for requests that arrive on the loopback address. Every module is still local: nothing here goes over the network.
+rpc:
+  server:
+    enabled: true
+    address: 127.0.0.1

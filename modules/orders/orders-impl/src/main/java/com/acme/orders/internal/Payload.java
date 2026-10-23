@@ -11,6 +11,9 @@ import java.util.Map;
 /** Small text encodings for the order lines and the outbox payload. */
 final class Payload {
 
+    /** Key under which the correlation id of the request that created an outbox entry is stored. */
+    static final String CORRELATION_KEY = "_correlationId";
+
     private Payload() {
     }
 

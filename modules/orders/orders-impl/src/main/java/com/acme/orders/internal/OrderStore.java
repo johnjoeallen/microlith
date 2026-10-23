@@ -3,6 +3,9 @@ package com.acme.orders.internal;
 import com.acme.orders.api.OrderStatus;
 import io.macroservice.platform.support.ModuleComponent;
 import java.time.Instant;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import org.slf4j.MDC;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -84,8 +87,14 @@ public class OrderStore {
 
     private void enqueue(String orderId, OutboxCommand command) {
         Instant now = Instant.now();
+        // The relay runs later, on another thread: carry the correlation id so its calls stay attached to the order.
+        Map<String, String> args = new LinkedHashMap<>(command.args());
+        String correlationId = MDC.get("correlationId");
+        if (correlationId != null) {
+            args.put(Payload.CORRELATION_KEY, correlationId);
+        }
         outbox.save(new OutboxEntryEntity(UUID.randomUUID().toString(), orderId, command.target(), command.requestId(),
-                Payload.encode(command.args()), "PENDING", 0, now, null, now));
+                Payload.encode(args), "PENDING", 0, now, null, now));
         TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
             @Override
             public void afterCommit() {

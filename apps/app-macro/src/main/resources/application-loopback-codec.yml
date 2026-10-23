@@ -1,0 +1,26 @@
+# Every module in this process, but every call goes through a client proxy (loopback-codec).
+modules:
+  catalog:
+    enabled: true
+    binding: loopback-codec
+  customers:
+    enabled: true
+    binding: loopback-codec
+  pricing:
+    enabled: true
+    binding: loopback-codec
+  inventory:
+    enabled: true
+    binding: loopback-codec
+  payments:
+    enabled: true
+    binding: loopback-codec
+  shipping:
+    enabled: true
+    binding: loopback-codec
+  notifications:
+    enabled: true
+    binding: loopback-codec
+  orders:
+    enabled: true
+    binding: loopback-codec

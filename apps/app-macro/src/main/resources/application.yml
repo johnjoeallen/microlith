@@ -1,3 +1,6 @@
+# app-macro contains every module. Which ones run, and how they reach the others, comes ONLY from profiles
+# (monolith, front/fulfilment/accounts, one per module, loopback-codec, loopback-http, split-dbs) or environment
+# variables. This file holds what is true in every shape: the local demo databases and the web/readiness settings.
 server:
   port: 8080
 rpc:
@@ -8,6 +11,8 @@ spring:
     name: app-macro
   profiles:
     default: monolith
+    group:
+      demo: dev
   threads:
     virtual:
       enabled: true
@@ -24,3 +29,60 @@ management:
   health:
     probes:
       enabled: true
+modules:
+  catalog:
+    datasource:
+      url: jdbc:postgresql://localhost:5432/macro
+      username: catalog_app
+      password: catalog_app
+      migration-username: catalog_migrator
+      migration-password: catalog_migrator
+  customers:
+    datasource:
+      url: jdbc:postgresql://localhost:5432/macro
+      username: customers_app
+      password: customers_app
+      migration-username: customers_migrator
+      migration-password: customers_migrator
+  pricing:
+    datasource:
+      url: jdbc:postgresql://localhost:5432/macro
+      username: pricing_app
+      password: pricing_app
+      migration-username: pricing_migrator
+      migration-password: pricing_migrator
+  inventory:
+    datasource:
+      url: jdbc:postgresql://localhost:5432/macro
+      username: inventory_app
+      password: inventory_app
+      migration-username: inventory_migrator
+      migration-password: inventory_migrator
+  payments:
+    datasource:
+      url: jdbc:postgresql://localhost:5432/macro
+      username: payments_app
+      password: payments_app
+      migration-username: payments_migrator
+      migration-password: payments_migrator
+  shipping:
+    datasource:
+      url: jdbc:postgresql://localhost:5432/macro
+      username: shipping_app
+      password: shipping_app
+      migration-username: shipping_migrator
+      migration-password: shipping_migrator
+  notifications:
+    datasource:
+      url: jdbc:postgresql://localhost:5432/macro
+      username: notifications_app
+      password: notifications_app
+      migration-username: notifications_migrator
+      migration-password: notifications_migrator
+  orders:
+    datasource:
+      url: jdbc:postgresql://localhost:5432/macro
+      username: orders_app
+      password: orders_app
+      migration-username: orders_migrator
+      migration-password: orders_migrator

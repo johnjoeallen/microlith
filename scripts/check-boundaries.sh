@@ -38,4 +38,14 @@ expect_failure "inventory-api -> module-support (compile)" modules/inventory/inv
 expect_failure "app-inventory-service -> orders-impl" apps/app-inventory-service/pom.xml \
   '<artifactId>inventory-impl</artifactId></dependency>' \
   '<dependency><groupId>com.acme.macro</groupId><artifactId>orders-impl</artifactId></dependency>'
+expect_failure "app-catalog-service -> orders-api (not allowed to call orders)" apps/app-catalog-service/pom.xml \
+  '<artifactId>catalog-impl</artifactId></dependency>' \
+  '<dependency><groupId>com.acme.macro</groupId><artifactId>orders-api</artifactId></dependency>'
+
+# the generated service apps must match what the template produces from the package-info files
+if "$root/scripts/new-service-app.sh" --check >/dev/null; then
+  echo "OK:   generated service apps are up to date"
+else
+  echo "FAIL: a generated service app is stale (run scripts/new-service-app.sh --all)"; status=1
+fi
 exit $status

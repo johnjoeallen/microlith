@@ -10,6 +10,11 @@ import com.acme.pricing.api.PricingApi;
 import com.acme.shipping.api.ShippingApi;
 import io.macroservice.demo.scenarios.ApiContracts;
 import io.macroservice.demo.scenarios.OrderScenarios;
+import io.macroservice.platform.demo.TraceRecord;
+import io.macroservice.platform.demo.TraceStore;
+import org.slf4j.MDC;
+import java.time.Duration;
+import static org.awaitility.Awaitility.await;
 import io.macroservice.platform.rpc.RpcClientProxy;
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -78,5 +83,39 @@ class ChainContractTests {
                 caller.getBean(InventoryApi.class), caller.getBean(PaymentsApi.class), caller.getBean(ShippingApi.class),
                 caller.getBean(NotificationsApi.class)).runAll();
         new OrderScenarios(orders, caller.getBean(InventoryApi.class), ScenarioSupport.probe(processes), ScenarioSupport.faults(processes)).runAll();
+        assertTraceShape(mode, orders, caller, processes);
+    }
+
+    /** One order, traced: the same calls in every mode, each reported with the binding that mode uses. */
+    private static void assertTraceShape(Mode mode, OrdersApi orders, ConfigurableApplicationContext caller, List<ConfigurableApplicationContext> processes) {
+        String correlationId = "shape-" + mode;
+        MDC.put("correlationId", correlationId);
+        try {
+            orders.placeOrder("shape-req-" + mode, "cust-standard", List.of(new com.acme.orders.api.OrderLine("sku-widget", 1)));
+        } finally {
+            MDC.remove("correlationId");
+        }
+        List<ConfigurableApplicationContext> stores = new ArrayList<>(processes);
+        if (!stores.contains(caller)) {
+            stores.add(caller);
+        }
+        List<String> expected = List.of("orders>customers.getCustomer", "orders>pricing.quote", "pricing>customers.getCustomer", "pricing>catalog.getProduct",
+                "orders>shipping.quote", "shipping>customers.getCustomer", "shipping>inventory.getStock", "inventory>catalog.productExists",
+                "orders>inventory.reserve", "orders>payments.authorize", "payments>customers.getPaymentMethod", "orders>shipping.createShipment",
+                "shipping>customers.getCustomer", "shipping>inventory.getReservation", "orders>payments.capture", "orders>notifications.send",
+                "notifications>customers.getCustomer");
+        String binding = switch (mode) {
+            case LOCAL -> "local";
+            case LOOPBACK_CODEC -> "loopback-codec";
+            case LOOPBACK_HTTP -> "loopback-http";
+            case REMOTE -> "remote";
+        };
+        await().atMost(Duration.ofSeconds(30)).untilAsserted(() -> {
+            List<TraceRecord> records = stores.stream().flatMap(c -> c.getBean(TraceStore.class).find(correlationId).stream())
+                    .filter(r -> !r.caller().equals("client")).toList();
+            assertThat(records.stream().map(r -> r.caller() + ">" + r.callee() + "." + r.method()).sorted().toList())
+                    .containsExactlyElementsOf(expected.stream().sorted().toList());
+            assertThat(records).allSatisfy(r -> assertThat(r.binding()).as(r.line()).isEqualTo(binding));
+        });
     }
 }

@@ -6,6 +6,9 @@ rpc:
 spring:
   application:
     name: app-modulith
+  profiles:
+    group:
+      demo: dev
   threads:
     virtual:
       enabled: true

@@ -112,6 +112,49 @@ call undeliver-1  cust-standard sku-undeliverable 1   # FAILED, payment voided a
 call happy-1      cust-standard sku-widget        2   # same requestId: the same order, nothing duplicated
 ```
 
+## Running the demo modes (stage 6)
+
+Needs a JDK, Docker, `curl` and `python3`. The jars are built on first use (`./mvnw -q -DskipTests package`).
+
+```bash
+scripts/db.sh up                       # three PostgreSQL instances (A 5432, B 5433, C 5434), schemas and roles bootstrapped
+scripts/demo.sh groups up              # any mode: modulith macro-monolith groups microservices microservices-macro loopback-codec loopback-http split-dbs
+scripts/smoke.sh                       # the scenarios of section 16.5 + the expected binding on every edge + the merged call tree
+scripts/trace.sh <correlationId>       # the merged call tree of one order, across every running process
+scripts/demo.sh groups status
+scripts/demo.sh groups down
+scripts/db.sh down                     # wipes the data
+scripts/demo-all.sh                    # every mode on a clean database, with a summary table (pass/fail, bindings seen)
+```
+
+| Mode | Processes | Cross-module path |
+| --- | --- | --- |
+| `modulith` | `app-modulith` on 8080 | all local |
+| `macro-monolith` | `app-macro` (`monolith`) on 8080 | all local |
+| `groups` | `app-macro` as `front` 8081, `fulfilment` 8082, `accounts` 8083 | local inside a group, remote across |
+| `microservices` | the eight `app-<module>-service` apps on 8081-8088 | all remote |
+| `microservices-macro` | `app-macro` eight times, one module enabled each (profile = module name) | all remote |
+| `loopback-codec`, `loopback-http` | `app-macro` on 8080 | every call through the JSON codec / over HTTP to 127.0.0.1 |
+| `split-dbs` | as `groups`, profile `split-dbs`: front on A, fulfilment on B, accounts on C | as `groups` |
+
+`app-macro` has no module wiring baked in; profiles do it (`monolith`, `front`, `fulfilment`, `accounts`, one per module,
+`loopback-codec`, `loopback-http`, `split-dbs`), or environment variables, for example
+`MODULES_INVENTORY_ENABLED=false MODULES_INVENTORY_URL=http://host:8084/rpc/inventory`.
+The eight service apps are generated from one template: `scripts/new-service-app.sh --all` (`--check` finds a stale one).
+`app-modulith` refuses to start with any module disabled or bound to anything but `local`.
+
+With the `demo` profile (it implies `dev`) every process also serves:
+
+| Endpoint | What |
+| --- | --- |
+| `GET /demo/topology` | per module: enabled, binding, URL, datasource host, port, schema (never the password) |
+| `GET /demo/trace?correlationId=...` | the cross-module calls this process recorded: caller, callee, method, binding actually used, depth, duration, outcome |
+| `POST /demo/faults` | `{"notificationsDown":true,"paymentsDecline":true,"inventoryLatencyMs":300}`; only applies to modules enabled in that process |
+
+Every `placeOrder` gets a correlation id (or takes `X-Correlation-Id`); it travels in the MDC, in the `X-Correlation-Id` header on
+remote calls and through the outbox, so the relay's compensating calls stay attached to the order. Each call is also logged, for
+example `pricing -> catalog.getProduct [local] 1 ms ok`.
+
 ## Layout
 
 | Path | Purpose |
@@ -122,7 +165,8 @@ call happy-1      cust-standard sku-widget        2   # same requestId: the same
 | `apps/demo-scenarios` | the section 16.5 scenarios and API contracts, written once against the `-api` artifacts (tests only) |
 | `modules/<m>/<m>-api` | interface, record DTOs, exceptions; the only thing other modules may depend on |
 | `modules/<m>/<m>-impl` | implementation, persistence, migrations |
-| `apps/*` | deployable assemblies (`app-modulith`, `app-macro`, per-service apps) |
+| `platform/demo-support` | demo profile only: call trace, `/demo/*` endpoints, topology banner |
+| `apps/*` | deployable assemblies (`app-modulith`, `app-macro`, `app-<module>-service`) |
 
 Platform code lives under `io.macroservice.platform`, outside the application root package `com.acme`, so that
 Spring Modulith does not treat it as a business module.
