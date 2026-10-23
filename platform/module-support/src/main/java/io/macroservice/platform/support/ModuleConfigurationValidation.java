@@ -19,10 +19,21 @@ class ModuleConfigurationValidation implements SmartInitializingSingleton {
         this.basePackages = basePackages;
     }
 
+    private boolean hasLocalImplementation(Class<?> api) {
+        for (String name : beanFactory.getBeanNamesForType(api, true, false)) {
+            boolean proxy = beanFactory.containsBeanDefinition(name)
+                    && beanFactory.getBeanDefinition(name).hasAttribute(ModuleBeans.CLIENT_PROXY_ATTRIBUTE);
+            if (!proxy) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     @Override
     public void afterSingletonsInstantiated() {
         Set<Class<?>> apis = RpcApiScanner.scan(basePackages, beanFactory.getBeanClassLoader());
-        List<String> problems = validator.validate(apis, api -> beanFactory.getBeanNamesForType(api, true, false).length > 0);
+        List<String> problems = validator.validate(apis, this::hasLocalImplementation);
         if (!problems.isEmpty()) {
             throw new ModuleConfigurationException(String.join(System.lineSeparator(), problems));
         }

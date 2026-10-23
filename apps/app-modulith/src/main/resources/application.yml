@@ -1,3 +1,8 @@
+server:
+  port: 8080
+rpc:
+  server:
+    enabled: false
 spring:
   application:
     name: app-modulith

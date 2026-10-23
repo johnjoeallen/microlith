@@ -17,13 +17,22 @@ mvn -q verify -pl modules/orders/orders-impl -am   # one module and what it need
 scripts/check-boundaries.sh      # proves the Maven boundary rules fail on forbidden dependencies
 ```
 
-## Run (stage 1: the apps start and do nothing yet)
+## Run two services locally (stage 3)
 
 ```bash
-java -jar apps/app-modulith/target/app-modulith-0.1.0-SNAPSHOT.jar --spring.main.web-application-type=none
+java -jar apps/app-inventory-service/target/app-inventory-service-0.1.0-SNAPSHOT.jar &   # :8084
+java -jar apps/app-orders-service/target/app-orders-service-0.1.0-SNAPSHOT.jar &         # :8081, calls inventory over JSON-RPC
+
+# raw JSON-RPC 2.0 envelope (orders calls inventory over HTTP)
+curl -s -X POST localhost:8081/rpc/orders -H 'Content-Type: application/json' \
+  -d '{"jsonrpc":"2.0","method":"orders.placeOrder","params":{"request":{"requestId":"req-1","customerId":"cust-1","sku":"sku-1","quantity":2}},"id":1}'
+
+# convenience alias: bare params in, bare result out (HTTP status carries errors)
+curl -s -X POST localhost:8084/rpc/inventory/getStock -H 'Content-Type: application/json' -d '{"sku":"sku-1"}'
 ```
 
-Likewise `app-macro`, `app-orders-service` and `app-inventory-service`.
+`app-modulith` serves no RPC (`rpc.server.enabled=false`); `app-macro` runs all modules (`monolith` profile by default).
+Bindings per target module: `modules.<name>.binding` = `local` | `loopback-codec` | `loopback-http` | `remote`.
 
 ## Layout
 

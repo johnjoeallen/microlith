@@ -12,20 +12,16 @@ import io.macroservice.platform.support.ModuleService;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import org.springframework.beans.factory.ObjectProvider;
 
-/**
- * In-memory stand-in until stage 4 adds real persistence. InventoryApi is resolved lazily because the registrar that
- * provides a client proxy when inventory runs elsewhere arrives in stage 3.
- */
+/** In-memory stand-in until stage 4 adds real persistence. */
 @ModuleService(module = "orders")
 class StubOrdersService implements OrdersApi {
 
-    private final ObjectProvider<InventoryApi> inventory;
+    private final InventoryApi inventory;
     private final Map<String, Order> ordersById = new ConcurrentHashMap<>();
     private final Map<String, Order> ordersByRequestId = new ConcurrentHashMap<>();
 
-    StubOrdersService(ObjectProvider<InventoryApi> inventory) {
+    StubOrdersService(InventoryApi inventory) {
         this.inventory = inventory;
     }
 
@@ -36,7 +32,7 @@ class StubOrdersService implements OrdersApi {
             return existing;
         }
         String orderId = UUID.randomUUID().toString();
-        Reservation reservation = inventory.getObject()
+        Reservation reservation = inventory
                 .reserve(new ReserveRequest(request.requestId(), orderId, request.sku(), request.quantity()));
         Order order = new Order(orderId, request.requestId(), request.customerId(), reservation.sku(), reservation.quantity(), OrderStatus.CONFIRMED);
         ordersById.put(orderId, order);

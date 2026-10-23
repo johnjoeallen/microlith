@@ -1,3 +1,8 @@
+server:
+  port: 8084
+rpc:
+  server:
+    enabled: true
 spring:
   application:
     name: app-inventory-service
