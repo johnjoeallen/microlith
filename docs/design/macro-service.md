@@ -81,7 +81,7 @@ repo/
 
 | Artifact | May depend on | Contains |
 | --- | --- | --- |
-| `<m>-api` | `rpc-api`, JDK | `@RpcApi` interfaces, immutable records, unchecked exceptions |
+| `<m>-api` | `rpc-api`, JDK; `spring-modulith-api` at `provided` scope (annotations only, for `@NamedInterface`) | `@RpcApi` interfaces, immutable records, unchecked exceptions |
 | `<m>-impl` | own `<m>-api`, other modules' `-api`, `module-support`, Spring | services, repositories, migrations, `@ModuleConfiguration` classes |
 | `app` | all `-impl` artifacts, `rpc-spring-boot-starter` | `@SpringBootApplication` at the root package, profile configs, health and readiness wiring |
 
