@@ -65,6 +65,7 @@
       <!-- platform -->
       <dependency><groupId>${project.groupId}</groupId><artifactId>rpc-api</artifactId><version>${project.version}</version></dependency>
       <dependency><groupId>${project.groupId}</groupId><artifactId>module-support</artifactId><version>${project.version}</version></dependency>
+      <dependency><groupId>${project.groupId}</groupId><artifactId>module-support</artifactId><version>${project.version}</version><type>test-jar</type></dependency>
       <dependency><groupId>${project.groupId}</groupId><artifactId>rpc-spring-boot-starter</artifactId><version>${project.version}</version></dependency>
 
       <!-- modules: adding a module means adding two lines here -->

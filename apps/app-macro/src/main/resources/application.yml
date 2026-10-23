@@ -1,6 +1,8 @@
 spring:
   application:
     name: app-macro
+  profiles:
+    default: monolith
   threads:
     virtual:
       enabled: true

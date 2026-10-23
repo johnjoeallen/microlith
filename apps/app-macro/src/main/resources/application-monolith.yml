@@ -1,0 +1,9 @@
+# Every module in one process. Stage 6 replaces this with the full profile set.
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/macro   # placeholder; real per-module datasources arrive in stage 4
+modules:
+  orders:
+    enabled: true
+  inventory:
+    enabled: true

@@ -4,3 +4,8 @@ spring:
   threads:
     virtual:
       enabled: true
+  datasource:
+    url: jdbc:postgresql://localhost:5432/macro   # placeholder; real per-module datasources arrive in stage 4
+modules:
+  inventory:
+    enabled: true
