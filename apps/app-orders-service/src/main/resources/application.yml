@@ -1,0 +1,6 @@
+spring:
+  application:
+    name: app-orders-service
+  threads:
+    virtual:
+      enabled: true

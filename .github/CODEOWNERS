@@ -1,0 +1,8 @@
+# One line per module directory. Replace @your-org/... with the real owning team.
+/platform/rpc-api/                 @your-org/platform
+/platform/rpc-spring-boot-starter/ @your-org/platform
+/platform/module-support/          @your-org/platform
+/modules/orders/                   @your-org/orders
+/modules/inventory/                @your-org/inventory
+/apps/                             @your-org/platform
+/docs/                             @your-org/platform

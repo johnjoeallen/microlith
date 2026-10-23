@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>com.acme.macro</groupId>
+  <artifactId>macro-parent</artifactId>
+  <version>0.1.0-SNAPSHOT</version>
+  <packaging>pom</packaging>
+  <name>macro-service</name>
+
+  <modules>
+    <module>platform/rpc-api</module>
+    <module>platform/module-support</module>
+    <module>platform/rpc-spring-boot-starter</module>
+    <module>modules/inventory/inventory-api</module>
+    <module>modules/inventory/inventory-impl</module>
+    <module>modules/orders/orders-api</module>
+    <module>modules/orders/orders-impl</module>
+    <module>apps/app-modulith</module>
+    <module>apps/app-macro</module>
+    <module>apps/app-orders-service</module>
+    <module>apps/app-inventory-service</module>
+  </modules>
+
+  <properties>
+    <java.version>25</java.version>
+    <maven.compiler.release>25</maven.compiler.release>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+    <!-- Versions: looked up on Maven Central (repo1.maven.org) on 2026-10-23; all at least two weeks old. -->
+    <spring-boot.version>4.1.1</spring-boot.version>             <!-- released 2026-08-20; 4.1.2 is newer than two weeks -->
+    <spring-modulith.version>2.1.1</spring-modulith.version>     <!-- released 2026-08-25; built against Boot 4.1.1 -->
+    <archunit.version>1.5.1</archunit.version>                   <!-- used from stage 2 -->
+    <!-- Managed through the Boot BOM: Flyway 12.4.0, Testcontainers 2.0.5, Hibernate 7.4.13, PostgreSQL driver 42.7.14, Jackson 3.1.7 -->
+
+    <maven-compiler-plugin.version>3.15.0</maven-compiler-plugin.version>
+    <maven-enforcer-plugin.version>3.6.3</maven-enforcer-plugin.version>
+    <maven-surefire-plugin.version>3.5.5</maven-surefire-plugin.version>
+    <maven-failsafe-plugin.version>3.5.5</maven-failsafe-plugin.version>
+  </properties>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-dependencies</artifactId>
+        <version>${spring-boot.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework.modulith</groupId>
+        <artifactId>spring-modulith-bom</artifactId>
+        <version>${spring-modulith.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>com.tngtech.archunit</groupId>
+        <artifactId>archunit</artifactId>
+        <version>${archunit.version}</version>
+      </dependency>
+
+      <!-- platform -->
+      <dependency><groupId>${project.groupId}</groupId><artifactId>rpc-api</artifactId><version>${project.version}</version></dependency>
+      <dependency><groupId>${project.groupId}</groupId><artifactId>module-support</artifactId><version>${project.version}</version></dependency>
+      <dependency><groupId>${project.groupId}</groupId><artifactId>rpc-spring-boot-starter</artifactId><version>${project.version}</version></dependency>
+
+      <!-- modules: adding a module means adding two lines here -->
+      <dependency><groupId>${project.groupId}</groupId><artifactId>inventory-api</artifactId><version>${project.version}</version></dependency>
+      <dependency><groupId>${project.groupId}</groupId><artifactId>inventory-impl</artifactId><version>${project.version}</version></dependency>
+      <dependency><groupId>${project.groupId}</groupId><artifactId>orders-api</artifactId><version>${project.version}</version></dependency>
+      <dependency><groupId>${project.groupId}</groupId><artifactId>orders-impl</artifactId><version>${project.version}</version></dependency>
+    </dependencies>
+  </dependencyManagement>
+
+  <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <version>${maven-compiler-plugin.version}</version>
+          <configuration>
+            <release>${maven.compiler.release}</release>
+            <parameters>true</parameters>
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <version>${maven-surefire-plugin.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-failsafe-plugin</artifactId>
+          <version>${maven-failsafe-plugin.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-maven-plugin</artifactId>
+          <version>${spring-boot.version}</version>
+        </plugin>
+
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-enforcer-plugin</artifactId>
+          <version>${maven-enforcer-plugin.version}</version>
+          <executions>
+            <!--
+              Boundary rules. Declared here with phase "none" so they are inactive; a module enables the one that
+              fits its kind by re-declaring the execution id with <phase>validate</phase>.
+            -->
+            <execution>
+              <id>enforce-api-rules</id>
+              <phase>none</phase>
+              <goals><goal>enforce</goal></goals>
+              <configuration>
+                <rules>
+                  <bannedDependencies>
+                    <searchTransitive>true</searchTransitive>
+                    <excludes>
+                      <exclude>*:*:*:*:compile</exclude>
+                      <exclude>*:*:*:*:runtime</exclude>
+                    </excludes>
+                    <includes>
+                      <include>com.acme.macro:*-api</include>
+                    </includes>
+                    <message>An -api artifact may depend only on rpc-api and other -api artifacts (provided/test scope is not checked).</message>
+                  </bannedDependencies>
+                </rules>
+              </configuration>
+            </execution>
+            <execution>
+              <id>enforce-impl-rules</id>
+              <phase>none</phase>
+              <goals><goal>enforce</goal></goals>
+              <configuration>
+                <rules>
+                  <bannedDependencies>
+                    <searchTransitive>true</searchTransitive>
+                    <excludes>
+                      <exclude>com.acme.macro:*-impl</exclude>
+                      <exclude>com.acme.macro:app-*</exclude>
+                      <exclude>com.acme.macro:rpc-spring-boot-starter</exclude>
+                    </excludes>
+                    <message>An -impl artifact must not depend on another module's -impl, on an app or on the starter. Use the other module's -api.</message>
+                  </bannedDependencies>
+                </rules>
+              </configuration>
+            </execution>
+          </executions>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-enforcer-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>enforce-base-rules</id>
+            <phase>validate</phase>
+            <goals><goal>enforce</goal></goals>
+            <configuration>
+              <rules>
+                <requireMavenVersion><version>[3.9,)</version></requireMavenVersion>
+                <requireJavaVersion><version>[25,)</version></requireJavaVersion>
+                <dependencyConvergence/>
+              </rules>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+</project>
