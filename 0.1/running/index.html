@@ -1639,6 +1639,36 @@
 scripts/demo.sh<span class="w"> </span>modulith<span class="w"> </span>status
 scripts/demo.sh<span class="w"> </span>modulith<span class="w"> </span>stop<span class="w">         </span><span class="c1"># stops the processes, then PostgreSQL</span>
 </code></pre></div>
+<p>Three switches can be set when starting (they are ordinary properties, so environment variables and config files work too):</p>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Values</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--async</code></td>
+<td><code>outbox</code> (default), <code>events</code></td>
+<td>how orders delivers its follow-ups: the <a href="../features/follow-ups/">outbox relay or Spring Modulith events</a></td>
+</tr>
+<tr>
+<td><code>--cache</code></td>
+<td><code>on</code> (default), <code>off</code></td>
+<td>the <a href="../features/cache/"><code>@Cached</code> result cache</a></td>
+</tr>
+<tr>
+<td><code>--parallel</code></td>
+<td><code>on</code> (default), <code>off</code></td>
+<td>the <a href="../features/parallel/">parallel customer check and quotes</a></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre><span></span><code>scripts/demo.sh<span class="w"> </span>groups<span class="w"> </span>start<span class="w"> </span>--async<span class="w"> </span>events<span class="w"> </span>--cache<span class="w"> </span>off<span class="w"> </span>--parallel<span class="w"> </span>off
+scripts/demo.sh<span class="w"> </span>groups<span class="w"> </span>status<span class="w">         </span><span class="c1"># mode: groups   (async=events cache=off parallel=off)</span>
+</code></pre></div>
 <p><code>start</code> resets PostgreSQL to a clean, freshly initialised state every time (schemas and roles from <code>docs/db/bootstrap.sql</code>, migrations and demo data
 when the app boots), builds the jars on first use, starts the mode and waits until every process is ready. Only one mode runs at a time.
 Logs and PID files are under <code>.demo/</code>.</p>

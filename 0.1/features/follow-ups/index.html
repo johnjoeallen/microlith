@@ -1647,7 +1647,7 @@ These are <strong>follow-ups</strong>. They cannot be done atomically with the d
 </tr>
 </tbody>
 </table>
-<div class="highlight"><pre><span></span><code><span class="nv">MODULES_ORDERS_ASYNC</span><span class="o">=</span>events<span class="w"> </span>scripts/demo.sh<span class="w"> </span>modulith<span class="w"> </span>start<span class="w">         </span><span class="c1"># or: modules.orders.async=events</span>
+<div class="highlight"><pre><span></span><code>scripts/demo.sh<span class="w"> </span>modulith<span class="w"> </span>start<span class="w"> </span>--async<span class="w"> </span>events<span class="w">         </span><span class="c1"># or: modules.orders.async=events (env MODULES_ORDERS_ASYNC=events)</span>
 scripts/perf.sh<span class="w"> </span>--modes<span class="w"> </span>modulith,groups<span class="w"> </span>--async<span class="w"> </span>both
 </code></pre></div>
 <p>An unknown value fails at start-up with a clear message. Both tables always exist; only the selected mechanism's components are created.</p>

@@ -1661,7 +1661,7 @@ by two modules. <code>@Cached</code> lets a read method opt in to having its res
 <p>Deliberately <strong>not</strong> annotated: <code>inventory.getStock</code> and <code>getReservation</code> (they change constantly), every method that changes state, and
 <code>pricing.quote</code> / <code>shipping.quote</code> (derived values, a possible later candidate).</p>
 <h2 id="switching-it-off">Switching it off<a class="headerlink" href="#switching-it-off" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><span class="nv">RPC_CACHE_ENABLED</span><span class="o">=</span><span class="nb">false</span><span class="w"> </span>scripts/demo.sh<span class="w"> </span>groups<span class="w"> </span>start<span class="w">        </span><span class="c1"># or: rpc.cache.enabled=false</span>
+<div class="highlight"><pre><span></span><code>scripts/demo.sh<span class="w"> </span>groups<span class="w"> </span>start<span class="w"> </span>--cache<span class="w"> </span>off<span class="w">                    </span><span class="c1"># or: rpc.cache.enabled=false (env RPC_CACHE_ENABLED=false)</span>
 scripts/perf.sh<span class="w"> </span>--modes<span class="w"> </span>groups<span class="w"> </span>--cache<span class="w"> </span>both<span class="w">                 </span><span class="c1"># measure with it off and on</span>
 </code></pre></div>
 <h2 id="what-to-watch-for">What to watch for<a class="headerlink" href="#what-to-watch-for" title="Permanent link">&para;</a></h2>

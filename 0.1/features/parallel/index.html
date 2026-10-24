@@ -1623,7 +1623,7 @@ Run one after the other, their latencies add up. Run together, the wait is the s
 <li>It is for reads only. Calls that change state keep their explicit order, because the saga's compensation logic depends on it.</li>
 </ul>
 <h2 id="switching-it-off">Switching it off<a class="headerlink" href="#switching-it-off" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><span class="nv">MODULES_ORDERS_PARALLEL_QUOTES</span><span class="o">=</span><span class="nb">false</span><span class="w"> </span>scripts/demo.sh<span class="w"> </span>microservices<span class="w"> </span>start<span class="w">     </span><span class="c1"># or: modules.orders.parallel-quotes=false</span>
+<div class="highlight"><pre><span></span><code>scripts/demo.sh<span class="w"> </span>microservices<span class="w"> </span>start<span class="w"> </span>--parallel<span class="w"> </span>off<span class="w">      </span><span class="c1"># or: modules.orders.parallel-quotes=false (env MODULES_ORDERS_PARALLEL_QUOTES=false)</span>
 scripts/perf.sh<span class="w"> </span>--modes<span class="w"> </span>microservices<span class="w"> </span>--parallel<span class="w"> </span>both
 </code></pre></div>
 <p>The sequential code is still there when it is off.</p>
