@@ -1,6 +1,6 @@
 # The eight deployment modes
 
-The same modules, the same API interfaces and the same tests run in eight shapes. Only the artifact that is started and its configuration change.
+The same modules, the same API interfaces and the same tests run in eight shapes (the [glossary](../glossary.md) defines each term and separates the ones that sound alike). Only the artifact that is started and its configuration change.
 `scripts/demo.sh <mode> start` brings up PostgreSQL in a clean state and starts the mode.
 
 | Mode | Processes | Artifact | Cross-module calls | Databases |

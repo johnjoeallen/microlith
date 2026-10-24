@@ -1,4 +1,6 @@
-| Mode | orders/s off | on | change | p50 off | on | change | p99 off | on | change |
+<div class="wide-table" markdown>
+
+| Mode | orders/s off | on | Δ | p50 off | on | Δ | p99 off | on | Δ |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
 | modulith | 332 | 336 | +1% | 11.6 | 11.6 | +0% | 20.2 | 18.3 | -10% |
 | macro-monolith | 306 | 331 | +8% | 12.7 | 11.6 | -8% | 20.0 | 18.8 | -6% |
@@ -8,3 +10,5 @@
 | split-dbs | 201 | 230 | +15% | 19.0 | 16.7 | -12% | 33.8 | 28.0 | -17% |
 | microservices | 140 | 166 | +18% | 26.1 | 22.7 | -13% | 70.4 | 77.0 | +9% |
 | microservices-macro | 142 | 178 | +26% | 26.6 | 21.5 | -19% | 47.1 | 44.7 | -5% |
+
+</div>

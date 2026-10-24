@@ -79,6 +79,7 @@ fan-out, three-deep chains and diamonds, which makes it a useful stand-in for re
 | See what each of the eight shapes is, and when you would pick it | [Deployment modes](modes/index.md) |
 | See what the shapes cost | [Performance summary](performance/index.md) |
 | Run it yourself | [Running it](running.md) |
+| Look up a term | [Glossary](glossary.md) |
 | Read the original design | [Design document](design/macro-service.md) |
 
 !!! info "Which code this site describes"

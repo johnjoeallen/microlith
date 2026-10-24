@@ -47,6 +47,7 @@ markdown_extensions:
   - attr_list
   - md_in_html
   - tables
+  - def_list
   - toc:
       permalink: true
   - pymdownx.details
@@ -104,6 +105,7 @@ nav:
   - Reference:
       - Developer guide: README-dev.md
       - Project reference: reference.md
+      - Glossary: glossary.md
       - Design: design/macro-service.md
       - "Discussion: Spring Modulith async": design/spring-modulith-async.md
       - "Spike: Spring Modulith events": design/spring-modulith-events.md

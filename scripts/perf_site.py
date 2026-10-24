@@ -47,7 +47,10 @@ def md_table(header, rows, left=1, last_left=False):
     out = ["| " + " | ".join(header) + " |",
            "|" + "|".join(" --- " if i < left or (last_left and i == last) else " ---: " for i in range(len(header))) + "|"]
     out += ["| " + " | ".join(str(c) for c in row) + " |" for row in rows]
-    return "\n".join(out) + "\n"
+    table = "\n".join(out) + "\n"
+    if len(header) >= 9:      # wide tables get a compact style (docs/stylesheets/extra.css)
+        return '<div class="wide-table" markdown>\n\n' + table + "\n</div>\n"
+    return table
 
 
 # ---------------------------------------------------------------------------------------------------------------- charts
@@ -160,7 +163,7 @@ def modes_fragments(runs, out):
         ra, rb = a["roundTripMs"], b["roundTripMs"]
         rows.append([f"{m}", nice(a["ordersPerSecond"]), nice(b["ordersPerSecond"]), change(a["ordersPerSecond"], b["ordersPerSecond"]),
                      f"{ra['p50']:.1f}", f"{rb['p50']:.1f}", change(ra["p50"], rb["p50"]), f"{ra['p99']:.1f}", f"{rb['p99']:.1f}", change(ra["p99"], rb["p99"])])
-    (out / "cache-table.md").write_text(md_table(["Mode", "orders/s off", "on", "change", "p50 off", "on", "change", "p99 off", "on", "change"], rows))
+    (out / "cache-table.md").write_text(md_table(["Mode", "orders/s off", "on", "Δ", "p50 off", "on", "Δ", "p99 off", "on", "Δ"], rows))
     (out / "cache-chart.md").write_text(hbar("Result cache: throughput", "orders per second, 4 clients; longer is better", cats,
                                              [("cache off", off), ("cache on", on)], "orders/s"))
     methods = sorted({k for r in runs if r.get("cache") == "on" for k in r.get("cacheHitRate", {})})
@@ -186,7 +189,7 @@ def effect_fragments(parallel_runs, switch_runs, out):
         ra, rb = a["roundTripMs"], b["roundTripMs"]
         rows.append([f"{m}", nice(a["ordersPerSecond"]), nice(b["ordersPerSecond"]), change(a["ordersPerSecond"], b["ordersPerSecond"]),
                      f"{ra['p50']:.1f}", f"{rb['p50']:.1f}", change(ra["p50"], rb["p50"]), f"{ra['p99']:.1f}", f"{rb['p99']:.1f}", change(ra["p99"], rb["p99"])])
-    (out / "parallel-table.md").write_text(md_table(["Mode", "orders/s off", "on", "change", "p50 off", "on", "change", "p99 off", "on", "change"], rows))
+    (out / "parallel-table.md").write_text(md_table(["Mode", "orders/s off", "on", "Δ", "p50 off", "on", "Δ", "p99 off", "on", "Δ"], rows))
     (out / "parallel-chart.md").write_text(hbar("Parallel quotes: throughput", "orders per second, 4 clients; longer is better", cats,
                                                 [("sequential", off), ("parallel", on)], "orders/s"))
     rows, cats, ob, ev = [], [], [], []
@@ -201,7 +204,7 @@ def effect_fragments(parallel_runs, switch_runs, out):
         ra, rb = a["roundTripMs"], b["roundTripMs"]
         rows.append([f"{m}", nice(a["ordersPerSecond"]), nice(b["ordersPerSecond"]), change(a["ordersPerSecond"], b["ordersPerSecond"]),
                      f"{ra['p50']:.1f}", f"{rb['p50']:.1f}", change(ra["p50"], rb["p50"]), f"{ra['p99']:.1f}", f"{rb['p99']:.1f}", change(ra["p99"], rb["p99"])])
-    (out / "async-table.md").write_text(md_table(["Mode", "orders/s outbox", "events", "change", "p50 outbox", "events", "change", "p99 outbox", "events", "change"], rows))
+    (out / "async-table.md").write_text(md_table(["Mode", "orders/s outbox", "events", "Δ", "p50 outbox", "events", "Δ", "p99 outbox", "events", "Δ"], rows))
     (out / "async-chart.md").write_text(hbar("Follow-up delivery: throughput", "orders per second, 4 clients; longer is better", cats,
                                              [("outbox", ob), ("events", ev)], "orders/s"))
 
