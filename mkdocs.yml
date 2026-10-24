@@ -77,6 +77,8 @@ extra:
 nav:
   - Home: index.md
   - Architecture: architecture.md
+  - The case: case.md
+  - Principles: principles.md
   - Deployment modes:
       - Overview: modes/index.md
       - One process: modes/single-process.md

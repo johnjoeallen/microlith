@@ -1,9 +1,10 @@
 # microlith: the macro service
 
-**One Spring Boot codebase that runs as a monolith or as several services, chosen by configuration, and a way to measure what each choice costs.**
+**A macro service: one team's modular Spring Boot service, with module boundaries the build enforces, deployable as one unit or as several by configuration, and a way to measure what each choice costs.**
 
 Most systems pick their shape early: a monolith that is hard to split later, or microservices with their full operational cost from day one.
-microlith keeps that decision open. The code is organised as modules with strict boundaries; whether two modules share a process or talk over
+microlith keeps that decision open. It is not a "big monolith": a macro service is one team's bounded context, split into enforced modules, and a company is
+many of them connected by published contracts ([principles](principles.md#1-what-a-macro-service-is-and-is-not)). The code is organised as modules with strict boundaries; whether two modules share a process or talk over
 the network is a **deployment setting**, not a code change. It ships with a small order-fulfilment domain and the scripts to run it in
 **eight shapes** on one machine, so the trade-offs can be seen and measured instead of argued about.
 
@@ -73,6 +74,8 @@ fan-out, three-deep chains and diamonds, which makes it a useful stand-in for re
 | If you want to... | Read |
 | --- | --- |
 | Understand how it is built | [Architecture](architecture.md) |
+| See the argument for not starting with microservices | [The case](case.md) |
+| Decide how to start, where to draw boundaries and what to deploy | [Principles](principles.md) |
 | See what each of the eight shapes is, and when you would pick it | [Deployment modes](modes/index.md) |
 | See what the shapes cost | [Performance summary](performance/index.md) |
 | Run it yourself | [Running it](running.md) |

@@ -1,7 +1,7 @@
 # microlith: the macro service
 
-One Spring Boot 4 / Java 25 codebase that runs as a monolith or as several services, chosen by configuration. Modules talk to each other only
-through `@RpcApi` interfaces: a direct call in the same process, JSON-RPC 2.0 when split. It ships with an order-fulfilment demo that runs in
+A **macro service**: one team's modular Spring Boot 4 / Java 25 service, with module boundaries the build enforces, deployable as one unit or as several by
+configuration. Modules talk to each other only through `@RpcApi` interfaces: a direct call in the same process, JSON-RPC 2.0 when split. It ships with an order-fulfilment demo that runs in
 **eight deployment shapes**, and a load driver that measures what each costs.
 
 **Documentation: <https://johnjoeallen.github.io/microlith/>** (purpose, architecture, the eight modes, performance analysis, how to run it).
