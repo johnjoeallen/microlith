@@ -1,7 +1,7 @@
 # Developer guide
 
 How to run each deployment shape, add a module, change an API and add a service app. Design background:
-[`design/macro-service.md`](design/macro-service.md) (section 17 lists where the code differs from it). Short overview: the root [`README.md`](../README.md).
+[`design/macro-service.md`](design/macro-service.md) (section 17 lists where the code differs from it). Short overview: the root [`README.md`](https://github.com/johnjoeallen/microlith/blob/main/README.md).
 
 You need a JDK 25, Docker, `curl` and `python3`. Maven comes from `./mvnw`.
 

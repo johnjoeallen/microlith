@@ -1,0 +1,107 @@
+site_name: microlith
+site_description: One Spring Boot codebase that runs as a monolith or as services, chosen by configuration, with measurements of what each shape costs.
+site_url: https://johnjoeallen.github.io/microlith/
+repo_url: https://github.com/johnjoeallen/microlith
+repo_name: johnjoeallen/microlith
+edit_uri: edit/main/docs/
+
+docs_dir: docs
+exclude_docs: |
+  generated/
+  db/
+  performance/_generated/
+
+validation:
+  omitted_files: info
+  absolute_links: warn
+  unrecognized_links: warn
+  anchors: warn
+
+theme:
+  name: material
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - navigation.footer
+    - content.code.copy
+    - content.tabs.link
+    - search.highlight
+    - toc.follow
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.details
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - pymdownx.snippets:
+      base_path: docs
+      check_paths: true
+
+extra_css:
+  - stylesheets/extra.css
+
+plugins:
+  - search
+
+extra:
+  version:
+    provider: mike
+
+nav:
+  - Home: index.md
+  - Architecture: architecture.md
+  - Deployment modes:
+      - Overview: modes/index.md
+      - One process: modes/single-process.md
+      - Split across processes: modes/split.md
+  - Optional features:
+      - Result cache (@Cached): features/cache.md
+      - Parallel quotes: features/parallel.md
+      - Follow-up delivery (outbox or events): features/follow-ups.md
+  - Performance:
+      - Summary: performance/index.md
+      - Method: performance/method.md
+      - The eight modes: performance/modes.md
+      - Cache, parallel quotes and delivery: performance/switches.md
+      - Load and delivery speed: performance/load.md
+      - Raw reports:
+          - Overview: performance/reports.md
+          - Modes, cache off and on: performance/reports/modes-cache.md
+          - Parallel quotes: performance/reports/parallel.md
+          - Outbox and events: performance/reports/async-parallel.md
+          - 4 clients: performance/reports/load-4-clients.md
+          - 16 clients: performance/reports/load-16-clients.md
+  - Running it: running.md
+  - Reference:
+      - Developer guide: README-dev.md
+      - Design: design/macro-service.md
+      - "Discussion: Spring Modulith async": design/spring-modulith-async.md
+      - "Spike: Spring Modulith events": design/spring-modulith-events.md
+      - Build plan: design/staged-prompt.md

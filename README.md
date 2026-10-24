@@ -3,6 +3,8 @@
 One Spring Boot 4 / Java 25 codebase that runs as a monolith or as several services, chosen by configuration.
 Modules talk to each other only through `@RpcApi` interfaces (direct call in-process, JSON-RPC 2.0 when split).
 
+Documentation site (purpose, the eight modes, performance analysis): <https://johnjoeallen.github.io/microlith/> (source in `docs/`, built with MkDocs Material; `pip install -r requirements-docs.txt && mkdocs serve`).
+
 Developer guide: [`docs/README-dev.md`](docs/README-dev.md). Design: [`docs/design/macro-service.md`](docs/design/macro-service.md). Build plan: [`docs/design/staged-prompt.md`](docs/design/staged-prompt.md).
 
 ## Quick start: `scripts/demo.sh`

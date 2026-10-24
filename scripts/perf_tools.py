@@ -254,24 +254,31 @@ class TraceCollector:
         collected = {}
 
         def merge(cid, records):
+            # Re-reads return the same calls again. Identical-looking calls are real (the start time has only millisecond resolution, so two
+            # fast calls to the same method can share a key): keep, per key, the largest number of occurrences seen in any read.
             known = collected.setdefault(cid, {})
+            fresh = collections.defaultdict(list)
             for r in records:
-                known[(r["startedAtMicros"], r["caller"], r["callee"], r["method"])] = r
+                fresh[(r["startedAtMicros"], r["caller"], r["callee"], r["method"], r["depth"], r["binding"])].append(r)
+            for key, items in fresh.items():
+                if len(items) > len(known.get(key, ())):
+                    known[key] = items
 
         for future in self.futures:
             merge(*future.result())
         deadline = time.monotonic() + drain
-        total = sum(len(v) for v in collected.values())
+        total = sum(len(i) for v in collected.values() for i in v.values())
         while time.monotonic() < deadline:
             time.sleep(2)
             for cid, records in self.pool.map(lambda c: (c, demo_tools.collect(c)), list(collected)):
                 merge(cid, records)
-            now = sum(len(v) for v in collected.values())
+            now = sum(len(i) for v in collected.values() for i in v.values())
             if now == total:
                 break
             total = now
         self.pool.shutdown()
-        return {cid: sorted(v.values(), key=lambda r: (r["startedAtMicros"], r["depth"])) for cid, v in collected.items()}
+        return {cid: sorted((r for items in v.values() for r in items), key=lambda r: (r["startedAtMicros"], r["depth"]))
+                for cid, v in collected.items()}
 
 
 def print_table(title, rows, header, left=2):
@@ -440,7 +447,7 @@ def main():
     parser.add_argument("--concurrency", type=int, default=4, help="concurrent clients (default 4)")
     parser.add_argument("--warmup", type=int, default=20, dest="warmup_orders", help="orders sent first and not measured (default 20)")
     parser.add_argument("--settle", type=float, default=3.0, help="seconds to wait after an order before reading its trace (default 3)")
-    parser.add_argument("--drain", type=float, default=30.0, help="max seconds to keep re-reading traces for late async calls (default 30)")
+    parser.add_argument("--drain", type=float, default=120.0, help="max seconds to keep re-reading traces for late async calls (default 120)")
     parser.add_argument("--no-trace", action="store_true", help="measure client round trips only (no per-call statistics, least overhead)")
     parser.add_argument("--profile", choices=sorted(PROFILES), default="realistic",
                         help="customers, SKUs and popularity skew of the workload (default realistic: 10,000 customers, 2,000 SKUs, Zipf)")
