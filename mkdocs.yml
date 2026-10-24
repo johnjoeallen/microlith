@@ -101,6 +101,7 @@ nav:
   - Running it: running.md
   - Reference:
       - Developer guide: README-dev.md
+      - Project reference: reference.md
       - Design: design/macro-service.md
       - "Discussion: Spring Modulith async": design/spring-modulith-async.md
       - "Spike: Spring Modulith events": design/spring-modulith-events.md
