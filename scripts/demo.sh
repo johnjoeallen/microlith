@@ -1,13 +1,14 @@
 #!/usr/bin/env bash
 # Runs one demo mode on this machine. Gives every start clean, freshly initialised databases (scripts/db.sh reset) and builds the jars on first use.
 #
-#   scripts/demo.sh <mode> start [--async outbox|events] [--cache on|off] [--parallel on|off]
+#   scripts/demo.sh <mode> start [--async outbox|events] [--cache on|off] [--parallel on|off] [--wire json|gzip|bson|bson-gzip]
 #   scripts/demo.sh <mode> stop|status
 #
 # options (start only; each overrides the environment variable named here, which still works):
 #   --async outbox|events   how orders delivers its follow-ups: outbox relay (default) or Spring Modulith events   (MODULES_ORDERS_ASYNC)
 #   --cache on|off          the @Cached result cache, default on                                                    (RPC_CACHE_ENABLED)
 #   --parallel on|off       orders runs the customer check and the two quotes in parallel, default on               (MODULES_ORDERS_PARALLEL_QUOTES)
+#   --wire json|gzip|bson|bson-gzip   how HTTP calls between processes encode the JSON-RPC envelope, default json (RPC_CLIENT_WIRE); HTTP bindings only
 #
 # modes: modulith  macro-monolith  groups  microservices  microservices-macro  loopback-codec  loopback-http  split-dbs
 #
@@ -18,14 +19,14 @@ set -euo pipefail
 source "$(dirname "$0")/_common.sh"
 
 mode="${1:-}"; action="${2:-}"
-opt_async=""; opt_cache=""; opt_parallel=""
+opt_async=""; opt_cache=""; opt_parallel=""; opt_wire=""
 modules=(orders catalog pricing inventory customers payments shipping notifications)
 declare -A port=([orders]=9181 [catalog]=9182 [pricing]=9183 [inventory]=9184 [customers]=9185 [payments]=9186 [shipping]=9187 [notifications]=9188)
 java_opts="${DEMO_JAVA_OPTS:--Xmx320m -XX:+UseSerialGC -XX:TieredStopAtLevel=1}"
 
 usage() {
   echo "usage: $0 <modulith|macro-monolith|groups|microservices|microservices-macro|loopback-codec|loopback-http|split-dbs> start [options] | stop | status" >&2
-  echo "options (start only): --async outbox|events   --cache on|off   --parallel on|off" >&2
+  echo "options (start only): --async outbox|events   --cache on|off   --parallel on|off   --wire json|gzip|bson|bson-gzip" >&2
   exit 2
 }
 [ -n "$mode" ] && [ -n "$action" ] || usage
@@ -38,6 +39,7 @@ while [ $# -gt 0 ]; do
   case "$1" in
     --async)    [ "$2" = outbox ] || [ "$2" = events ] || { echo "--async must be outbox or events, not '$2'" >&2; usage; }; opt_async="$2" ;;
     --cache)    [ "$2" = on ] || [ "$2" = off ] || { echo "--cache must be on or off, not '$2'" >&2; usage; }; opt_cache="$2" ;;
+    --wire)     case "$2" in json|gzip|bson|bson-gzip) opt_wire="$2" ;; *) echo "--wire must be json, gzip, bson or bson-gzip, not '$2'" >&2; usage ;; esac ;;
     --parallel) [ "$2" = on ] || [ "$2" = off ] || { echo "--parallel must be on or off, not '$2'" >&2; usage; }; opt_parallel="$2" ;;
     *) echo "unknown option '$1'" >&2; usage ;;
   esac
@@ -47,11 +49,12 @@ onoff() { [ "$1" = on ] && echo true || echo false; }
 [ -z "$opt_async" ] || export MODULES_ORDERS_ASYNC="$opt_async"
 [ -z "$opt_cache" ] || export RPC_CACHE_ENABLED="$(onoff "$opt_cache")"
 [ -z "$opt_parallel" ] || export MODULES_ORDERS_PARALLEL_QUOTES="$(onoff "$opt_parallel")"
+[ -z "$opt_wire" ] || export RPC_CLIENT_WIRE="$opt_wire"
 # the settings in effect, as shown by 'status' (options, else the environment, else the defaults)
 settings() {
-  printf 'async=%s cache=%s parallel=%s' "${MODULES_ORDERS_ASYNC:-outbox}" \
+  printf 'async=%s cache=%s parallel=%s wire=%s' "${MODULES_ORDERS_ASYNC:-outbox}" \
     "$([ "${RPC_CACHE_ENABLED:-true}" = false ] && echo off || echo on)" \
-    "$([ "${MODULES_ORDERS_PARALLEL_QUOTES:-true}" = false ] && echo off || echo on)"
+    "$([ "${MODULES_ORDERS_PARALLEL_QUOTES:-true}" = false ] && echo off || echo on)" "${RPC_CLIENT_WIRE:-json}"
 }
 
 # the processes of a mode: "<name> <jar-app> <port> <profiles>"

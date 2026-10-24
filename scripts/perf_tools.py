@@ -6,7 +6,7 @@ Drives orders.placeOrder against the running demo mode with N concurrent clients
   2. the latency of every module-to-module call inside those orders, from the /demo/trace records of every process,
      grouped by caller -> callee.method and binding.
 
-  perf_tools.py [--orders N | --duration S] [--concurrency C] [--warmup W] [--settle S] [--drain S] [--modes M,M|all] [--cache on|off|both] [--parallel on|off|both] [--async outbox|events|both] [--no-trace] [--no-stock] [--out DIR]
+  perf_tools.py [--orders N | --duration S] [--concurrency C] [--warmup W] [--settle S] [--drain S] [--modes M,M|all] [--cache on|off|both] [--parallel on|off|both] [--async outbox|events|both] [--wire json|gzip|bson|bson-gzip|all] [--no-trace] [--no-stock] [--out DIR]
 """
 import argparse
 import bisect
@@ -364,11 +364,11 @@ def write_report(directory, args, summaries):
     return path
 
 
-VARIED = set()      # which of "cache" / "parallel" differ between the runs being compared; only those appear in labels
+VARIED = set()      # which of "cache" / "parallel" / "async" / "wire" differ between the runs being compared; only those appear in labels
 
 
 def label(m):
-    return m["mode"] + "".join(f" {k} {m[k]}" for k in ("cache", "parallel", "async") if k in VARIED and k in m)
+    return m["mode"] + "".join(f" {k} {m[k]}" for k in ("cache", "parallel", "async", "wire") if k in VARIED and k in m)
 
 
 def change(before, after):
@@ -379,7 +379,7 @@ def comparison_tables(summaries):
     """Every table puts the measured modes side by side: [(title, note, header, rows, left-aligned columns)]."""
     measured = [m for m in summaries if "roundTripMs" in m]
     VARIED.clear()
-    VARIED.update(k for k in ("cache", "parallel", "async") if len({m.get(k) for m in summaries}) > 1)
+    VARIED.update(k for k in ("cache", "parallel", "async", "wire") if len({m.get(k) for m in summaries}) > 1)
     tables = []
     rows = []
     for m in summaries:
@@ -413,6 +413,36 @@ def comparison_tables(summaries):
         tables.append((title, "Higher orders/s and lower latencies are better.",
                        ["mode", f"orders/s {before}", after, "change", f"p50 {before}", after, "change", f"p95 {before}", after, "change",
                         f"p99 {before}", after, "change"], rows, 1))
+
+    with_wire = [m for m in measured if m.get("wireStats")]
+    if with_wire:
+        rows = [[label(m), f"{m['wireStats']['httpCallsPerOrder']:.1f}", f"{m['wireStats']['rawBytesPerOrder']:,.0f}",
+                 f"{m['wireStats']['wireBytesPerOrder']:,.0f}", f"{m['wireStats']['wireOverRaw'] * 100:.0f}%",
+                 f"{m['wireStats']['requestRawPerCall']:.0f} to {m['wireStats']['requestWirePerCall']:.0f}",
+                 f"{m['wireStats']['responseRawPerCall']:.0f} to {m['wireStats']['responseWirePerCall']:.0f}"] for m in with_wire]
+        tables.append(("Bytes on the wire per order", "HTTP calls only (calls inside one process are not counted). Raw is the JSON-RPC envelope as JSON; wire is what crossed the "
+                       "connection. Request and response sizes are bytes per call, raw to wire.",
+                       ["run", "HTTP calls/order", "JSON bytes/order", "wire bytes/order", "wire / JSON", "request/call", "response/call"], rows, 1))
+        groups = collections.defaultdict(dict)
+        for m in with_wire:
+            groups[(m["mode"], m.get("cache"), m.get("parallel"), m.get("async"))][m.get("wire", "json")] = m
+        rows = []
+        for key, by_wire in groups.items():
+            base = by_wire.get("json")
+            if not base:
+                continue
+            for wire, alt in by_wire.items():
+                if wire == "json":
+                    continue
+                row = [key[0] + (f" ({wire})"), f"{base['ordersPerSecond']:.0f}", f"{alt['ordersPerSecond']:.0f}", change(base["ordersPerSecond"], alt["ordersPerSecond"])]
+                for k in ("p50", "p95", "p99"):
+                    x, y = base["roundTripMs"][k], alt["roundTripMs"][k]
+                    row += [fmt(x), fmt(y), change(x, y)]
+                row.append(f"{alt['wireStats']['wireBytesPerOrder'] / base['wireStats']['wireBytesPerOrder'] * 100:.0f}%")
+                rows.append(row)
+        if rows:
+            tables.append(("Wire format effect (json to each alternative)", "Higher orders/s and lower latencies are better; the last column is the bytes on the wire against plain JSON.",
+                           ["mode (format)", "orders/s json", "alt", "Δ", "p50 json", "alt", "Δ", "p95 json", "alt", "Δ", "p99 json", "alt", "Δ", "bytes vs json"], rows, 1))
 
     columns = [label(m) for m in measured if m.get("edges")]
     with_edges = [m for m in measured if m.get("edges")]
@@ -463,6 +493,9 @@ def main():
                         help="with --modes: run with the @Cached layer on (default), off, or both, to compare (rpc.cache.enabled)")
     parser.add_argument("--parallel", choices=["on", "off", "both"], default="on",
                         help="with --modes: orders runs its customer check and two quotes in parallel (default on), sequentially (off), or both")
+    parser.add_argument("--wire", choices=["json", "gzip", "bson", "bson-gzip", "both", "all"], default="json",
+                        help="with --modes: how HTTP calls between processes encode the JSON-RPC envelope (RPC_CLIENT_WIRE): json (default), gzip, bson, "
+                             "bson-gzip, or 'all' for the four (only the HTTP bindings are affected)")
     parser.add_argument("--async", dest="async_mode", choices=["outbox", "events", "both"], default="outbox",
                         help="with --modes: how orders delivers its follow-ups (notification, compensations): the outbox relay (default), "
                              "Spring Modulith events, or both (modules.orders.async)")
@@ -474,6 +507,34 @@ def main():
     summary = measure(args, None)
     print("report: " + str(write_report(Path(summary["outDir"]), args, [summary])))
     return 0 if summary["clean"] else 1
+
+
+def collect_wire():
+    """Sum of every running process's HTTP-client byte counters (GET /demo/wire); empty if the build has none."""
+    total = collections.Counter()
+    for _, port in demo_tools.processes():
+        try:
+            status, text = demo_tools.http("GET", f"http://127.0.0.1:{port}/demo/wire", timeout=10)
+        except OSError:
+            continue
+        if status == 200:
+            total.update(json.loads(text))
+    return dict(total)
+
+
+def wire_per_order(before, after, orders):
+    """What the HTTP calls of the measured run put on the wire, per order."""
+    if not before and not after:
+        return None
+    d = {k: after.get(k, 0) - before.get(k, 0) for k in after}
+    if not d.get("calls") or not orders:
+        return None
+    raw = d["rawRequestBytes"] + d["rawResponseBytes"]
+    wire = d["sentRequestBytes"] + d["receivedResponseBytes"]
+    return {"httpCallsPerOrder": d["calls"] / orders, "rawBytesPerOrder": raw / orders, "wireBytesPerOrder": wire / orders,
+            "rawBytesPerCall": raw / d["calls"], "wireBytesPerCall": wire / d["calls"], "wireOverRaw": wire / raw if raw else None,
+            "requestRawPerCall": d["rawRequestBytes"] / d["calls"], "requestWirePerCall": d["sentRequestBytes"] / d["calls"],
+            "responseRawPerCall": d["rawResponseBytes"] / d["calls"], "responseWirePerCall": d["receivedResponseBytes"] / d["calls"]}
 
 
 def measure(args, out_dir):
@@ -503,12 +564,14 @@ def measure(args, out_dir):
         time.sleep(args.settle)                      # let the warmup's async work finish so it does not bleed into the run
 
     collector = None if args.no_trace else TraceCollector(args.settle)
+    wire_before = collect_wire()
     results, elapsed = run_load(client, args, run_id, collector.add if collector else None)
     if collector:
         print(f"collecting call traces of {len(results)} orders from {len(demo_tools.processes())} process(es) ...")
         traces = collector.finish(args.drain)
     else:
         traces = {}
+    wire_after = collect_wire()
 
     ok = [r for r in results if r["outcome"] == "ok"]
     declined = [r for r in results if r["outcome"] == DECLINED]
@@ -522,6 +585,9 @@ def measure(args, out_dir):
     summary = {"mode": mode, "outDir": str(out), "concurrency": args.concurrency, "orders": len(results), "ok": len(ok), "elapsedS": elapsed,
                "ordersPerSecond": len(results) / elapsed, "clean": not failed, "declined": len(declined),
                "workload": workload.describe()}
+    wire_stats = wire_per_order(wire_before, wire_after, len(results))
+    if wire_stats:
+        summary["wireStats"] = wire_stats
     if not ok:
         return summary
     stats = summarize([r["rttMs"] for r in ok])
@@ -608,26 +674,28 @@ def run_modes(args):
     cache_variants = ["off", "on"] if args.cache == "both" else [args.cache]
     parallel_variants = ["off", "on"] if args.parallel == "both" else [args.parallel]
     async_variants = ["outbox", "events"] if args.async_mode == "both" else [args.async_mode]
-    for mode, variant, parallel, asynchronous in [(m, c, p, a) for m in modes for c in cache_variants for p in parallel_variants
-                                                  for a in async_variants]:
+    wire_variants = (["json", "gzip", "bson", "bson-gzip"] if args.wire in ("all", "both") else [args.wire])
+    for mode, variant, parallel, asynchronous, wire in [(m, c, p, a, w) for m in modes for c in cache_variants for p in parallel_variants
+                                                        for a in async_variants for w in wire_variants]:
         label = (mode + (f"-cache-{variant}" if len(cache_variants) > 1 else "") + (f"-parallel-{parallel}" if len(parallel_variants) > 1 else "")
-                 + (f"-async-{asynchronous}" if len(async_variants) > 1 else ""))
-        print(f"\n================ {mode} (cache {variant}, parallel quotes {parallel}, async {asynchronous}) ================", flush=True)
-        started = subprocess.run([demo_sh, mode, "start", "--cache", variant, "--parallel", parallel, "--async", asynchronous],
+                 + (f"-async-{asynchronous}" if len(async_variants) > 1 else "") + (f"-wire-{wire}" if len(wire_variants) > 1 else ""))
+        print(f"\n================ {mode} (cache {variant}, parallel quotes {parallel}, async {asynchronous}, wire {wire}) ================", flush=True)
+        started = subprocess.run([demo_sh, mode, "start", "--cache", variant, "--parallel", parallel, "--async", asynchronous, "--wire", wire],
                                  capture_output=True, text=True)
         if started.returncode != 0:
             print(f"{mode} did not start:\n" + (started.stdout + started.stderr)[-1500:])
             subprocess.run([demo_sh, mode, "stop"], capture_output=True)
-            summaries.append({"mode": mode, "cache": variant, "parallel": parallel, "async": asynchronous, "clean": False, "error": "did not start"})
+            summaries.append({"mode": mode, "cache": variant, "parallel": parallel, "async": asynchronous, "wire": wire, "clean": False, "error": "did not start"})
             continue
         try:
             summary = measure(args, base / label)
             summary["cache"] = variant
             summary["parallel"] = parallel
             summary["async"] = asynchronous
+            summary["wire"] = wire
             summaries.append(summary)
         except BaseException:
-            summaries.append({"mode": mode, "cache": variant, "parallel": parallel, "async": asynchronous, "clean": False, "error": "measurement failed"})
+            summaries.append({"mode": mode, "cache": variant, "parallel": parallel, "async": asynchronous, "wire": wire, "clean": False, "error": "measurement failed"})
             raise
         finally:
             subprocess.run([demo_sh, mode, "stop"], capture_output=True)
