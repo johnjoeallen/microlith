@@ -59,6 +59,16 @@
     <swagger-annotations.version>2.2.55</swagger-annotations.version>   <!-- annotations only, optional in -api artifacts, no transitive dependencies -->
     <swagger-ui.version>5.33.3</swagger-ui.version>                      <!-- webjar served in the dev profile only -->
 
+    <japicmp.version>0.26.3</japicmp.version>
+
+    <!--
+      API compatibility (stage 8): each -api jar is compared with its last released version. It is skipped until a
+      baseline exists; CI runs it with -Dapi.compat.skip=false -Dapi.baseline.version=<last release>.
+    -->
+    <api.compat.skip>true</api.compat.skip>
+    <api.baseline.version>none</api.baseline.version>
+    <api.baseline.groupId>${project.groupId}</api.baseline.groupId>
+
     <maven-compiler-plugin.version>3.15.0</maven-compiler-plugin.version>
     <maven-enforcer-plugin.version>3.6.3</maven-enforcer-plugin.version>
     <maven-surefire-plugin.version>3.5.5</maven-surefire-plugin.version>
@@ -148,6 +158,41 @@
           <version>${spring-boot.version}</version>
         </plugin>
 
+        <plugin>
+          <groupId>com.github.siom79.japicmp</groupId>
+          <artifactId>japicmp-maven-plugin</artifactId>
+          <version>${japicmp.version}</version>
+          <configuration>
+            <skip>${api.compat.skip}</skip>
+            <oldVersion>
+              <dependency>
+                <groupId>${api.baseline.groupId}</groupId>
+                <artifactId>${project.artifactId}</artifactId>
+                <version>${api.baseline.version}</version>
+                <type>jar</type>
+              </dependency>
+            </oldVersion>
+            <newVersion>
+              <file><path>${project.build.directory}/${project.build.finalName}.jar</path></file>
+            </newVersion>
+            <parameter>
+              <!-- removed or changed methods, constructors, fields, classes and exceptions break the build -->
+              <breakBuildOnBinaryIncompatibleModifications>true</breakBuildOnBinaryIncompatibleModifications>
+              <!-- a method added to an interface is additive on the wire; the implementer is in the same module -->
+              <breakBuildOnSourceIncompatibleModifications>false</breakBuildOnSourceIncompatibleModifications>
+              <onlyModified>true</onlyModified>
+              <skipXmlReport>true</skipXmlReport>
+              <skipHtmlReport>true</skipHtmlReport>
+            </parameter>
+          </configuration>
+          <executions>
+            <execution>
+              <id>api-compatibility</id>
+              <phase>verify</phase>
+              <goals><goal>cmp</goal></goals>
+            </execution>
+          </executions>
+        </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-enforcer-plugin</artifactId>

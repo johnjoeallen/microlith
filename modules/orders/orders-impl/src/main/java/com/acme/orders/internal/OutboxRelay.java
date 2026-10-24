@@ -55,7 +55,9 @@ public class OutboxRelay {
         this.backoffMax = environment.getProperty("modules.orders.outbox.backoff-max", Duration.class, Duration.ofSeconds(60));
         this.maxAttempts = environment.getProperty("modules.orders.outbox.max-attempts", Integer.class, 30);
         this.idleScanInterval = environment.getProperty("modules.orders.outbox.idle-scan-interval", Duration.class, Duration.ofSeconds(60));
-        this.nextIdleScan = Instant.now().plus(idleScanInterval);
+        // the first scan comes shortly after start, not after a full idle interval: entries left pending by a process
+        // that died are delivered promptly, while a freshly started module still holds no connection for a moment
+        this.nextIdleScan = Instant.now().plus(environment.getProperty("modules.orders.outbox.startup-scan-delay", Duration.class, Duration.ofSeconds(5)));
     }
 
     @Scheduled(fixedDelayString = "${modules.orders.outbox.poll-interval:1s}")

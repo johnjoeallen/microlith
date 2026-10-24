@@ -8,6 +8,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class CalcService implements CalcApi {
 
     public final List<String> fired = new CopyOnWriteArrayList<>();
+    /** Every message fired by any instance; the bean in a context is wrapped, so tests cannot reach the instance. */
+    public static final List<String> FIRED_ANYWHERE = new CopyOnWriteArrayList<>();
 
     public int add(int a, int b) {
         return a + b;
@@ -19,6 +21,7 @@ public class CalcService implements CalcApi {
 
     public void fire(String message) {
         fired.add(message);
+        FIRED_ANYWHERE.add(message);
     }
 
     public String boom() {

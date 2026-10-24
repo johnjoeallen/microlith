@@ -22,6 +22,10 @@
   <build>
     <plugins>
       <plugin>
+        <groupId>com.github.siom79.japicmp</groupId>
+        <artifactId>japicmp-maven-plugin</artifactId>
+      </plugin>
+      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-enforcer-plugin</artifactId>
         <executions><execution><id>enforce-api-rules</id><phase>validate</phase></execution></executions>

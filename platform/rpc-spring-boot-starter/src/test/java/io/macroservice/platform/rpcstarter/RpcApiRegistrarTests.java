@@ -38,7 +38,9 @@ class RpcApiRegistrarTests {
     void localImplementationIsInjectedDirectlyByDefault() {
         runner.withPropertyValues("modules.calc.enabled=true", DS).run(context -> {
             assertThat(context).hasNotFailed();
-            assertThat(context.getBean(CalcApi.class)).isInstanceOf(CalcService.class).isNotInstanceOf(RpcClientProxy.class);
+            // the boundary interceptor wraps the local implementation; it is still no client proxy and calls it directly
+            assertThat(context.getBean(CalcApi.class)).isNotInstanceOf(RpcClientProxy.class).matches(bean -> java.lang.reflect.Proxy.isProxyClass(bean.getClass()), "wrapped by the boundary interceptor");
+            assertThat(context.getBean(CalcApi.class).add(1, 2)).isEqualTo(3);
             assertThat(context).doesNotHaveBean("calcRpcClient");
         });
     }
@@ -53,7 +55,7 @@ class RpcApiRegistrarTests {
             assertThat(api.echo(new Echo("a", 1))).isEqualTo(new Echo("a", 1));
             assertThat(api.nullable(null)).isNull();
             api.fire("through-codec");
-            assertThat(context.getBean(CalcService.class).fired).containsExactly("through-codec");
+            assertThat(CalcService.FIRED_ANYWHERE).contains("through-codec");
             ThrowableAssert.ThrowingCallable denied = () -> api.denied("eve");
             org.assertj.core.api.Assertions.assertThatThrownBy(denied).isExactlyInstanceOf(DeniedException.class).hasMessage("denied: eve");
         });

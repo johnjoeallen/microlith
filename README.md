@@ -175,6 +175,19 @@ Descriptions are optional: put `@Operation(summary = ...)` on a method, `@Parame
 
 `mvn -pl apps/app-macro -am verify` also writes the documents of all modules to `apps/app-macro/target/api-docs/` (`openapi.json`, `openrpc.json` and one pair per module) for CI to publish.
 
+## Hardening and compatibility (stage 8)
+
+- **Boundary interceptor.** Calls to a *local* module behave like remote ones: they are observed as `macro.rpc.client{module,method,binding,outcome}` (the same series a remote call produces) and the caller's transaction is suspended for the call. Switch the suspension off with `modules.boundary.suspend-transactions=false`.
+- **API compatibility.** japicmp compares each `-api` jar with its last release and fails the build on removed or changed methods, constructors, record components and exception types; added methods pass. It is skipped until you name a baseline:
+
+  ```bash
+  mvn verify -Dapi.compat.skip=false -Dapi.baseline.version=1.0.0     # the last released version, from your repository
+  scripts/check-api-compat.sh                                         # proves the check bites (compatible changes pass, breaking ones fail)
+  ```
+
+  To add a field to a record without breaking Java callers, keep the old constructor and delegate to the new one.
+- **Failure tests.** `ClientProxyFailureTests` (timeout, refused or cut connection, JSON-RPC error, malformed answer, retry of an idempotent method) and `DomainFailureTests` (eight processes, callee killed mid-call, garbage answer, callee process restarted, orders process restarted with the outbox pending; always exactly one of every side effect).
+
 ## Layout
 
 | Path | Purpose |

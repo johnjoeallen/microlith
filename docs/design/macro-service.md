@@ -341,11 +341,11 @@ Because the `@RpcApi` call is the only inter-module interaction, it is also the 
 | Risk | Why it differs | Mitigation |
 | --- | --- | --- |
 | Pass-by-reference vs serialization | Local calls share object references; remote calls copy through JSON | Immutable records for all DTOs; a `rpc.loopback=true` mode for dev and test that routes even local calls through the JSON codec |
-| Transactions | A local call may join the caller's transaction on a shared datasource; a remote call never can | No cross-module transactions; a boundary interceptor that suspends the transaction on local cross-module calls, or a strict convention; module-local outbox (7.3) for cross-module consistency |
+| Transactions | A local call may join the caller's transaction on a shared datasource; a remote call never can | No cross-module transactions; the boundary interceptor suspends the caller's transaction on local cross-module calls (`modules.boundary.suspend-transactions`, default `true`; see 17.2); module-local outbox (7.3) for cross-module consistency |
 | Failure modes | Remote calls can time out, fail midway or be retried | Idempotent mutating methods (client-supplied request id), timeouts and a retry policy on the client proxy |
 | Exceptions | Remote errors pass through an error envelope | Exception types defined in the `-api` artifact and rehydrated on the client |
 | Latency | Chatty APIs are cheap in-process and costly over the network | Coarse-grained API methods; no per-row calls in loops |
-| Observability | Local calls leave no trace by default | The same boundary interceptor applies metrics and tracing to local calls |
+| Observability | Local calls leave no trace by default | The same boundary interceptor observes local calls as `macro.rpc.client`, tagged exactly like remote calls (17.2) |
 | Security context | The principal is implicit in-process | Principal and trace headers propagated explicitly on remote calls |
 
 ## 12. Testing strategy
@@ -355,7 +355,7 @@ The same test suites protect both deployment models, because the module code is 
 1. **Structure.** `ApplicationModules.verify()` plus the ArchUnit rules (stereotypes, no cross-module event listeners, no cross-module use of anything but `@RpcApi` types). These tests are what guarantee that JSON-RPC-capable calls are the only inter-module interaction.
 2. **Module slices.** `@ApplicationModuleTest` bootstraps a single module with its PostgreSQL schema (Testcontainers) and mocks its collaborators' `-api` interfaces, which is the same situation a split deployment creates.
 3. **Contract tests.** One test suite per `-api` artifact, run against each binding from section 7.4: `local`, `loopback-codec` (JSON round trip in-process), and `loopback-http` or `remote` against a started server. A failure in one binding but not the others is a parity bug.
-4. **API compatibility.** A compatibility check (for example japicmp or a serialized-schema diff) of each `-api` artifact against its last released version, to keep rolling deployments safe (see 14.3).
+4. **API compatibility.** japicmp compares each `-api` artifact with its last released version and fails the build on removed or changed methods, constructors, fields (including record components) and exception types, to keep rolling deployments safe (see 14.3 and 17.2).
 5. **Deployment smoke tests.** Start the image with each profile (monolith, each service) and call one method per module through the public API, including one call that crosses a module boundary.
 6. **Startup validation tests.** Assert that each broken configuration (missing URL, missing datasource) fails with the expected message.
 
@@ -432,7 +432,7 @@ The macro service is the better fit when one team or a small group owns all the 
 **Risks to retire early**
 
 - JSON-RPC and OpenAPI generation must be confirmed to work with Jackson 3 in Boot 4.
-- Decide whether the boundary interceptor that suspends transactions on local cross-module calls is enforced or left to convention.
+- ~~Decide whether the boundary interceptor that suspends transactions on local cross-module calls is enforced or left to convention.~~ Decided in stage 8: enforced by default, switchable (17.2).
 - Callers now depend on callee availability for every cross-module interaction; decide which calls need the module-local outbox (7.3).
 - No connection pooler is available on AWS, so the per-module pool sizes, replica counts and the database's `max_connections` must fit the connection budget (9.1). Work this out per environment before the first multi-module deployment.
 
@@ -582,3 +582,31 @@ Seed data (products, customers, stock) comes from demo-only Flyway migrations in
 5. A module's database role cannot read another module's schema, even when all eight are in one process.
 6. Failures in the middle of the chain compensate correctly (release, void) and a dependency being down does not fail the order.
 7. Results and exception types are identical across all modes.
+
+## 17. Implementation notes and deviations
+
+Where the implementation differs from the sections above. Each item was either removed or is recorded here.
+
+### 17.1 Decisions that differ from the text above
+
+| Area | Design said | Implementation | Why |
+| --- | --- | --- | --- |
+| Persistence API | Not fixed | Spring Data JPA/Hibernate per module, each module with its own `DataSource`, Flyway, `EntityManagerFactory` and transaction manager (`<module>Tm`), none `@Primary` | User decision |
+| Versions | Two-week-old releases | Spring Boot 4.1.2 and Spring Modulith 2.1.2, released days before use | User waived the rule for these two |
+| Platform package root | `com.acme` | Platform code is under `io.macroservice.platform.*`, outside the application root, so Modulith does not treat it as a module | Keeps `ApplicationModules` limited to business modules |
+| `payments.void` | `void` | `voidAuthorization` | `void` is a Java keyword; the table is `payment_authorization` and money is in cents |
+| `-api` dependencies | `rpc-api` and JDK | Also `spring-modulith-api` and `swagger-annotations-jakarta` at `provided` scope (annotations only) | `@NamedInterface` and optional `@Operation`/`@Schema` descriptions |
+| OpenAPI schemas | swagger-core model converters | Generated by `platform/rpc-docs` | No swagger-core or springdoc release supports Jackson 3 (13) |
+| Demo prerequisites | Docker and a JDK | Also `curl` and `python3` for the scripts; Maven comes from `./mvnw` | The scripts post JSON and merge traces |
+| `app-modulith` in the demo | No RPC server | The `demo` profile enables it on 127.0.0.1 only; `ModulithGuard` still rejects a disabled module or a non-local binding | The smoke test needs an HTTP entry to `orders`; calls between modules stay direct |
+| Disabled modules in `app-macro` | Not stated | Every disabled module on the classpath needs a URL, even one this process never calls | The registrar builds a proxy per `@RpcApi` |
+| Call trace (demo) | One interceptor | `demo-support` wraps every `@RpcApi` bean, records the edge on the caller side only, finds the caller module from the call stack, and carries the depth in `X-Rpc-Depth` | Exact edges and the same tree in every mode |
+| Boundary interceptor | An AOP interceptor | A `BeanPostProcessor` that wraps each local `@RpcApi` implementation in a JDK proxy at lowest precedence (outside the callee's own `@Transactional` proxy) | Needs no pointcut and works for the dispatcher too |
+
+### 17.2 Stage 8: boundary parity, compatibility and failure behaviour
+
+- **Boundary interceptor.** Every local `@RpcApi` implementation is wrapped. A call through it (a) is observed as `macro.rpc.client` with tags `module`, `method`, `binding`, `outcome` (and `error` on failure), the same name and tags a remote call gets from its client proxy, so a timer exists per binding and a tracing bridge makes it a span; and (b) suspends an active transaction (PROPAGATION_NOT_SUPPORTED semantics, on every `PlatformTransactionManager`) unless `modules.boundary.suspend-transactions=false`. When the dispatcher invokes the bean for a looped-back or remote caller, only (b) applies; the caller's proxy has already recorded the call. Consequences: a local implementation is no longer injectable by its concrete class (only by its `@RpcApi` interface, which the module rules already require), and `boundary` is a reserved name under `modules.*` (the `modules` map binds it as an empty module, which is harmless).
+- **Metrics instead of a tracer extension.** Metrics and tracing live in the production-path interceptor, not in the demo-only call tracer, so they exist in every profile; the demo tracer is unchanged.
+- **Compatibility check.** `japicmp-maven-plugin` runs at `verify` in every `-api` module and is skipped until a baseline exists. CI runs `mvn verify -Dapi.compat.skip=false -Dapi.baseline.version=<last release>`; the baseline is resolved from the configured repositories like any dependency. Binary-incompatible changes break the build; a method added to an interface does not (additive on the wire). Adding a record component changes the canonical constructor and is reported; keep the old constructor (delegating with a default) to make it pass. Known gap: renaming a method parameter keeps Java compatibility but changes the JSON field name; the generated OpenRPC document changes in that case and should be diffed in review. `scripts/check-api-compat.sh` proves the check bites.
+- **Failure behaviour.** The client proxy maps a timeout, a refused or cut connection, HTTP 502/503/504 and `-32001`/`-32002` to `RpcUnavailableException`; a malformed, empty, mismatched-id or mistyped answer and the codes parse error, invalid request, method not found and invalid params to `RpcProtocolException`; a declared `@RpcError` to the same exception type; any other error to `RpcRemoteException`. Only `@Idempotent` methods are retried, only after an unavailable failure, at most `modules.<m>.client.retries` times. `DomainFailureTests` runs the eight modules as eight processes with a fault-injecting proxy in front of payments, shipping and notifications.
+- **Outbox relay.** A relay now makes its first scan five seconds after it starts (`modules.orders.outbox.startup-scan-delay`), so entries left pending by a process that died are delivered promptly instead of after a full idle-scan interval (found by the relay-restart test). The delay keeps a freshly started, idle module free of database connections for that moment.

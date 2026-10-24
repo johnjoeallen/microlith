@@ -1,5 +1,6 @@
 package io.macroservice.platform.rpcstarter;
 
+import io.micrometer.observation.ObservationRegistry;
 import java.io.IOException;
 import java.util.List;
 import org.springframework.beans.factory.ListableBeanFactory;
@@ -27,15 +28,25 @@ public class RpcAutoConfiguration {
     }
 
     @Bean
+    static BoundaryInterceptor boundaryInterceptor(Environment environment) {
+        return new BoundaryInterceptor(environment);
+    }
+
+    @Bean
+    BoundaryServerInterceptor boundaryServerInterceptor() {
+        return new BoundaryServerInterceptor();
+    }
+
+    @Bean
     MdcHeaderPropagator mdcHeaderPropagator() {
         return new MdcHeaderPropagator();
     }
 
     @Bean
     RpcClientProxyFactory rpcClientProxyFactory(ObjectProvider<JsonMapper> mapper,
-            ObjectProvider<RpcHeaderPropagator> propagators) {
+            ObjectProvider<RpcHeaderPropagator> propagators, ObjectProvider<ObservationRegistry> observations) {
         return new RpcClientProxyFactory(mapper.getIfAvailable(() -> JsonMapper.builder().build()),
-                propagators.orderedStream().toList());
+                propagators.orderedStream().toList(), observations.getIfAvailable(() -> ObservationRegistry.NOOP));
     }
 
     @Bean

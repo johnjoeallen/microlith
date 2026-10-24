@@ -8,6 +8,7 @@ import io.macroservice.platform.rpc.RpcProtocolException;
 import io.macroservice.platform.rpc.RpcRemoteException;
 import io.macroservice.platform.rpc.RpcUnavailableException;
 import io.macroservice.platform.support.ModuleSettings;
+import io.micrometer.observation.ObservationRegistry;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -28,16 +29,27 @@ public class RpcClientProxyFactory {
 
     private final JsonMapper mapper;
     private final List<RpcHeaderPropagator> propagators;
+    private final ObservationRegistry observations;
 
     public RpcClientProxyFactory(JsonMapper mapper, List<RpcHeaderPropagator> propagators) {
+        this(mapper, propagators, ObservationRegistry.NOOP);
+    }
+
+    public RpcClientProxyFactory(JsonMapper mapper, List<RpcHeaderPropagator> propagators, ObservationRegistry observations) {
         this.mapper = mapper;
         this.propagators = propagators;
+        this.observations = observations;
     }
 
     public <T> T create(Class<T> api, String module, RpcTransport transport, ModuleSettings.Client client) {
+        return create(api, module, transport, client, "remote");
+    }
+
+    /** {@code binding} is the label of the observation: remote, loopback-http or loopback-codec. */
+    public <T> T create(Class<T> api, String module, RpcTransport transport, ModuleSettings.Client client, String binding) {
         RpcMethodIndex.methodsOf(api);
         Object proxy = Proxy.newProxyInstance(api.getClassLoader(), new Class<?>[] {api, RpcClientProxy.class},
-                new Handler(api, module, transport, client));
+                new Handler(api, module, transport, client, binding));
         return api.cast(proxy);
     }
 
@@ -47,9 +59,11 @@ public class RpcClientProxyFactory {
         private final String module;
         private final RpcTransport transport;
         private final ModuleSettings.Client client;
+        private final String binding;
         private final AtomicLong ids = new AtomicLong();
 
-        Handler(Class<?> api, String module, RpcTransport transport, ModuleSettings.Client client) {
+        Handler(Class<?> api, String module, RpcTransport transport, ModuleSettings.Client client, String binding) {
+            this.binding = binding;
             this.api = api;
             this.module = module;
             this.transport = transport;
@@ -69,6 +83,10 @@ public class RpcClientProxyFactory {
             if (method.isDefault()) {
                 return InvocationHandler.invokeDefault(proxy, method, args);
             }
+            return RpcObservations.observe(observations, module, method.getName(), binding, () -> send(method, args));
+        }
+
+        private Object send(Method method, Object[] args) throws Exception {
             long id = ids.incrementAndGet();
             String request = mapper.writeValueAsString(envelope(method, args, id));
             int attempts = 1 + (method.isAnnotationPresent(Idempotent.class) ? Math.max(0, client.retries()) : 0);

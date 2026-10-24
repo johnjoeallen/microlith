@@ -105,7 +105,7 @@ class RpcApiRegistrar implements BeanDefinitionRegistryPostProcessor {
             case LOOPBACK_HTTP, REMOTE -> new HttpRpcTransport(() -> urlOf(module, settings, binding), settings.client());
             case LOCAL -> throw new IllegalStateException("local needs no proxy");
         };
-        return beanFactory.getBean(RpcClientProxyFactory.class).create(api, module, transport, settings.client());
+        return beanFactory.getBean(RpcClientProxyFactory.class).create(api, module, transport, settings.client(), name(binding));
     }
 
     private String urlOf(String module, ModuleSettings settings, Binding binding) {
