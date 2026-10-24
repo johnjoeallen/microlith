@@ -220,7 +220,7 @@ modules:
   inventory:
     enabled: true
     binding: loopback-http
-    url: http://127.0.0.1:9100/rpc/inventory
+    url: http://127.0.0.1:9181/rpc/inventory
 ```
 
 Rules:
@@ -527,7 +527,7 @@ The grouping graph is `front` -> `fulfilment` -> `accounts` and `front` -> `acco
 
 | Item | Port | Notes |
 | --- | --- | --- |
-| All-in-one app | 9100 | `modulith`, `macro-monolith` and the loopback modes |
+| All-in-one app | 9181 | `modulith`, `macro-monolith` and the loopback modes |
 | Group processes | 9181 `front`, 9182 `fulfilment`, 9183 `accounts` | `groups` and `split-dbs` modes |
 | One process per module | 9181 `orders`, 9182 `catalog`, 9183 `pricing`, 9184 `inventory`, 9185 `customers`, 9186 `payments`, 9187 `shipping`, 9188 `notifications` | `microservices` and `microservices-macro` modes |
 | PostgreSQL A | 5432 | shared instance, one schema per module |
@@ -543,7 +543,7 @@ The grouping graph is `front` -> `fulfilment` -> `accounts` and `front` -> `acco
 | `microservices` | eight per-service apps (`app-<module>-service`) | 8 | all `remote` | A |
 | `microservices-macro` | `app-macro` eight times, one module enabled each | 8 | all `remote` | A |
 | `loopback-codec` | `app-macro`, profile `loopback-codec` | 1 | every call through the JSON codec in-process | A |
-| `loopback-http` | `app-macro`, profile `loopback-http` | 1 | every call over HTTP to `127.0.0.1:9100` | A |
+| `loopback-http` | `app-macro`, profile `loopback-http` | 1 | every call over HTTP to `127.0.0.1:9181` | A |
 | `split-dbs` | as `groups` | 3 | as `groups` | `front` on A, `fulfilment` on B, `accounts` on C |
 
 Per-service apps contain their own `-impl` plus the `-api` artifacts of the modules they call, which is exactly that module's `allowedDependencies`. An enforcer rule checks that an app's declared `-api` dependencies match it, so a service app cannot silently depend on more than its module may use.

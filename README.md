@@ -42,7 +42,7 @@ Pool metrics: `macro.db.pool.connections{module,state}` and `macro.db.pool.timeo
 
 ```bash
 java -jar apps/app-modulith/target/app-modulith-0.1.0-SNAPSHOT.jar --spring.profiles.active=demo --rpc.server.enabled=true
-curl -s -X POST localhost:9100/rpc/orders -H 'Content-Type: application/json' \
+curl -s -X POST localhost:9181/rpc/orders -H 'Content-Type: application/json' \
   -d '{"jsonrpc":"2.0","method":"orders.placeOrder","params":{"request":{"requestId":"m-1","customerId":"cust-1","sku":"sku-1","quantity":2}},"id":1}'
 ```
 
@@ -103,7 +103,7 @@ Demo data (profile `demo`): products `sku-widget` (1000), `sku-gadget` (2500), `
 (shipping always fails); customers `cust-standard`, `cust-gold` (10% off), `cust-declined` (card is declined). Amounts are cents.
 
 ```bash
-call() { curl -s -X POST localhost:9100/rpc/orders -H 'Content-Type: application/json' -d "{\"jsonrpc\":\"2.0\",\"method\":\"orders.placeOrder\",\"params\":{\"requestId\":\"$1\",\"customerId\":\"$2\",\"lines\":[{\"sku\":\"$3\",\"quantity\":$4}]},\"id\":1}"; echo; }
+call() { curl -s -X POST localhost:9181/rpc/orders -H 'Content-Type: application/json' -d "{\"jsonrpc\":\"2.0\",\"method\":\"orders.placeOrder\",\"params\":{\"requestId\":\"$1\",\"customerId\":\"$2\",\"lines\":[{\"sku\":\"$3\",\"quantity\":$4}]},\"id\":1}"; echo; }
 call happy-1      cust-standard sku-widget        2   # CONFIRMED, total 2700
 call gold-1       cust-gold     sku-widget        2   # CONFIRMED, 200 off, total 2500
 call oos-1        cust-standard sku-oos           1   # error 1001 OutOfStockException
@@ -129,12 +129,12 @@ scripts/demo-all.sh                    # every mode on a clean database, with a 
 
 | Mode | Processes | Cross-module path |
 | --- | --- | --- |
-| `modulith` | `app-modulith` on 9100 | all local |
-| `macro-monolith` | `app-macro` (`monolith`) on 9100 | all local |
+| `modulith` | `app-modulith` on 9181 | all local |
+| `macro-monolith` | `app-macro` (`monolith`) on 9181 | all local |
 | `groups` | `app-macro` as `front` 9181, `fulfilment` 9182, `accounts` 9183 | local inside a group, remote across |
 | `microservices` | the eight `app-<module>-service` apps on 9181-9188 | all remote |
 | `microservices-macro` | `app-macro` eight times, one module enabled each (profile = module name) | all remote |
-| `loopback-codec`, `loopback-http` | `app-macro` on 9100 | every call through the JSON codec / over HTTP to 127.0.0.1 |
+| `loopback-codec`, `loopback-http` | `app-macro` on 9181 | every call through the JSON codec / over HTTP to 127.0.0.1 |
 | `split-dbs` | as `groups`, profile `split-dbs`: front on A, fulfilment on B, accounts on C | as `groups` |
 
 `app-macro` has no module wiring baked in; profiles do it (`monolith`, `front`, `fulfilment`, `accounts`, one per module,
@@ -167,8 +167,8 @@ OpenAPI 3.1 and OpenRPC documents are generated at runtime from the `@RpcApi` in
 
 ```bash
 scripts/db.sh up && scripts/demo.sh macro-monolith start
-open http://127.0.0.1:9100/swagger-ui        # pick "inventory", try inventory.getStock
-curl -s localhost:9100/rpc/inventory/openapi.json | jq '.paths | keys'
+open http://127.0.0.1:9181/swagger-ui        # pick "inventory", try inventory.getStock
+curl -s localhost:9181/rpc/inventory/openapi.json | jq '.paths | keys'
 ```
 
 Descriptions are optional: put `@Operation(summary = ...)` on a method, `@Parameter(description = ...)` on a parameter or `@Schema(description = ...)` on a record or component in the `-api` artifact (`swagger-annotations-jakarta` at `provided` scope; the annotations jar is on every runtime classpath through `rpc-docs`). Records are described as Jackson writes them: all components are required, and a component is nullable only if annotated with an annotation named `Nullable`.

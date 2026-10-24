@@ -21,13 +21,13 @@ scripts/demo-all.sh                     # every mode on a clean database, summar
 
 | Shape | `<mode>` | Processes | Cross-module calls |
 | --- | --- | --- | --- |
-| Modulith (one jar, only the modules' `-impl`) | `modulith` | `app-modulith` :9100 | all local, direct |
-| Macro service as a monolith | `macro-monolith` | `app-macro` profile `monolith` :9100 | all local |
+| Modulith (one jar, only the modules' `-impl`) | `modulith` | `app-modulith` :9181 | all local, direct |
+| Macro service as a monolith | `macro-monolith` | `app-macro` profile `monolith` :9181 | all local |
 | Macro service in groups | `groups` | `app-macro` profiles `front` :9181, `fulfilment` :9182, `accounts` :9183 | local inside a group, JSON-RPC across |
 | Microservices (eight jars) | `microservices` | the eight `app-<module>-service` :9181-9188 | all JSON-RPC |
 | Microservices from the macro jar | `microservices-macro` | `app-macro` eight times, profile = module name | all JSON-RPC |
-| Everything through the JSON codec | `loopback-codec` | `app-macro` :9100 | in-process, serialized |
-| Everything over HTTP to itself | `loopback-http` | `app-macro` :9100 | HTTP to 127.0.0.1 |
+| Everything through the JSON codec | `loopback-codec` | `app-macro` :9181 | in-process, serialized |
+| Everything over HTTP to itself | `loopback-http` | `app-macro` :9181 | HTTP to 127.0.0.1 |
 | Groups on three databases | `split-dbs` | as `groups`; front on A, fulfilment on B, accounts on C | as `groups` |
 
 Without the scripts, for example the groups shape (databases up first):

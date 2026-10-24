@@ -2,7 +2,7 @@
 # (monolith, front/fulfilment/accounts, one per module, loopback-codec, loopback-http, split-dbs) or environment
 # variables. This file holds what is true in every shape: the local demo databases and the web/readiness settings.
 server:
-  port: 9100
+  port: 9181
 rpc:
   server:
     enabled: true

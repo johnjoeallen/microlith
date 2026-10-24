@@ -22,10 +22,10 @@ usage() { echo "usage: $0 <modulith|macro-monolith|groups|microservices|microser
 plan() {
   local m g
   case "$mode" in
-    modulith)       echo "modulith app-modulith 9100 demo" ;;
-    macro-monolith) echo "macro app-macro 9100 monolith,demo" ;;
-    loopback-codec) echo "macro app-macro 9100 loopback-codec,demo" ;;
-    loopback-http)  echo "macro app-macro 9100 loopback-http,demo" ;;
+    modulith)       echo "modulith app-modulith 9181 demo" ;;
+    macro-monolith) echo "macro app-macro 9181 monolith,demo" ;;
+    loopback-codec) echo "macro app-macro 9181 loopback-codec,demo" ;;
+    loopback-http)  echo "macro app-macro 9181 loopback-http,demo" ;;
     groups)         echo "front app-macro 9181 front,demo"; echo "fulfilment app-macro 9182 fulfilment,demo"; echo "accounts app-macro 9183 accounts,demo" ;;
     split-dbs)      echo "front app-macro 9181 front,split-dbs,demo"; echo "fulfilment app-macro 9182 fulfilment,split-dbs,demo"; echo "accounts app-macro 9183 accounts,split-dbs,demo" ;;
     microservices)       for m in "${modules[@]}"; do echo "$m app-$m-service ${port[$m]} demo"; done ;;
@@ -34,7 +34,7 @@ plan() {
   esac
 }
 
-orders_port() { case "$mode" in modulith|macro-monolith|loopback-codec|loopback-http) echo 9100 ;; *) echo 9181 ;; esac; }
+orders_port() { echo 9181; }
 
 ready() { curl -fs "http://127.0.0.1:$1/actuator/health/readiness" 2>/dev/null | grep -q '"UP"'; }
 
