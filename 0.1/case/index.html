@@ -1897,7 +1897,8 @@ by default, before any need for the split has been shown.</p>
 <div class="admonition note">
 <p class="admonition-title">Evidence, and the extrapolation from it</p>
 <p>The numbers on this page come from this project: one domain, one machine. Carrying them over to real systems is the author's judgement, which is why the argument below is made in
-steps, with its limits stated at the end.</p>
+steps, with its limits stated at the end. In particular, <strong>every network call here was local</strong> (loopback on one machine) with <strong>no TLS, no authentication, no proxy, load balancer or
+service mesh</strong> in the path, so the network cost measured is a floor, not a typical figure.</p>
 </div>
 <p><strong>Thesis.</strong> Starting a product as a set of microservices should not be the default. The default should be a <strong>macro service</strong>: one team's modular service with
 build-enforced module boundaries, deployed as one unit. It is the safe starting point because it keeps every later option open: the same artifact can be deployed as independent, separately scaled services <em>without
@@ -2109,7 +2110,7 @@ Review:       every &lt;n&gt; sprints, with the boundary metrics
 </tr>
 <tr>
 <td>"Real services do real work, so the hop is small by comparison."</td>
-<td>True, and it makes the relative cost smaller than measured here. A real network makes the absolute cost larger. The effects point in opposite directions, so measure your own journeys.</td>
+<td>True, and it makes the relative cost smaller than measured here. A real network, TLS, authentication and any proxies make the absolute cost larger than the loopback figures. The effects point in opposite directions, so measure your own journeys.</td>
 </tr>
 <tr>
 <td>"A modular monolith erodes into a big ball of mud."</td>
@@ -2129,7 +2130,12 @@ Review:       every &lt;n&gt; sprints, with the boundary metrics
 </ul>
 <h2 id="where-the-evidence-stops">Where the evidence stops<a class="headerlink" href="#where-the-evidence-stops" title="Permanent link">&para;</a></h2>
 <ul>
-<li><strong>One domain, one machine, loopback networking.</strong> The demo calls are cheap, so the network share of each order is larger than in a service that does real work. A real network costs more per hop. Both effects are real and run in opposite directions.</li>
+<li><strong>One machine, loopback only, and nothing else in the path.</strong> Every call between processes ran over the loopback interface of one host. There was no TLS or mTLS (no handshakes, no per-call encryption), no authentication or token
+  validation on each call, no load balancer, gateway or service-mesh sidecar adding hops, no service discovery, and no real network latency, packet loss, retries or timeouts, and no cross-zone traffic. Real deployments have most of these. That makes
+  the measured cost of splitting a <strong>floor</strong> for its network and security part, and the extra hops, handshakes and proxies come on top of every boundary you add.</li>
+<li><strong>Cheap calls.</strong> The demo's calls are one primary-key query each, so the network share of an order is larger than in services that do real work per call. This pushes the other way, and is why the relative cost measured here may overstate
+  what a heavy-calls domain would see. The two effects are real and run in opposite directions; measure your own journeys.</li>
+<li><strong>One domain and one workload.</strong> The demo's order flow and its order mix; a different domain or mix gives different call counts and different weights.</li>
 <li><strong>One run per configuration.</strong> Differences below about 5% are noise; the parallel and cache effects shown are well above it, the outbox-versus-events difference is not.</li>
 <li><strong>No long-term operation.</strong> The measurements do not cover on-call load, incidents or a growing team. Those arguments come from the design and from the sprawl scenario, not from data.</li>
 <li><strong>Parked work.</strong> A few things the argument leans on are practices rather than shipped features: the cheap-module generator, the boundary-cost tool and a published-versus-internal API marker are in the <a href="../principles/#parked-ideas">parked ideas</a>.</li>

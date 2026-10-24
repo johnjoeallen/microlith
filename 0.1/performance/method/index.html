@@ -1760,8 +1760,9 @@
 Each JVM is limited to <code>-Xmx320m</code> with the serial GC, so that eight of them fit comfortably.</p>
 <div class="admonition warning">
 <p class="admonition-title">What a single machine means</p>
-<p>A hop between processes here is a loopback TCP connection, typically 1 to 3 ms. A real network is slower, so the <em>cost of splitting</em> shown
-here is a <strong>lower bound</strong>. Client and servers also compete for the same CPUs, which flattens differences once the machine is busy.</p>
+<p>A hop between processes here is a <strong>loopback</strong> TCP connection on one host, typically 1 to 3 ms. There is <strong>no TLS or mTLS, no authentication on each call, no load balancer, gateway or
+service mesh, no service discovery, no real network latency or loss, and no cross-zone traffic</strong>. A real deployment has most of these, so the <em>cost of splitting</em> shown here is a
+<strong>lower bound</strong> for its network and security part. Client and servers also compete for the same CPUs, which flattens differences once the machine is busy.</p>
 </div>
 <h2 id="the-workload">The workload<a class="headerlink" href="#the-workload" title="Permanent link">&para;</a></h2>
 <p><code>scripts/perf.sh</code> drives <code>orders.placeOrder</code> with the <strong><code>realistic</code></strong> profile:</p>
@@ -1823,7 +1824,7 @@ expected business outcome; they are counted and shown separately, and excluded f
 <li><strong>Call tracing has a cost.</strong> Recording each call adds a little overhead to every configuration equally. <code>--no-trace</code> measures round trips only.</li>
 <li><strong>It is a demo domain.</strong> Calls are cheap (one primary-key query each), so the network and framework share of the time is larger than it would
   be for services doing real work.</li>
-<li><strong>No real network, no real data volume,</strong> no failures during the measurement.</li>
+<li><strong>No real network and nothing in the path:</strong> loopback only, no TLS, no authentication, no proxies or mesh. No real data volume, and no failures during the measurement.</li>
 </ul>
 </div>
 <h2 id="reproducing-it">Reproducing it<a class="headerlink" href="#reproducing-it" title="Permanent link">&para;</a></h2>
