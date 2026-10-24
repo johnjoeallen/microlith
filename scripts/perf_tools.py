@@ -69,8 +69,9 @@ class Workload:
     """Who orders what. The small profile is the two customers and two SKUs of the demo data; the others use seeded
     perf-c-<rank> customers and perf-s-<rank> SKUs, drawn with a Zipf popularity (rank 1 is the most popular)."""
 
-    def __init__(self, profile, customers, skus, customer_skew, sku_skew, seed):
+    def __init__(self, profile, customers, skus, customer_skew, sku_skew, seed, lines=None):
         self.profile, self.customers, self.skus = profile, customers, skus
+        self.lines = lines                      # a fixed number of lines per order (bigger payloads), or None for the profile's 1 to 4 mix
         self.customer_skew, self.sku_skew, self.seed = customer_skew, sku_skew, seed
         self.small = profile == "small"
         self.customer_cum, _ = cumulative(customers, customer_skew)
@@ -82,7 +83,7 @@ class Workload:
             return ["cust-standard", "cust-gold"][seq % 2], [{"sku": ["sku-widget", "sku-gadget"][seq % 2], "quantity": 1 + seq % 2}]
         rng = random.Random(f"{self.seed}:{seq}")
         customer = bisect.bisect_left(self.customer_cum, rng.random() * self.customer_cum[-1]) + 1
-        wanted = min(rng.choices(*LINES)[0], self.skus)
+        wanted = min(self.lines or rng.choices(*LINES)[0], self.skus)
         chosen = []
         while len(chosen) < wanted:
             sku = bisect.bisect_left(self.sku_cum, rng.random() * self.sku_cum[-1]) + 1
@@ -94,7 +95,7 @@ class Workload:
         if self.small:
             return "small: 2 customers, 2 SKUs, 1 line per order, uniform"
         return (f"{self.profile}: {self.customers:,} customers (Zipf {self.customer_skew:g}), {self.skus:,} SKUs (Zipf {self.sku_skew:g}), "
-                f"1-4 lines per order (mean 2.0), 1-3 units per line, {GOLD_PERCENT}% gold and {DECLINED_PERCENT}% always-declined customers, "
+                + (f"{self.lines} lines per order" if self.lines else "1-4 lines per order (mean 2.0)") + f", 1-3 units per line, {GOLD_PERCENT}% gold and {DECLINED_PERCENT}% always-declined customers, "
                 f"seed {self.seed}")
 
 
@@ -115,7 +116,8 @@ def seed_data(mode, workload, planned_orders):
         needed = 2 * planned_orders + 100
         psql(where["inventory"], "update inventory.stock set available = greatest(available, %d) where sku in ('sku-widget', 'sku-gadget');" % needed)
         return
-    units = planned_orders * sum(w * l for l, w in zip(*LINES)) / sum(LINES[1]) * sum(w * q for q, w in zip(*QUANTITY)) / sum(QUANTITY[1])
+    mean_lines = workload.lines or sum(w * l for l, w in zip(*LINES)) / sum(LINES[1])
+    units = planned_orders * mean_lines * sum(w * q for q, w in zip(*QUANTITY)) / sum(QUANTITY[1])
     stock = max(100, math.ceil(1.5 * units * workload.top_sku_share) + 50)      # the most popular SKU, with headroom
     customers = (f"with c as (select g, (hashtext(g::text)::bigint & 2147483647) % 100 as h from generate_series(1, {workload.customers}) g) "
                  "insert into customers.customer (customer_id, name, email, tier, line1, city, country, payment_token, payment_brand) "
@@ -485,6 +487,7 @@ def main():
     parser.add_argument("--skus", type=int, help="number of SKUs (overrides the profile)")
     parser.add_argument("--customer-skew", type=float, help="Zipf exponent of customer popularity, 0 = uniform (overrides the profile)")
     parser.add_argument("--sku-skew", type=float, help="Zipf exponent of SKU popularity, 0 = uniform (overrides the profile)")
+    parser.add_argument("--lines", type=int, help="a fixed number of lines per order instead of the profile's 1 to 4 mix; more lines mean bigger JSON-RPC payloads")
     parser.add_argument("--seed", type=int, default=42, help="seed of the order generator (default 42; same seed, same orders)")
     parser.add_argument("--no-seed", "--no-stock", dest="no_seed", action="store_true",
                         help="do not load the profile's customers, products and stock before the run (already loaded)")
@@ -548,7 +551,7 @@ def measure(args, out_dir):
     base = PROFILES[args.profile]
     workload = Workload(args.profile, args.customers or base["customers"], args.skus or base["skus"],
                         base["customer_skew"] if args.customer_skew is None else args.customer_skew,
-                        base["sku_skew"] if args.sku_skew is None else args.sku_skew, args.seed)
+                        base["sku_skew"] if args.sku_skew is None else args.sku_skew, args.seed, args.lines)
     args.workload = workload
     planned = args.orders if not args.duration else int(args.duration * 400)   # generous stock bound for a timed run
     if not args.no_seed:
