@@ -1,0 +1,2242 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="One Spring Boot codebase that runs as a monolith or as services, chosen by configuration, with measurements of what each shape costs.">
+      
+      
+      
+        <link rel="canonical" href="https://johnjoeallen.github.io/microlith/0.1/case/">
+      
+      
+        <link rel="prev" href="../architecture/">
+      
+      
+        <link rel="next" href="../principles/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
+    
+    
+      
+        <title>The case - microlith</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.57a0d79d.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.fb2fffe2.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#why-microservices-should-not-be-the-default-starting-point" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+      </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="microlith" class="md-header__button md-logo" aria-label="microlith" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            microlith
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              The case
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/johnjoeallen/microlith" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    johnjoeallen/microlith
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href=".." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../architecture/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    <li class="md-tabs__item md-tabs__item--active">
+      <a href="./" class="md-tabs__link">
+        
+  
+  
+    
+  
+  The case
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../principles/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Principles
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../modes/" class="md-tabs__link">
+          
+  
+  
+  Deployment modes
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../features/cache/" class="md-tabs__link">
+          
+  
+  
+  Optional features
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../performance/" class="md-tabs__link">
+          
+  
+  
+  Performance
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../running/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Running it
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../README-dev/" class="md-tabs__link">
+          
+  
+  
+  Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="microlith" class="md-nav__button md-logo" aria-label="microlith" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    microlith
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/johnjoeallen/microlith" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    johnjoeallen/microlith
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The case
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The case
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#the-argument-in-six-steps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The argument in six steps
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The argument in six steps">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-the-start-is-made-when-you-know-the-least" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. The start is made when you know the least
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-splitting-early-has-an-immediate-measured-cost" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Splitting early has an immediate, measured cost
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-microservices-mainly-buy-team-independence-one-team-has-no-use-for-it-yet" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Microservices mainly buy team independence; one team has no use for it yet
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-the-decision-is-asymmetric-splitting-is-cheap-later-merging-is-not" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. The decision is asymmetric: splitting is cheap later, merging is not
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-the-macro-service-already-deploys-as-independent-services" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. The macro service already deploys as independent services
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6-so-analyse-first-and-the-analysis-is-cheap" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. So analyse first, and the analysis is cheap
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-each-starting-point-commits-you-to" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What each starting point commits you to
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#decision-record" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Decision record
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-the-best-counter-arguments-say-and-the-answer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What the best counter-arguments say, and the answer
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-would-change-the-conclusion" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What would change the conclusion
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#where-the-evidence-stops" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Where the evidence stops
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../principles/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Principles
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment modes
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Deployment modes
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../modes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../modes/single-process/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    One process
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../modes/split/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Split across processes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Optional features
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Optional features
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../features/cache/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Result cache (@Cached)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../features/parallel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Parallel quotes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../features/follow-ups/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Follow-up delivery (outbox or events)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Performance
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Performance
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../performance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Summary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../performance/method/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Method
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../performance/modes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The eight modes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../performance/switches/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cache, parallel quotes and delivery
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../performance/load/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Load and delivery speed
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_7_6" id="__nav_7_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Raw reports
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_7_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Raw reports
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../performance/reports/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../performance/reports/modes-cache/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Modes, cache off and on
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../performance/reports/parallel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Parallel quotes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../performance/reports/async-parallel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Outbox and events
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../performance/reports/load-4-clients/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4 clients
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../performance/reports/load-16-clients/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    16 clients
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../running/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Running it
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" >
+        
+          
+          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../README-dev/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Developer guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Project reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../design/macro-service/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../design/spring-modulith-async/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Discussion: Spring Modulith async
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../design/spring-modulith-events/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Spike: Spring Modulith events
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../design/staged-prompt/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Build plan
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#the-argument-in-six-steps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The argument in six steps
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The argument in six steps">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-the-start-is-made-when-you-know-the-least" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. The start is made when you know the least
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-splitting-early-has-an-immediate-measured-cost" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Splitting early has an immediate, measured cost
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-microservices-mainly-buy-team-independence-one-team-has-no-use-for-it-yet" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Microservices mainly buy team independence; one team has no use for it yet
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-the-decision-is-asymmetric-splitting-is-cheap-later-merging-is-not" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. The decision is asymmetric: splitting is cheap later, merging is not
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-the-macro-service-already-deploys-as-independent-services" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. The macro service already deploys as independent services
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6-so-analyse-first-and-the-analysis-is-cheap" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. So analyse first, and the analysis is cheap
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-each-starting-point-commits-you-to" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What each starting point commits you to
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#decision-record" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Decision record
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-the-best-counter-arguments-say-and-the-answer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What the best counter-arguments say, and the answer
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-would-change-the-conclusion" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What would change the conclusion
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#where-the-evidence-stops" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Where the evidence stops
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="why-microservices-should-not-be-the-default-starting-point">Why microservices should not be the default starting point<a class="headerlink" href="#why-microservices-should-not-be-the-default-starting-point" title="Permanent link">&para;</a></h1>
+<p><strong>Who wants their applications to go slower?</strong></p>
+<p>Every boundary between processes puts a network hop on every call that crosses it. In this project's measurements, splitting the same application into eight services made an
+order take about twice as long and roughly halved the throughput (11.6 ms against 21.5 to 22.7 ms, and 336 against 166 to 178 orders per second). Nobody sets out to do that, yet it is what starting with microservices does
+by default, before any need for the split has been shown.</p>
+<div class="admonition note">
+<p class="admonition-title">Evidence, and the extrapolation from it</p>
+<p>The numbers on this page come from this project: one domain, one machine. Carrying them over to real systems is the author's judgement, which is why the argument below is made in
+steps, with its limits stated at the end.</p>
+</div>
+<p><strong>Thesis.</strong> Starting a product as a set of microservices should not be the default. The default should be a <strong>macro service</strong>: one team's modular service with
+build-enforced module boundaries, deployed as one unit. It is the safe starting point because it keeps every later option open: the same artifact can be deployed as independent, separately scaled services <em>without
+splitting the codebase and without creating separate deployables</em>, and splitting later is far easier than merging back. Microservices-first needs an analysis that supports it. It is a decision, not a starting position.</p>
+<p>This page argues that from the measurements and the design in this project. It is an argument from evidence, not a mathematical proof, and the <a href="#where-the-evidence-stops">last sections</a> say where it stops.</p>
+<h2 id="the-argument-in-six-steps">The argument in six steps<a class="headerlink" href="#the-argument-in-six-steps" title="Permanent link">&para;</a></h2>
+<h3 id="1-the-start-is-made-when-you-know-the-least">1. The start is made when you know the least<a class="headerlink" href="#1-the-start-is-made-when-you-know-the-least" title="Permanent link">&para;</a></h3>
+<p>At the beginning of a product the boundaries, the volumes and the change patterns are guesses. Teams that begin with "how many services do we need?" commit to the decomposition at the point of
+maximum ignorance, and the usual first answer, <code>n</code> layers with <code>m</code> services per layer, is the worst one: a technical cut makes every feature a coordinated change across services.
+As an extrapolation from the measured cost per hop (a lower bound on one machine), the demo's 20 calls per order, each routed through two extra layer services, would be about 60 hops, roughly <strong>+70 ms</strong>, against <strong>+11 ms</strong> measured for the business-aligned split. Good boundaries come from journeys, invariants and change patterns, and those appear as the product
+is built. See <a href="../principles/#4-start-small-and-let-boundaries-appear">start small and let boundaries appear</a>.</p>
+<h3 id="2-splitting-early-has-an-immediate-measured-cost">2. Splitting early has an immediate, measured cost<a class="headerlink" href="#2-splitting-early-has-an-immediate-measured-cost" title="Permanent link">&para;</a></h3>
+<p>Same code, same tests, same workload, eight deployment shapes (<a href="../performance/modes/">the measurements</a>):</p>
+<figure class="viz"><figcaption><strong>Throughput by mode</strong><span>orders per second, 4 clients, result cache on; longer is better</span></figcaption><svg viewBox="0 0 760 320" role="img" aria-label="Throughput by mode: orders per second, 4 clients, result cache on; longer is better"><line class="grid" x1="143.4" y1="6" x2="143.4" y2="294"/><text class="tick" x="143.4" y="312" text-anchor="middle">0</text><line class="grid" x1="281.5" y1="6" x2="281.5" y2="294"/><text class="tick" x="281.5" y="312" text-anchor="middle">100</text><line class="grid" x1="419.7" y1="6" x2="419.7" y2="294"/><text class="tick" x="419.7" y="312" text-anchor="middle">200</text><line class="grid" x1="557.8" y1="6" x2="557.8" y2="294"/><text class="tick" x="557.8" y="312" text-anchor="middle">300</text><line class="grid" x1="696.0" y1="6" x2="696.0" y2="294"/><text class="tick" x="696.0" y="312" text-anchor="middle">400</text><line class="axis" x1="143.39999999999998" y1="6" x2="143.39999999999998" y2="294"/><g class="row"><title>modulith: orders/s 336 orders/s</title><rect class="hit" x="0" y="6" width="760" height="36"/><text class="cat" x="135.39999999999998" y="28.0" text-anchor="end">modulith</text><path class="mark s1" d="M143.4,14.0h460.8a4.0,4.0 0 0 1 4.0,4.0v12.0a4.0,4.0 0 0 1 -4.0,4.0h-460.8z"><title>orders/s: 336 orders/s</title></path><text class="val" x="614.2" y="28.0">336</text></g><g class="row"><title>macro-monolith: orders/s 331 orders/s</title><rect class="hit" x="0" y="42" width="760" height="36"/><text class="cat" x="135.39999999999998" y="64.0" text-anchor="end">macro-monolith</text><path class="mark s1" d="M143.4,50.0h453.0a4.0,4.0 0 0 1 4.0,4.0v12.0a4.0,4.0 0 0 1 -4.0,4.0h-453.0z"><title>orders/s: 331 orders/s</title></path><text class="val" x="606.4" y="64.0">331</text></g><g class="row"><title>loopback-codec: orders/s 314 orders/s</title><rect class="hit" x="0" y="78" width="760" height="36"/><text class="cat" x="135.39999999999998" y="100.0" text-anchor="end">loopback-codec</text><path class="mark s1" d="M143.4,86.0h429.7a4.0,4.0 0 0 1 4.0,4.0v12.0a4.0,4.0 0 0 1 -4.0,4.0h-429.7z"><title>orders/s: 314 orders/s</title></path><text class="val" x="583.1" y="100.0">314</text></g><g class="row"><title>loopback-http: orders/s 238 orders/s</title><rect class="hit" x="0" y="114" width="760" height="36"/><text class="cat" x="135.39999999999998" y="136.0" text-anchor="end">loopback-http</text><path class="mark s1" d="M143.4,122.0h324.6a4.0,4.0 0 0 1 4.0,4.0v12.0a4.0,4.0 0 0 1 -4.0,4.0h-324.6z"><title>orders/s: 238 orders/s</title></path><text class="val" x="478.0" y="136.0">238</text></g><g class="row"><title>groups: orders/s 225 orders/s</title><rect class="hit" x="0" y="150" width="760" height="36"/><text class="cat" x="135.39999999999998" y="172.0" text-anchor="end">groups</text><path class="mark s1" d="M143.4,158.0h307.0a4.0,4.0 0 0 1 4.0,4.0v12.0a4.0,4.0 0 0 1 -4.0,4.0h-307.0z"><title>orders/s: 225 orders/s</title></path><text class="val" x="460.4" y="172.0">225</text></g><g class="row"><title>split-dbs: orders/s 230 orders/s</title><rect class="hit" x="0" y="186" width="760" height="36"/><text class="cat" x="135.39999999999998" y="208.0" text-anchor="end">split-dbs</text><path class="mark s1" d="M143.4,194.0h314.0a4.0,4.0 0 0 1 4.0,4.0v12.0a4.0,4.0 0 0 1 -4.0,4.0h-314.0z"><title>orders/s: 230 orders/s</title></path><text class="val" x="467.4" y="208.0">230</text></g><g class="row"><title>microservices: orders/s 166 orders/s</title><rect class="hit" x="0" y="222" width="760" height="36"/><text class="cat" x="135.39999999999998" y="244.0" text-anchor="end">microservices</text><path class="mark s1" d="M143.4,230.0h224.7a4.0,4.0 0 0 1 4.0,4.0v12.0a4.0,4.0 0 0 1 -4.0,4.0h-224.7z"><title>orders/s: 166 orders/s</title></path><text class="val" x="378.1" y="244.0">166</text></g><g class="row"><title>microservices-macro: orders/s 178 orders/s</title><rect class="hit" x="0" y="258" width="760" height="36"/><text class="cat" x="135.39999999999998" y="280.0" text-anchor="end">microservices-macro</text><path class="mark s1" d="M143.4,266.0h242.5a4.0,4.0 0 0 1 4.0,4.0v12.0a4.0,4.0 0 0 1 -4.0,4.0h-242.5z"><title>orders/s: 178 orders/s</title></path><text class="val" x="395.9" y="280.0">178</text></g></svg><details class="viz-data"><summary>Show the numbers</summary><table><thead><tr><th></th><th>orders/s (orders/s)</th></tr></thead><tbody><tr><td>modulith</td><td>336</td></tr><tr><td>macro-monolith</td><td>331</td></tr><tr><td>loopback-codec</td><td>314</td></tr><tr><td>loopback-http</td><td>238</td></tr><tr><td>groups</td><td>225</td></tr><tr><td>split-dbs</td><td>230</td></tr><tr><td>microservices</td><td>166</td></tr><tr><td>microservices-macro</td><td>178</td></tr></tbody></table></details></figure>
+
+<table>
+<thead>
+<tr>
+<th></th>
+<th>One unit (<code>modulith</code>)</th>
+<th>Three groups</th>
+<th>Eight services</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Throughput</td>
+<td>336 orders/s</td>
+<td>225 (67%)</td>
+<td>166 to 178 (49 to 53%)</td>
+</tr>
+<tr>
+<td>Median order</td>
+<td>11.6 ms</td>
+<td>17.4 ms</td>
+<td>21.5 to 22.7 ms</td>
+</tr>
+<tr>
+<td>Remote calls per order</td>
+<td>0</td>
+<td>8.5</td>
+<td>14.4</td>
+</tr>
+<tr>
+<td>Version-skew pairs to keep compatible</td>
+<td>0</td>
+<td>3</td>
+<td>13</td>
+</tr>
+<tr>
+<td>Processes to run, patch and be on call for</td>
+<td>1</td>
+<td>3</td>
+<td>8</td>
+</tr>
+</tbody>
+</table>
+<p>Each call between processes costs about 1.1 to 1.3 ms more than a local one (0.5 to 0.7 ms), and an order makes about 20 calls. Cache and parallel reads win part of it back (+13 to 26% and +9 to 18% in the split modes), but those are mitigations
+of a cost the team chose to take on. For a single team that coordinates perfectly well, the benefit side of that bargain is mostly options it does not yet need.</p>
+<h3 id="3-microservices-mainly-buy-team-independence-one-team-has-no-use-for-it-yet">3. Microservices mainly buy team independence; one team has no use for it yet<a class="headerlink" href="#3-microservices-mainly-buy-team-independence-one-team-has-no-use-for-it-yet" title="Permanent link">&para;</a></h3>
+<p>The benefits of separate services are independent deployment, scaling, failure isolation and ownership. Each is a <a href="../principles/#4-start-small-and-let-boundaries-appear">force</a> with evidence to gather:
+a cadence conflict, a measured hot spot, a differing criticality, an audit boundary, a second team. A team of 5 to 10 that releases together has none of these on day one. What it does have is the <em>design</em>
+discipline of microservices (clear contracts, ownership, data ownership, one-way dependencies), and the macro service provides that <a href="../principles/#3-separate-logically-first-physically-only-when-forced">logically and enforced by the build</a>,
+without running a distributed system.</p>
+<p>The failure mode of starting with services is also a team-coordination one: a team that keeps adding services for each feature accumulates pipelines, on-call surface, patching and skew faster than its domain
+grows, and ends with a distributed monolith owned by one team. One team means one deployable until a force says otherwise.</p>
+<h3 id="4-the-decision-is-asymmetric-splitting-is-cheap-later-merging-is-not">4. The decision is asymmetric: splitting is cheap later, merging is not<a class="headerlink" href="#4-the-decision-is-asymmetric-splitting-is-cheap-later-merging-is-not" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Splitting later</th>
+<th>Merging later</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Deployment level</td>
+<td>configuration: <code>enabled=false</code> plus a URL</td>
+<td>configuration: enable it locally</td>
+</tr>
+<tr>
+<td>Contract</td>
+<td>write an API at a cut you now understand</td>
+<td>remove it and inline every consumer</td>
+</tr>
+<tr>
+<td>Data</td>
+<td>already isolated per module (no cross-schema keys, separate roles); a schema move is a metadata change, an instance move a copy</td>
+<td>collisions: each schema has its own migration history and table names</td>
+</tr>
+<tr>
+<td>Ownership</td>
+<td>one team becomes two</td>
+<td>two owners must become one</td>
+</tr>
+<tr>
+<td>A wrong boundary costs</td>
+<td>a refactor in the IDE and one commit</td>
+<td>a migration across repos, contracts and consumers</td>
+</tr>
+</tbody>
+</table>
+<p>Starting in the cheap-to-be-wrong shape and moving to services on evidence loses almost nothing. Starting with services and discovering the boundaries were wrong costs a migration. See
+<a href="../principles/#5-changing-a-boundary-later-splitting-is-easier-than-re-combining">changing a boundary later</a>.</p>
+<h3 id="5-the-macro-service-already-deploys-as-independent-services">5. The macro service already deploys as independent services<a class="headerlink" href="#5-the-macro-service-already-deploys-as-independent-services" title="Permanent link">&para;</a></h3>
+<p>The usual objection to "start with a monolith" is that you then have to rewrite it. Here you do not. The same artifact, with different configuration, runs as one unit, as three groups, or as eight independent processes, each of which can be scaled, restarted
+and failed on its own:</p>
+<ul>
+<li><code>microservices-macro</code> runs the <strong>single macro jar eight times</strong>, one module enabled in each. It measured the same as the eight dedicated per-service jars (178 against 166 orders/s, within noise). So independent deployments need <strong>no separate codebase and no
+  separate artifact</strong>.</li>
+<li>The identical scenarios pass in all eight modes with identical results and exception types, and a failure suite runs eight processes while connections are cut and processes restarted.</li>
+<li>Different deployments can run different versions of the artifact (a service on 1.4 while the rest are on 1.5), as long as the <code>@RpcApi</code> changes stay additive. <code>japicmp</code> enforces that once you name a baseline release.</li>
+<li>Identical pods behind a router give per-API scaling and canarying with no network hop between modules, <a href="../principles/#2-boundaries-placement-replication-routing-and-data-are-separate-choices">see routing</a>.</li>
+<li>Whether it still holds is a test, not a claim: the contract tests run the same scenarios through every binding, including <code>loopback-codec</code> (93% of the single-process throughput), on every build, and they pass only if no module relies on shared objects or a shared transaction.</li>
+</ul>
+<p>What it does not give is real isolation between modules <em>in one process</em>, or a different runtime per module. Those are physical forces, handled by splitting that module or group when the evidence shows up.</p>
+<h3 id="6-so-analyse-first-and-the-analysis-is-cheap">6. So analyse first, and the analysis is cheap<a class="headerlink" href="#6-so-analyse-first-and-the-analysis-is-cheap" title="Permanent link">&para;</a></h3>
+<p>The default is the macro service as one unit. Deviate, per module and with a recorded reason, when a force has evidence. The <a href="../principles/#4-start-small-and-let-boundaries-appear">forces table</a> and the
+<a href="../principles/#6-place-modules-by-call-weight">boundary-cost numbers</a> turn "should we split this?" into a measurement: the calls per order that would cross the boundary times about 1.2 ms, against what the split buys. The cheapest extractions
+(<code>notifications</code>, <code>payments</code>, and read-only reference data behind a cache) are visible in the data, and the expensive ones (<code>shipping</code> with <code>inventory</code>) are visible too.</p>
+<h2 id="what-each-starting-point-commits-you-to">What each starting point commits you to<a class="headerlink" href="#what-each-starting-point-commits-you-to" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Microservices first</th>
+<th>Macro service, deployed as one unit</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Boundary decisions</td>
+<td>all at once, with the least information</td>
+<td>made as seams appear</td>
+</tr>
+<tr>
+<td>If a boundary is wrong</td>
+<td>a cross-service migration</td>
+<td>a refactor</td>
+</tr>
+<tr>
+<td>Runtime cost on day one</td>
+<td>about 2× latency, half the throughput (this domain)</td>
+<td>baseline</td>
+</tr>
+<tr>
+<td>Operational surface</td>
+<td>N pipelines, N on-call surfaces</td>
+<td>one</td>
+</tr>
+<tr>
+<td>Version skew</td>
+<td>grows with the edges</td>
+<td>none inside the unit</td>
+</tr>
+<tr>
+<td>Can it become independent services?</td>
+<td>it already is</td>
+<td>yes, by configuration, from the same artifact</td>
+</tr>
+<tr>
+<td>Can it go back?</td>
+<td>hard (merge)</td>
+<td>trivially (enable locally)</td>
+</tr>
+<tr>
+<td>Analysis needed</td>
+<td>the one that justifies it (often skipped)</td>
+<td>the one that justifies <em>leaving</em> the default</td>
+</tr>
+</tbody>
+</table>
+<h2 id="decision-record">Decision record<a class="headerlink" href="#decision-record" title="Permanent link">&para;</a></h2>
+<p>Keep the choice explicit, one page per macro service:</p>
+<div class="highlight"><pre><span></span><code>Scope:        one bounded context, one owning team
+Start:        macro service, deployed as one unit (default)
+Deviations:   &lt;module or group&gt; -&gt; &lt;separate deployable&gt;
+              because &lt;force: cadence | scale | isolation | security | tech | ownership&gt;
+              evidence: &lt;measurement, SLO, audit finding, second team&gt;
+              cost: &lt;crossing calls per order x ~1.2 ms&gt;, &lt;operational surface added&gt;
+Triggers:     what would make us split another module, and what would make us merge two
+Review:       every &lt;n&gt; sprints, with the boundary metrics
+</code></pre></div>
+<h2 id="what-the-best-counter-arguments-say-and-the-answer">What the best counter-arguments say, and the answer<a class="headerlink" href="#what-the-best-counter-arguments-say-and-the-answer" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Objection</th>
+<th>Answer</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>"Our boundaries are already known and stable."</td>
+<td>Then the first split is cheap and justified. Record it as a deviation with its evidence. The default still costs nothing to start from.</td>
+</tr>
+<tr>
+<td>"We have several teams from day one."</td>
+<td>Give each team its own macro service with published contracts. The unit is the team, not the module (see <a href="../principles/#7-many-teams-a-macro-service-per-team-contracts-between-them">many teams</a>).</td>
+</tr>
+<tr>
+<td>"Hard isolation is required from the start (compliance, a vendor, another runtime)."</td>
+<td>Split exactly that module or group, and leave the rest together.</td>
+</tr>
+<tr>
+<td>"We have a mature platform, so a service costs little."</td>
+<td>The operational part may be cheap. The latency, throughput and version-skew costs remain, and the boundary risk is unchanged.</td>
+</tr>
+<tr>
+<td>"Real services do real work, so the hop is small by comparison."</td>
+<td>True, and it makes the relative cost smaller than measured here. A real network makes the absolute cost larger. The effects point in opposite directions, so measure your own journeys.</td>
+</tr>
+<tr>
+<td>"A modular monolith erodes into a big ball of mud."</td>
+<td>It does when the boundaries are conventions. Here the build enforces them (no cross-module tables, an acyclic graph, compatibility-checked APIs) and the contract tests exercise them through every binding.</td>
+</tr>
+<tr>
+<td>"It is harder to hire or scale a team on one codebase."</td>
+<td>That is the exit ramp: a second team or a diverging vocabulary means a second macro service.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="what-would-change-the-conclusion">What would change the conclusion<a class="headerlink" href="#what-would-change-the-conclusion" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Measured boundary cost that is negligible for your real journeys (few crossing calls per user action) <em>and</em> a force with evidence. Then split.</li>
+<li>A domain where boundaries and volumes are genuinely known up front.</li>
+<li>An organisation where independent release cadence per component is the product requirement, not a hope.</li>
+</ul>
+<h2 id="where-the-evidence-stops">Where the evidence stops<a class="headerlink" href="#where-the-evidence-stops" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>One domain, one machine, loopback networking.</strong> The demo calls are cheap, so the network share of each order is larger than in a service that does real work. A real network costs more per hop. Both effects are real and run in opposite directions.</li>
+<li><strong>One run per configuration.</strong> Differences below about 5% are noise; the parallel and cache effects shown are well above it, the outbox-versus-events difference is not.</li>
+<li><strong>No long-term operation.</strong> The measurements do not cover on-call load, incidents or a growing team. Those arguments come from the design and from the sprawl scenario, not from data.</li>
+<li><strong>Parked work.</strong> A few things the argument leans on are practices rather than shipped features: the cheap-module generator, the boundary-cost tool and a published-versus-internal API marker are in the <a href="../principles/#parked-ideas">parked ideas</a>.</li>
+<li><strong>A default is not a ban.</strong> The claim is that microservices-first needs the analysis, not that it is never right.</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../architecture/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Architecture">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Architecture
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../principles/" class="md-footer__link md-footer__link--next" aria-label="Next: Principles">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Principles
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "navigation.footer", "content.code.copy", "content.tabs.link", "search.highlight", "toc.follow"], "search": "../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.c21346df.min.js"></script>
+      
+    
+  </body>
+</html>
