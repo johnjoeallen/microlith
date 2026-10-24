@@ -1716,49 +1716,49 @@
 <td>1</td>
 <td><code>app-macro</code>, profile <code>monolith</code></td>
 <td>all <code>local</code></td>
-<td>one instance</td>
+<td>one instance, eight schemas</td>
 </tr>
 <tr>
 <td><a href="single-process/#loopback-codec"><code>loopback-codec</code></a></td>
 <td>1</td>
 <td><code>app-macro</code>, profile <code>loopback-codec</code></td>
 <td>all through the JSON codec, in memory</td>
-<td>one instance</td>
+<td>one instance, eight schemas</td>
 </tr>
 <tr>
 <td><a href="single-process/#loopback-http"><code>loopback-http</code></a></td>
 <td>1</td>
 <td><code>app-macro</code>, profile <code>loopback-http</code></td>
 <td>all over HTTP to itself</td>
-<td>one instance</td>
+<td>one instance, eight schemas</td>
 </tr>
 <tr>
 <td><a href="split/#groups"><code>groups</code></a></td>
 <td>3</td>
 <td><code>app-macro</code>, profiles <code>front</code>, <code>fulfilment</code>, <code>accounts</code></td>
 <td><code>local</code> inside a group, <code>remote</code> between groups</td>
-<td>one instance</td>
+<td>one instance, eight schemas</td>
 </tr>
 <tr>
 <td><a href="split/#split-dbs"><code>split-dbs</code></a></td>
 <td>3</td>
 <td>as <code>groups</code></td>
 <td>as <code>groups</code></td>
-<td><strong>three</strong> instances, one per group</td>
+<td><strong>three</strong> instances (A, B, C), one per group</td>
 </tr>
 <tr>
 <td><a href="split/#microservices"><code>microservices</code></a></td>
 <td>8</td>
 <td>eight <code>app-&lt;module&gt;-service</code> jars</td>
 <td>all <code>remote</code></td>
-<td>one instance</td>
+<td>one instance, eight schemas (a schema, roles and pool per service)</td>
 </tr>
 <tr>
 <td><a href="split/#microservices-macro"><code>microservices-macro</code></a></td>
 <td>8</td>
 <td><code>app-macro</code> eight times, profile = module</td>
 <td>all <code>remote</code></td>
-<td>one instance</td>
+<td>one instance, eight schemas (a schema, roles and pool per service)</td>
 </tr>
 </tbody>
 </table>

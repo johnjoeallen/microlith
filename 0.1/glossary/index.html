@@ -1700,6 +1700,7 @@
 <th>Artifact</th>
 <th>Processes</th>
 <th>Calls between modules</th>
+<th>PostgreSQL</th>
 <th>One-line meaning</th>
 </tr>
 </thead>
@@ -1709,6 +1710,7 @@
 <td><code>app-modulith</code>, a fixed all-in-one assembly</td>
 <td>1</td>
 <td>direct, in-process</td>
+<td><strong>one instance</strong>, a schema per module</td>
 <td>every module in one process; the shape cannot be changed by configuration</td>
 </tr>
 <tr>
@@ -1716,6 +1718,7 @@
 <td><code>app-macro</code> (the configurable jar), profile <code>monolith</code></td>
 <td>1</td>
 <td>direct, in-process</td>
+<td>one instance</td>
 <td>the same all-local shape, built from the configurable jar; "monolith" here means <em>one process</em>, not an unstructured codebase</td>
 </tr>
 <tr>
@@ -1723,6 +1726,7 @@
 <td><code>app-macro</code>, profile <code>loopback-codec</code></td>
 <td>1</td>
 <td>every call encoded to JSON-RPC and decoded, in memory</td>
+<td>one instance</td>
 <td>one process, but every call crosses a serialisation boundary</td>
 </tr>
 <tr>
@@ -1730,6 +1734,7 @@
 <td><code>app-macro</code>, profile <code>loopback-http</code></td>
 <td>1</td>
 <td>every call a real HTTP request to the same process</td>
+<td>one instance</td>
 <td>one process, but every call crosses an HTTP boundary</td>
 </tr>
 <tr>
@@ -1737,6 +1742,7 @@
 <td><code>app-macro</code>, profiles <code>front</code>, <code>fulfilment</code>, <code>accounts</code></td>
 <td>3</td>
 <td>direct inside a group, JSON-RPC over HTTP between groups</td>
+<td>one instance</td>
 <td>a few processes, each hosting several modules</td>
 </tr>
 <tr>
@@ -1744,6 +1750,7 @@
 <td>as <code>groups</code></td>
 <td>3</td>
 <td>as <code>groups</code></td>
+<td><strong>three instances</strong> (A, B, C), one per group</td>
 <td><code>groups</code>, each group on its own PostgreSQL instance</td>
 </tr>
 <tr>
@@ -1751,6 +1758,7 @@
 <td>eight <code>app-&lt;module&gt;-service</code> jars</td>
 <td>8</td>
 <td>all JSON-RPC over HTTP</td>
+<td><strong>one instance</strong>, a schema per module; each service has its own schema, roles and pool</td>
 <td>one dedicated, generated jar per module</td>
 </tr>
 <tr>
@@ -1758,10 +1766,12 @@
 <td><code>app-macro</code> run eight times, profile = module</td>
 <td>8</td>
 <td>all JSON-RPC over HTTP</td>
-<td>the same eight processes, built from the <strong>single</strong> configurable jar</td>
+<td><strong>one instance</strong>, a schema per module; each process has its own schema, roles and pool</td>
+<td>the same eight processes, built from the single configurable jar</td>
 </tr>
 </tbody>
 </table>
+<p>Every mode except <code>split-dbs</code> uses <strong>one PostgreSQL instance with one schema per module</strong>, even the eight-process modes: separate processes do not mean separate database servers. Where a module's data lives is a separate choice (its datasource URL), and any module or group can be pointed at its own instance without a code change; <code>split-dbs</code> is the mode that demonstrates it.</p>
 <p>Only the two loopback modes put a serialisation or network boundary between modules that share a process. <code>macro-monolith</code> does not. Every mode serves the orders entry point and the shop on port 9181.</p>
 <h2 id="terms">Terms<a class="headerlink" href="#terms" title="Permanent link">&para;</a></h2>
 <dl>

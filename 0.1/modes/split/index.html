@@ -1766,6 +1766,7 @@
 <p>Thick arrows cross a process boundary (JSON-RPC over HTTP); thin ones are direct calls inside a group.</p>
 <ul>
 <li><strong>Run:</strong> <code>scripts/demo.sh groups start</code></li>
+<li><strong>Database:</strong> one PostgreSQL instance with a schema per module, shared by the three processes.</li>
 <li><strong>What it is:</strong> the macro jar started three times with the profiles <code>front</code>, <code>fulfilment</code> and <code>accounts</code>. A group is just a set of enabled modules plus URLs for the rest.</li>
 <li><strong>Why it exists:</strong> most real systems land here: a few deployable units, with the chatty chains (<code>pricing → catalog</code>, <code>shipping → inventory → catalog</code>) kept inside one process.</li>
 <li><strong>Design rule:</strong> the graph <em>between groups</em> must also be acyclic, or start-up and readiness get fragile. <code>front → fulfilment → accounts</code> is.</li>
@@ -1789,6 +1790,7 @@
 <p>(Only orders' edges are drawn; every other edge is also a remote call.)</p>
 <ul>
 <li><strong>Run:</strong> <code>scripts/demo.sh microservices start</code></li>
+<li><strong>Database:</strong> one PostgreSQL instance (port 5432) with a schema per module. Each service has its own schema, roles and connection pool, but they share the one database server.</li>
 <li><strong>What it is:</strong> eight separate jars, <code>app-&lt;module&gt;-service</code>, generated from one template (<code>scripts/new-service-app.sh</code>). Each contains only its own
   implementation plus the <code>-api</code> artifacts of the modules it calls, which an enforcer rule checks.</li>
 <li><strong>Why it exists:</strong> it is the conventional microservice shape, so every comparison has an honest reference point.</li>
@@ -1797,6 +1799,7 @@
 <h2 id="microservices-macro">microservices-macro<a class="headerlink" href="#microservices-macro" title="Permanent link">&para;</a></h2>
 <ul>
 <li><strong>Run:</strong> <code>scripts/demo.sh microservices-macro start</code></li>
+<li><strong>Database:</strong> the same as <code>microservices</code>: one PostgreSQL instance with a schema per module; each process uses only its own module's schema, roles and pool.</li>
 <li><strong>What it is:</strong> the <em>same</em> eight-process shape, but built from the single macro jar run eight times, with the profile named after the module that process hosts.</li>
 <li><strong>Why it exists:</strong> one artifact to build, test and ship, deployed as eight services, which is the central claim of the project. Its measurements
   match <code>microservices</code>, which shows the single artifact costs nothing extra at runtime.</li>
