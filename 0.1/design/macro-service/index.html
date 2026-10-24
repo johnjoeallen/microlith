@@ -1,0 +1,3570 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="One Spring Boot codebase that runs as a monolith or as services, chosen by configuration, with measurements of what each shape costs.">
+      
+      
+      
+        <link rel="canonical" href="https://johnjoeallen.github.io/microlith/0.1/design/macro-service/">
+      
+      
+        <link rel="prev" href="../../README-dev/">
+      
+      
+        <link rel="next" href="../spring-modulith-async/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
+    
+    
+      
+        <title>Design - microlith</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#macro-service-a-spring-modulith-application-deployable-as-monolith-or-services" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+      </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="microlith" class="md-header__button md-logo" aria-label="microlith" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            microlith
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Design
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/johnjoeallen/microlith" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    johnjoeallen/microlith
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../architecture/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../modes/" class="md-tabs__link">
+          
+  
+  
+  Deployment modes
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../features/cache/" class="md-tabs__link">
+          
+  
+  
+  Optional features
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../performance/" class="md-tabs__link">
+          
+  
+  
+  Performance
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../running/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Running it
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../../README-dev/" class="md-tabs__link">
+          
+  
+  
+  Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="microlith" class="md-nav__button md-logo" aria-label="microlith" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    microlith
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/johnjoeallen/microlith" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    johnjoeallen/microlith
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment modes
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Deployment modes
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modes/single-process/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    One process
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modes/split/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Split across processes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Optional features
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Optional features
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../features/cache/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Result cache (@Cached)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../features/parallel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Parallel quotes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../features/follow-ups/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Follow-up delivery (outbox or events)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Performance
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Performance
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../performance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Summary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../performance/method/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Method
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../performance/modes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The eight modes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../performance/switches/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cache, parallel quotes and delivery
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../performance/load/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Load and delivery speed
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_6" id="__nav_5_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Raw reports
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Raw reports
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../performance/reports/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../performance/reports/modes-cache/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Modes, cache off and on
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../performance/reports/parallel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Parallel quotes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../performance/reports/async-parallel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Outbox and events
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../performance/reports/load-4-clients/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4 clients
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../performance/reports/load-16-clients/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    16 clients
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../running/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Running it
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../README-dev/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Developer guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Summary
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-goals-constraints-and-non-goals" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Goals, constraints and non-goals
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-architecture-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Architecture overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-repository-and-module-layout" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Repository and module layout
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Repository and module layout">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41-packaging-options" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.1 Packaging options
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-spring-modulith-conventions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Spring Modulith conventions
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-module-enablement" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Module enablement
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-inter-module-communication-json-rpc-is-the-only-channel" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Inter-module communication: JSON-RPC is the only channel
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. Inter-module communication: JSON-RPC is the only channel">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#71-one-interface-two-bindings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.1 One interface, two bindings
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#72-no-other-channel-no-events-no-broker-no-shared-data" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.2 No other channel: no events, no broker, no shared data
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#73-work-that-must-survive-a-callee-outage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.3 Work that must survive a callee outage
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#74-binding-modes-and-loopback" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.4 Binding modes and loopback
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-json-rpc-protocol-design" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. JSON-RPC protocol design
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-persistence-database-and-schema-per-module" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. Persistence: database and schema per module
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="9. Persistence: database and schema per module">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#91-connection-budget-without-a-pooler" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.1 Connection budget without a pooler
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-deployment-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. Deployment configuration
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11-local-vs-remote-parity-risks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11. Local vs remote parity risks
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#12-testing-strategy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12. Testing strategy
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#13-api-documentation-openapi-and-openrpc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        13. API documentation: OpenAPI and OpenRPC
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#14-development-process-compared-with-standard-microservices" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        14. Development process compared with standard microservices
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="14. Development process compared with standard microservices">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#141-side-by-side" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        14.1 Side by side
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#142-day-to-day-workflow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        14.2 Day-to-day workflow
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#143-differences-that-still-matter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        14.3 Differences that still matter
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#144-when-standard-microservices-are-the-better-fit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        14.4 When standard microservices are the better fit
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#15-trade-offs-risks-open-questions-and-next-steps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        15. Trade-offs, risks, open questions and next steps
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#16-local-demonstration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        16. Local demonstration
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="16. Local demonstration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#161-demo-domain-order-fulfilment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        16.1 Demo domain: order fulfilment
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#162-groupings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        16.2 Groupings
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#163-ports-and-databases" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        16.3 Ports and databases
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#164-demo-modes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        16.4 Demo modes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#165-scenarios-the-demonstration-runs-in-every-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        16.5 Scenarios the demonstration runs in every mode
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#166-demo-aids" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        16.6 Demo aids
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#167-what-the-demonstration-should-show" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        16.7 What the demonstration should show
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#17-implementation-notes-and-deviations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        17. Implementation notes and deviations
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="17. Implementation notes and deviations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#171-decisions-that-differ-from-the-text-above" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        17.1 Decisions that differ from the text above
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#172-stage-8-boundary-parity-compatibility-and-failure-behaviour" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        17.2 Stage 8: boundary parity, compatibility and failure behaviour
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../spring-modulith-async/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Discussion: Spring Modulith async
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../spring-modulith-events/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Spike: Spring Modulith events
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../staged-prompt/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Build plan
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Summary
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-goals-constraints-and-non-goals" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Goals, constraints and non-goals
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-architecture-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Architecture overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-repository-and-module-layout" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Repository and module layout
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Repository and module layout">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41-packaging-options" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.1 Packaging options
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-spring-modulith-conventions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Spring Modulith conventions
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-module-enablement" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Module enablement
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-inter-module-communication-json-rpc-is-the-only-channel" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Inter-module communication: JSON-RPC is the only channel
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. Inter-module communication: JSON-RPC is the only channel">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#71-one-interface-two-bindings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.1 One interface, two bindings
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#72-no-other-channel-no-events-no-broker-no-shared-data" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.2 No other channel: no events, no broker, no shared data
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#73-work-that-must-survive-a-callee-outage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.3 Work that must survive a callee outage
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#74-binding-modes-and-loopback" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.4 Binding modes and loopback
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-json-rpc-protocol-design" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. JSON-RPC protocol design
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-persistence-database-and-schema-per-module" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. Persistence: database and schema per module
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="9. Persistence: database and schema per module">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#91-connection-budget-without-a-pooler" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.1 Connection budget without a pooler
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-deployment-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. Deployment configuration
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11-local-vs-remote-parity-risks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11. Local vs remote parity risks
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#12-testing-strategy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12. Testing strategy
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#13-api-documentation-openapi-and-openrpc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        13. API documentation: OpenAPI and OpenRPC
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#14-development-process-compared-with-standard-microservices" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        14. Development process compared with standard microservices
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="14. Development process compared with standard microservices">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#141-side-by-side" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        14.1 Side by side
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#142-day-to-day-workflow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        14.2 Day-to-day workflow
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#143-differences-that-still-matter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        14.3 Differences that still matter
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#144-when-standard-microservices-are-the-better-fit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        14.4 When standard microservices are the better fit
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#15-trade-offs-risks-open-questions-and-next-steps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        15. Trade-offs, risks, open questions and next steps
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#16-local-demonstration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        16. Local demonstration
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="16. Local demonstration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#161-demo-domain-order-fulfilment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        16.1 Demo domain: order fulfilment
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#162-groupings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        16.2 Groupings
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#163-ports-and-databases" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        16.3 Ports and databases
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#164-demo-modes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        16.4 Demo modes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#165-scenarios-the-demonstration-runs-in-every-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        16.5 Scenarios the demonstration runs in every mode
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#166-demo-aids" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        16.6 Demo aids
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#167-what-the-demonstration-should-show" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        16.7 What the demonstration should show
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#17-implementation-notes-and-deviations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        17. Implementation notes and deviations
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="17. Implementation notes and deviations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#171-decisions-that-differ-from-the-text-above" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        17.1 Decisions that differ from the text above
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#172-stage-8-boundary-parity-compatibility-and-failure-behaviour" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        17.2 Stage 8: boundary parity, compatibility and failure behaviour
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="macro-service-a-spring-modulith-application-deployable-as-monolith-or-services">Macro Service: A Spring Modulith Application Deployable as Monolith or Services<a class="headerlink" href="#macro-service-a-spring-modulith-application-deployable-as-monolith-or-services" title="Permanent link">&para;</a></h1>
+<p>Spring Boot 4 · Java 25 · Spring Modulith · PostgreSQL · JSON-RPC 2.0</p>
+<h2 id="1-summary">1. Summary<a class="headerlink" href="#1-summary" title="Permanent link">&para;</a></h2>
+<p>A macro service is one Spring Boot codebase, built as one image, that runs as a single monolith or as several services depending only on configuration. Modules are Spring Modulith modules with strictly separated APIs. When two modules run in the same process they call each other directly. When they are split, the same Java interface is served and consumed over JSON-RPC 2.0. Each module owns its own PostgreSQL database and schema, on the same instance as other modules or on a different one.</p>
+<blockquote>
+<p><strong>JSON-RPC is the only inter-module interaction.</strong> The one way a module talks to another module is a call on that module's <code>@RpcApi</code> interface. When both modules are in the same process that call is a direct method call; when they are split it is a JSON-RPC 2.0 request. There is no other channel: no shared database access, no Modulith events, no message broker, no shared in-memory state, and no direct use of another module's internals.</p>
+</blockquote>
+<p>The Java API interface is the single source of truth. Server dispatch, client proxies, OpenAPI and OpenRPC documents are all derived from it.</p>
+<h2 id="2-goals-constraints-and-non-goals">2. Goals, constraints and non-goals<a class="headerlink" href="#2-goals-constraints-and-non-goals" title="Permanent link">&para;</a></h2>
+<p><strong>Goals</strong></p>
+<ul>
+<li>One repository, one build, one image; the deployment shape is chosen by configuration.</li>
+<li>Module boundaries are enforced at build time (Maven dependency rules, Spring Modulith verification), not by convention.</li>
+<li>A module's <code>@RpcApi</code> interface is the only way another module may interact with it. The call is direct in-process and JSON-RPC 2.0 when the target module is not in the same process.</li>
+<li>Each module configures its own PostgreSQL database and schema.</li>
+<li>The Java API interface is the contract; OpenAPI and OpenRPC are generated and never edited by hand.</li>
+</ul>
+<p><strong>Constraints</strong></p>
+<ul>
+<li>Spring Boot 4, Java 25, Spring Modulith, PostgreSQL.</li>
+<li>No cross-module database access, joins or transactions.</li>
+<li>Module code never knows whether a collaborator is local or remote.</li>
+<li>No channel between modules other than the <code>@RpcApi</code> call (see the table below).</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Interaction between modules</th>
+<th>Allowed?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Call another module's <code>@RpcApi</code> interface (direct in-process, or JSON-RPC when split)</td>
+<td><strong>Yes, the only way</strong></td>
+</tr>
+<tr>
+<td>Use another module's classes outside its <code>-api</code> artifact</td>
+<td>No (Maven and Modulith verification)</td>
+</tr>
+<tr>
+<td>Read or write another module's tables or schema</td>
+<td>No (separate roles and grants)</td>
+</tr>
+<tr>
+<td>Publish or listen to another module's Modulith or Spring events</td>
+<td>No (ArchUnit rule)</td>
+</tr>
+<tr>
+<td>Message broker, queue or topic between modules</td>
+<td>No</td>
+</tr>
+<tr>
+<td>Shared in-memory state, static singletons, shared caches</td>
+<td>No</td>
+</tr>
+<tr>
+<td>Shared transaction across modules</td>
+<td>No</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Non-goals</strong></p>
+<ul>
+<li>Cross-module Modulith events, a message broker, or any asynchronous channel between modules.</li>
+<li>Distributed transactions or two-phase commit.</li>
+<li>Independent per-module versioning: every deployment runs from the same commit.</li>
+</ul>
+<h2 id="3-architecture-overview">3. Architecture overview<a class="headerlink" href="#3-architecture-overview" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code>+--------------------------------------------------------------+
+| One repo, one image: every module is built together          |
+|   [ orders ]      [ inventory ]      [ platform ]            |
++------------------------------+-------------------------------+
+                               | configuration selects the shape
+              +----------------+-----------------+
+              v                                  v
++---------------------------+      +-------------------------------+
+| Monolith: one process     |      | Split: one process per service|
+| [orders] -direct-&gt; [inv.] |      | [orders] -JSON-RPC-&gt; [inv.]   |
++---------------------------+      +-------------------------------+
+</code></pre></div>
+<p>The arrow between orders and inventory is the only interaction between the two modules in either shape. In the monolith profile, orders calls inventory as a direct in-process bean. In a split profile, the inventory bean is replaced by a JSON-RPC client proxy that talks to the inventory service. The module code does not change.</p>
+<h2 id="4-repository-and-module-layout">4. Repository and module layout<a class="headerlink" href="#4-repository-and-module-layout" title="Permanent link">&para;</a></h2>
+<p>Each business module is split into an <code>-api</code> artifact and an <code>-impl</code> artifact in one multi-module Maven build. Only the <code>-api</code> artifact may be depended on by other modules.</p>
+<div class="highlight"><pre><span></span><code>repo/
+  platform/
+    rpc-api/                    @RpcApi, RpcException hierarchy (no Spring dependency)
+    rpc-spring-boot-starter/    server dispatcher, client proxies, registrar, spec generator
+    module-support/             per-module DataSource, Flyway, EMF helpers, @Module* stereotypes
+  modules/
+    orders/orders-api/          interface, record DTOs, exceptions
+    orders/orders-impl/         implementation, persistence, module configuration
+    inventory/inventory-api/
+    inventory/inventory-impl/
+  app/                          the macro service: Application class, profiles, all impls on the classpath
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Artifact</th>
+<th>May depend on</th>
+<th>Contains</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>&lt;m&gt;-api</code></td>
+<td><code>rpc-api</code>, JDK; <code>spring-modulith-api</code> and <code>swagger-annotations-jakarta</code> at <code>provided</code> scope (annotations only, for <code>@NamedInterface</code> and <code>@Operation</code>/<code>@Schema</code>)</td>
+<td><code>@RpcApi</code> interfaces, immutable records, unchecked exceptions</td>
+</tr>
+<tr>
+<td><code>&lt;m&gt;-impl</code></td>
+<td>own <code>&lt;m&gt;-api</code>, other modules' <code>-api</code>, <code>module-support</code>, Spring</td>
+<td>services, repositories, migrations, <code>@ModuleConfiguration</code> classes</td>
+</tr>
+<tr>
+<td><code>app</code></td>
+<td>all <code>-impl</code> artifacts, <code>rpc-spring-boot-starter</code></td>
+<td><code>@SpringBootApplication</code> at the root package, profile configs, health and readiness wiring</td>
+</tr>
+</tbody>
+</table>
+<p>Because <code>-impl</code> artifacts depend only on other modules' <code>-api</code> artifacts, Maven rejects any attempt to reach another module's internals.</p>
+<h3 id="41-packaging-options">4.1 Packaging options<a class="headerlink" href="#41-packaging-options" title="Permanent link">&para;</a></h3>
+<p>The module code is identical in every option. Only the assembly differs, so you can start with A and move to B or C later without touching the modules.</p>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>What you build</th>
+<th>What differs per deployment</th>
+<th>Choose it when</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>A. One image, config-selected</strong> (the macro service)</td>
+<td>One app containing every <code>-impl</code></td>
+<td><code>modules.&lt;name&gt;.enabled</code>, datasource and client URLs</td>
+<td>You want the simplest pipeline, and image size and a union classpath do not matter</td>
+</tr>
+<tr>
+<td><strong>B. Per-service assembly apps, same repo</strong></td>
+<td>One app per service, each with only its own <code>-impl</code> plus other modules' <code>-api</code></td>
+<td>Which jars are present, plus datasource and client URLs</td>
+<td>You want smaller images, or a guarantee that a service cannot run a module it should not</td>
+</tr>
+<tr>
+<td><strong>C. Separate repositories and builds</strong></td>
+<td>Each module builds and releases on its own and publishes its <code>-api</code> artifact for consumers</td>
+<td>Everything</td>
+<td>Teams need independent release cadences</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>A and B</strong> stay in one repository with lockstep versions: every artifact comes from the same commit, and an API change breaks every consumer's build immediately.</li>
+<li><strong>C</strong> gives up lockstep. Consumers depend on a published <code>-api</code> version, so the module owner must keep <code>-api</code> changes backward compatible across released versions (section 12, API compatibility check), as in any microservices setup.</li>
+<li>In B and C, the startup validator and the registrar work unchanged: a module whose <code>-impl</code> jar is absent has no local bean, so its client proxy is registered and its URL is required.</li>
+</ul>
+<h2 id="5-spring-modulith-conventions">5. Spring Modulith conventions<a class="headerlink" href="#5-spring-modulith-conventions" title="Permanent link">&para;</a></h2>
+<p>Modulith treats each direct sub-package of the application's root package as a module. It scans the classpath, so modules from separate Maven jars work as long as they share the root package (<code>com.acme.orders</code>, <code>com.acme.inventory</code>).</p>
+<ul>
+<li><strong>Named interface for the API.</strong> The <code>api</code> sub-package of each module is exposed with <code>@NamedInterface("api")</code>; everything else (<code>internal</code>) is hidden.</li>
+<li><strong>Declared dependencies.</strong> Each module lists what it may use, for example <code>@ApplicationModule(allowedDependencies = "inventory::api")</code>.</li>
+<li><strong>Verification in CI.</strong> <code>ApplicationModules.of(Application.class).verify()</code> fails the build on cycles, undeclared dependencies and access to non-exposed types.</li>
+<li><strong><code>@RpcApi</code> is the only cross-module dependency.</strong> <code>allowedDependencies</code> may name only <code>&lt;module&gt;::api</code>, and an ArchUnit rule fails the build if any method annotated <code>@ApplicationModuleListener</code>, <code>@EventListener</code> or <code>@TransactionalEventListener</code> takes a parameter type that belongs to another module, or if an event type appears in a <code>-api</code> artifact. Cross-module use of anything other than an <code>@RpcApi</code> interface and its DTOs and exceptions is a build failure.</li>
+<li><strong>Documentation.</strong> <code>Documenter</code> generates the module canvas and component diagrams from the same model.</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1">// inventory-api: com/acme/inventory/api/package-info.java</span>
+<span class="nd">@NamedInterface</span><span class="p">(</span><span class="s">"api"</span><span class="p">)</span>
+<span class="kn">package</span><span class="w"> </span><span class="nn">com.acme.inventory.api</span><span class="p">;</span>
+
+<span class="c1">// orders-impl: com/acme/orders/package-info.java</span>
+<span class="nd">@ApplicationModule</span><span class="p">(</span><span class="n">allowedDependencies</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"inventory::api"</span><span class="p">)</span>
+<span class="kn">package</span><span class="w"> </span><span class="nn">com.acme.orders</span><span class="p">;</span>
+</code></pre></div>
+<p>Use the Modulith release line that matches Spring Boot 4 (2.x) and confirm it in the BOM before starting.</p>
+<h2 id="6-module-enablement">6. Module enablement<a class="headerlink" href="#6-module-enablement" title="Permanent link">&para;</a></h2>
+<p>Because the image contains every module, Boot's component scan would register all of them. Enablement therefore has to be a property of the bean itself, not of an outer configuration class.</p>
+<p>Module code uses module-aware stereotypes in place of <code>@Service</code>, <code>@Component</code> and <code>@Configuration</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="nd">@Target</span><span class="p">(</span><span class="n">TYPE</span><span class="p">)</span><span class="w"> </span><span class="nd">@Retention</span><span class="p">(</span><span class="n">RUNTIME</span><span class="p">)</span>
+<span class="nd">@Service</span>
+<span class="nd">@Conditional</span><span class="p">(</span><span class="n">ModuleEnabledCondition</span><span class="p">.</span><span class="na">class</span><span class="p">)</span>
+<span class="kd">public</span><span class="w"> </span><span class="nd">@interface</span><span class="w"> </span><span class="n">ModuleService</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">String</span><span class="w"> </span><span class="nf">module</span><span class="p">();</span>
+<span class="p">}</span>
+
+<span class="kd">class</span> <span class="nc">ModuleEnabledCondition</span><span class="w"> </span><span class="kd">implements</span><span class="w"> </span><span class="n">Condition</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="kt">boolean</span><span class="w"> </span><span class="nf">matches</span><span class="p">(</span><span class="n">ConditionContext</span><span class="w"> </span><span class="n">ctx</span><span class="p">,</span><span class="w"> </span><span class="n">AnnotatedTypeMetadata</span><span class="w"> </span><span class="n">md</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">String</span><span class="w"> </span><span class="kd">module</span> <span class="err">=</span> <span class="err">(</span><span class="nc">String</span><span class="p">)</span><span class="w"> </span><span class="n">md</span><span class="p">.</span><span class="na">getAnnotationAttributes</span><span class="p">(</span><span class="n">ModuleService</span><span class="p">.</span><span class="na">class</span><span class="p">.</span><span class="na">getName</span><span class="p">()).</span><span class="na">get</span><span class="p">(</span><span class="s">"module"</span><span class="p">);</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">ctx</span><span class="p">.</span><span class="na">getEnvironment</span><span class="p">().</span><span class="na">getProperty</span><span class="p">(</span><span class="s">"modules."</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="kd">module</span> <span class="err">+</span> <span class="err">".</span><span class="nc">enabled</span><span class="s">", Boolean.class, false);</span>
+<span class="s">    }</span>
+<span class="s">}</span>
+</code></pre></div>
+<p><code>@ModuleComponent</code> and <code>@ModuleConfiguration</code> follow the same pattern. The persistence configuration (datasource, entity manager factory, repositories, Flyway) is a <code>@ModuleConfiguration</code>, so a disabled module has no connection pool, no migrations and no scheduled jobs, and the process never touches its schema.</p>
+<p><strong>Guard rails</strong></p>
+<ul>
+<li>An ArchUnit rule forbids plain <code>@Service</code>, <code>@Component</code> and <code>@Configuration</code> inside module packages.</li>
+<li>Boot's single-datasource autoconfigurations (<code>DataSourceAutoConfiguration</code>, <code>HibernateJpaAutoConfiguration</code>, <code>FlywayAutoConfiguration</code>, <code>JpaRepositoriesAutoConfiguration</code>) are excluded, since each module defines its own.</li>
+<li>A startup validator checks every <code>@RpcApi</code> interface: each module must be either enabled with a datasource, or disabled with a client URL. Otherwise the application fails to start, for example with <code>Module 'inventory' is disabled but modules.inventory.url is not set</code>.</li>
+<li>Health indicators are registered only for enabled modules.</li>
+</ul>
+<h2 id="7-inter-module-communication-json-rpc-is-the-only-channel">7. Inter-module communication: JSON-RPC is the only channel<a class="headerlink" href="#7-inter-module-communication-json-rpc-is-the-only-channel" title="Permanent link">&para;</a></h2>
+<p>Every interaction between two modules is a call on the target module's <code>@RpcApi</code> interface. That call is a direct method call inside one process and a JSON-RPC 2.0 request between processes. Nothing else connects modules, and the build and the tests enforce it (sections 5 and 12).</p>
+<h3 id="71-one-interface-two-bindings">7.1 One interface, two bindings<a class="headerlink" href="#71-one-interface-two-bindings" title="Permanent link">&para;</a></h3>
+<p>Consumers always inject the <code>-api</code> interface and cannot tell whether they received a local bean or a client proxy.</p>
+<div class="highlight"><pre><span></span><code><span class="nd">@RpcApi</span><span class="p">(</span><span class="s">"inventory"</span><span class="p">)</span>
+<span class="kd">public</span><span class="w"> </span><span class="kd">interface</span> <span class="nc">InventoryApi</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">StockLevel</span><span class="w"> </span><span class="nf">getStock</span><span class="p">(</span><span class="n">String</span><span class="w"> </span><span class="n">sku</span><span class="p">);</span>
+<span class="w">    </span><span class="n">Reservation</span><span class="w"> </span><span class="nf">reserve</span><span class="p">(</span><span class="n">ReserveRequest</span><span class="w"> </span><span class="n">request</span><span class="p">);</span><span class="w">   </span><span class="c1">// throws unchecked OutOfStockException</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>A <code>BeanDefinitionRegistryPostProcessor</code> in <code>rpc-spring-boot-starter</code> runs after component scanning and handles every <code>@RpcApi</code> interface on the classpath:</p>
+<ul>
+<li><strong>A local implementation bean exists</strong> (the module is enabled): nothing is registered, and injection yields the direct in-process bean.</li>
+<li><strong>No local implementation</strong> (the module is disabled): a client proxy bean is registered that speaks JSON-RPC to <code>modules.&lt;name&gt;.url</code>. Startup fails if the URL is missing.</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">Class</span><span class="o">&lt;?&gt;</span><span class="w"> </span><span class="n">api</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">findRpcApis</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">beanFactory</span><span class="p">.</span><span class="na">getBeanNamesForType</span><span class="p">(</span><span class="n">api</span><span class="p">,</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="kc">false</span><span class="p">).</span><span class="na">length</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">registry</span><span class="p">.</span><span class="na">registerBeanDefinition</span><span class="p">(</span><span class="n">beanName</span><span class="p">(</span><span class="n">api</span><span class="p">),</span>
+<span class="w">            </span><span class="n">BeanDefinitionBuilder</span><span class="p">.</span><span class="na">genericBeanDefinition</span><span class="p">(</span><span class="n">api</span><span class="p">,</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">proxies</span><span class="p">.</span><span class="na">create</span><span class="p">(</span><span class="n">api</span><span class="p">)).</span><span class="na">getBeanDefinition</span><span class="p">());</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>The lookup uses <code>allowEagerInit=false</code> so it does not instantiate beans. Client proxies implement a marker interface so the server-side dispatcher never mistakes a proxy for a local implementation.</p>
+<p>Rules for <code>@RpcApi</code> interfaces: no overloaded method names, immutable record parameters and results, unchecked exceptions only, and no types from outside the <code>-api</code> artifact.</p>
+<h3 id="72-no-other-channel-no-events-no-broker-no-shared-data">7.2 No other channel: no events, no broker, no shared data<a class="headerlink" href="#72-no-other-channel-no-events-no-broker-no-shared-data" title="Permanent link">&para;</a></h3>
+<p>Modules communicate only through <code>@RpcApi</code> calls. A module may still use Spring or Modulith events internally, between its own components, but an event never crosses a module boundary. This removes the broker, the externalization and inbound-adapter configuration, and the event publication registry problem that arises when one registry has to serve several databases.</p>
+<p>Where a module would previously have reacted to another module's event, it calls the other module's API instead, or the other module exposes a query that the first module polls.</p>
+<h3 id="73-work-that-must-survive-a-callee-outage">7.3 Work that must survive a callee outage<a class="headerlink" href="#73-work-that-must-survive-a-callee-outage" title="Permanent link">&para;</a></h3>
+<p>Request/response means the caller depends on the callee being reachable. When a call must not be lost (for example, "tell inventory to release this reservation"), use a module-local outbox:</p>
+<ul>
+<li>The caller writes an outbox row in its own schema in the same transaction as its business change.</li>
+<li>A scheduled relay in the same module reads pending rows and calls the target <code>@RpcApi</code> method.</li>
+<li>Target methods are idempotent, keyed by a request id carried in the call, so redelivery is safe.</li>
+</ul>
+<p>This uses only the module's own database and the existing JSON-RPC path. Avoid Modulith's event publication registry for this: it is application-wide (one <code>JdbcOperations</code>), which does not fit a database per module.</p>
+<h3 id="74-binding-modes-and-loopback">7.4 Binding modes and loopback<a class="headerlink" href="#74-binding-modes-and-loopback" title="Permanent link">&para;</a></h3>
+<p>Each module a consumer calls has a binding, set per target module with <code>modules.&lt;name&gt;.binding</code>. By default a local implementation bean wins; the other modes change what the registrar wires up.</p>
+<table>
+<thead>
+<tr>
+<th>Binding</th>
+<th>Path of a call</th>
+<th>Network</th>
+<th>Intended use</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>local</code> (default when the impl is present)</td>
+<td>Direct method call on the local bean</td>
+<td>None</td>
+<td>Production monolith</td>
+</tr>
+<tr>
+<td><code>loopback-codec</code></td>
+<td>Client proxy and dispatcher in the same JVM, through the JSON codec, no HTTP</td>
+<td>None</td>
+<td>Dev and test: catches DTOs that do not serialize cleanly (the <code>rpc.loopback=true</code> mode)</td>
+</tr>
+<tr>
+<td><code>loopback-http</code></td>
+<td>Client proxy over HTTP to <code>127.0.0.1</code>, even though the impl is present</td>
+<td>Loopback interface</td>
+<td>Integration tests of the real HTTP path; not a production mode</td>
+</tr>
+<tr>
+<td><code>remote</code> (default when the impl is absent)</td>
+<td>Client proxy over HTTP to <code>modules.&lt;name&gt;.url</code></td>
+<td>Real network</td>
+<td>Split deployment</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre><span></span><code><span class="nt">modules</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">inventory</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">binding</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">loopback-http</span>
+<span class="w">    </span><span class="nt">url</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">http://127.0.0.1:9181/rpc/inventory</span>
+</code></pre></div>
+<p>Rules:</p>
+<ul>
+<li><code>loopback-codec</code> and <code>loopback-http</code> register the client proxy even though the implementation is present, so the dispatcher must be able to find the local implementation. For <code>loopback-http</code>, <code>rpc.server.enabled</code> must be on.</li>
+<li><code>loopback-http</code> adds HTTP overhead and a self-call dependency on the server being up, so use it in tests, not in production.</li>
+<li>Two separate services on one host or in one pod may simply use <code>http://127.0.0.1:&lt;port&gt;/rpc/&lt;module&gt;</code> as the <code>remote</code> URL. Nothing special is needed.</li>
+<li>When <code>/rpc</code> is reached only over loopback, bind the endpoint to <code>127.0.0.1</code> (a separate <code>rpc.server.address</code> or port) so it is never exposed beyond the host. Service-to-service authentication is then not needed on that hop, but it is still required for any hop that crosses a network.</li>
+<li>Startup validation rejects a <code>loopback-*</code> binding in any profile marked as production.</li>
+</ul>
+<h2 id="8-json-rpc-protocol-design">8. JSON-RPC protocol design<a class="headerlink" href="#8-json-rpc-protocol-design" title="Permanent link">&para;</a></h2>
+<p>The protocol is JSON-RPC 2.0 over HTTP, implemented in the starter rather than taken from a library: the specification is small, and Boot 4 moves to Jackson 3 (<code>tools.jackson</code>), so check any candidate library for Jackson 3 support before adopting it.</p>
+<table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>Decision</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Endpoint</td>
+<td><code>POST /rpc/{module}</code>, one per module, carrying the JSON-RPC envelope; batches and notifications supported</td>
+</tr>
+<tr>
+<td>Method name</td>
+<td><code>&lt;module&gt;.&lt;method&gt;</code>, for example <code>inventory.reserve</code>; overloads rejected at startup</td>
+</tr>
+<tr>
+<td>Parameters</td>
+<td>By name (an object keyed by parameter name, compiled with <code>-parameters</code>), which evolves better than positional arrays</td>
+</tr>
+<tr>
+<td>Results</td>
+<td>The record returned by the Java method, serialized with Jackson 3</td>
+</tr>
+<tr>
+<td>Errors</td>
+<td>Exceptions map to JSON-RPC error codes; the exception classes live in the <code>-api</code> artifact and are rehydrated on the client, so callers see the same exception types in both modes</td>
+</tr>
+<tr>
+<td>Client</td>
+<td>A <code>java.lang.reflect.Proxy</code> over <code>RestClient</code> with the JDK HttpClient; per-module timeouts and retry policy</td>
+</tr>
+<tr>
+<td>Context</td>
+<td>Trace identifiers and the caller's principal propagated in HTTP headers</td>
+</tr>
+<tr>
+<td>Security</td>
+<td>mTLS or signed service tokens between services; <code>/rpc</code> endpoints are not exposed publicly</td>
+</tr>
+<tr>
+<td>Threading</td>
+<td>Virtual threads (<code>spring.threads.virtual.enabled=true</code>) so blocking remote calls stay cheap</td>
+</tr>
+</tbody>
+</table>
+<p>The server side collects all local beans that implement an <code>@RpcApi</code> interface (excluding client proxies), builds a <code>module.method</code> index, and dispatches by reflection or method handles. The server can be switched off per deployment with <code>rpc.server.enabled</code>.</p>
+<h2 id="9-persistence-database-and-schema-per-module">9. Persistence: database and schema per module<a class="headerlink" href="#9-persistence-database-and-schema-per-module" title="Permanent link">&para;</a></h2>
+<p>Each module owns its persistence configuration, bound to <code>modules.&lt;name&gt;.datasource.*</code>. A module with no explicit URL falls back to the shared <code>spring.datasource</code>, which gives "same instance, different schema" without extra settings.</p>
+<ul>
+<li><strong>Beans per module.</strong> A <code>DataSource</code>, <code>EntityManagerFactory</code> (or <code>JdbcClient</code>) and <code>PlatformTransactionManager</code>, each with an explicit bean name and none marked <code>@Primary</code>.</li>
+<li><strong>Repositories.</strong> <code>@EnableJpaRepositories(basePackages = "...orders.internal", entityManagerFactoryRef = "ordersEmf", transactionManagerRef = "ordersTm")</code>, with <code>@Transactional("ordersTm")</code> on service code.</li>
+<li><strong>Migrations.</strong> A manually defined <code>Flyway</code> bean per module with its own <code>locations</code> (<code>classpath:db/migration/orders</code>), <code>defaultSchema</code> and history table inside the module's schema.</li>
+<li><strong>Schema and roles in PostgreSQL.</strong> One schema per module and one role per module with grants only on that schema; set the search path on the role (<code>ALTER ROLE orders_app SET search_path = orders</code>). Cross-schema joins then fail instead of creeping in.</li>
+<li><strong>Migration vs runtime roles.</strong> A migration role with DDL rights for Flyway, and a runtime role with DML only.</li>
+<li><strong>Connection pools (no external pooler).</strong> The design does not depend on PgBouncer or any other connection pooler, because AWS deployments cannot use one. Connections go straight from each application's pools to PostgreSQL, so the connection budget has to be managed by the application. See 9.1.</li>
+</ul>
+<p>No module reads or writes another module's tables. Data owned by another module is obtained through its <code>-api</code> interface.</p>
+<h3 id="91-connection-budget-without-a-pooler">9.1 Connection budget without a pooler<a class="headerlink" href="#91-connection-budget-without-a-pooler" title="Permanent link">&para;</a></h3>
+<p>This section matters for real AWS deployments. For the local demonstration (section 16) the pools can stay at their small defaults and the budget check can be left at warning level.</p>
+<p>Each enabled module has its own Hikari pool, because each module uses its own role (and often its own instance). Different roles cannot share connections, so total connections grow with the number of enabled modules and with the number of application instances.</p>
+<p><strong>The budget</strong></p>
+<p>For each PostgreSQL instance:</p>
+<p><code>sum over (enabled modules on that instance) of (maxPoolSize x application instances running that module) + migration and admin connections + reserve &lt;= max_connections</code></p>
+<ul>
+<li><code>max_connections</code> on RDS and Aurora PostgreSQL is set by the parameter group and by default scales with the instance's memory, so read the real value (<code>SHOW max_connections</code>) rather than assuming one. Reserve some connections for superuser, monitoring and failover.</li>
+<li>The same modules in a monolith and in services use the same total per module. The difference is where the pools live: a monolith holds all its module pools in one process, while a service holds only its own module's pool, multiplied by that service's instance count. Scaling a service out multiplies its pool, not the others'.</li>
+</ul>
+<p><strong>Application-level controls</strong></p>
+<ul>
+<li><strong>Small pools by default.</strong> Set <code>modules.&lt;name&gt;.datasource.max-pool-size</code> per module, starting small and raising it from measured wait times, not from guesses.</li>
+<li><strong>No idle reservation.</strong> <code>minimum-idle: 0</code> (or a low value), a short <code>idle-timeout</code> and a <code>max-lifetime</code> below any network or database idle limit, so an idle module holds no connections and a quiet service gives its connections back.</li>
+<li><strong>Lazy startup.</strong> Pools are created only for enabled modules (section 6), and do not fail startup on a slow database when the module is not in use.</li>
+<li><strong>Concurrency bulkhead.</strong> With virtual threads, thousands of requests can wait on a pool of a few connections. Put a per-module semaphore on the <code>@RpcApi</code> server side (and, if you wish, on the client) set equal to or slightly above the pool size, so excess requests queue in the application with a bounded wait and return a clear error rather than exhausting the pool or timing out deep in a transaction.</li>
+<li><strong>Short transactions.</strong> Never hold a connection across a call to another module; the boundary interceptor in section 11 already suspends the transaction on cross-module calls.</li>
+<li><strong>Budget check at startup.</strong> Each application reads <code>platform.db.connection-budget</code> (the connections this deployment may use on each instance, set per deployment) and logs a warning, or fails when <code>platform.db.enforce-budget=true</code>, if its enabled modules' <code>max-pool-size</code> values sum above it. The validator cannot know how many replicas run, so the deployment supplies the per-replica share.</li>
+<li><strong>Metrics.</strong> Expose each pool's active, idle, pending and timeout counts as Micrometer metrics tagged by module, and alert on pending threads and connection-acquire timeouts.</li>
+</ul>
+<p><strong>If the budget is still too tight</strong></p>
+<ul>
+<li>Use a larger database instance class (more <code>max_connections</code>), or move a busy module's schema to its own instance. Per-module datasource configuration already allows this with no code change.</li>
+<li>Reduce the replica count and give each replica a larger pool, if the work is I/O bound on the database rather than the application.</li>
+<li>If AWS RDS Proxy is allowed in your environment (it is a managed AWS service, not PgBouncer), it is an optional, configuration-only addition, because the application treats the database as an ordinary PostgreSQL endpoint. Check its behaviour with prepared statements and session settings such as <code>search_path</code>, which can pin connections, before relying on it. The design does not require it.</li>
+<li>Sharing one pool across modules by switching roles on each checkout (<code>SET ROLE</code>) is possible but weakens the role-per-module isolation and adds per-checkout overhead, so it is not recommended unless the budget cannot be met any other way.</li>
+</ul>
+<h2 id="10-deployment-configuration">10. Deployment configuration<a class="headerlink" href="#10-deployment-configuration" title="Permanent link">&para;</a></h2>
+<p>This section shows packaging option A (section 4.1): the same image is deployed N times with different configuration, selected by a Spring profile or by environment variables such as <code>MODULES_INVENTORY_ENABLED=false</code>. With option B or C the configuration is the same, except that a module whose <code>-impl</code> jar is absent needs no <code>enabled: false</code>, only its client URL. The binding modes in section 7.4 can be set per module in any profile.</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># application-monolith.yml: every module in one process, separate schemas and instances</span>
+<span class="nt">modules</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">orders</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">datasource</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt"> schema</span><span class="p">:</span><span class="w"> </span><span class="nv">orders</span><span class="w"> </span><span class="p p-Indicator">}</span>
+<span class="w">  </span><span class="nt">inventory</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">datasource</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt"> url</span><span class="p">:</span><span class="w"> </span><span class="nv">jdbc</span><span class="p p-Indicator">:</span><span class="nv">postgresql</span><span class="p p-Indicator">:</span><span class="nv">//db2/inv</span><span class="p p-Indicator">,</span><span class="nt"> schema</span><span class="p">:</span><span class="w"> </span><span class="nv">inventory</span><span class="w"> </span><span class="p p-Indicator">}</span>
+
+<span class="c1"># application-orders-service.yml: orders locally, inventory over JSON-RPC</span>
+<span class="nt">modules</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">orders</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">datasource</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt"> url</span><span class="p">:</span><span class="w"> </span><span class="nv">jdbc</span><span class="p p-Indicator">:</span><span class="nv">postgresql</span><span class="p p-Indicator">:</span><span class="nv">//db1/app</span><span class="p p-Indicator">,</span><span class="nt"> schema</span><span class="p">:</span><span class="w"> </span><span class="nv">orders</span><span class="w"> </span><span class="p p-Indicator">}</span>
+<span class="w">  </span><span class="nt">inventory</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">    </span><span class="nt">url</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">http://inventory:8080/rpc/inventory</span>
+
+<span class="c1"># application-inventory-service.yml: inventory locally, orders is not needed</span>
+<span class="nt">modules</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">orders</span><span class="p">:</span><span class="w">    </span><span class="p p-Indicator">{</span><span class="nt"> enabled</span><span class="p">:</span><span class="w"> </span><span class="nv">false</span><span class="w"> </span><span class="p p-Indicator">}</span>
+<span class="w">  </span><span class="nt">inventory</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">datasource</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt"> url</span><span class="p">:</span><span class="w"> </span><span class="nv">jdbc</span><span class="p p-Indicator">:</span><span class="nv">postgresql</span><span class="p p-Indicator">:</span><span class="nv">//db2/inv</span><span class="p p-Indicator">,</span><span class="nt"> schema</span><span class="p">:</span><span class="w"> </span><span class="nv">inventory</span><span class="w"> </span><span class="p p-Indicator">}</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Deployment shape</th>
+<th>Enabled modules</th>
+<th>Calls between modules</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Monolith</td>
+<td>all</td>
+<td>direct in-process calls</td>
+</tr>
+<tr>
+<td>Orders service</td>
+<td>orders</td>
+<td><code>inventory.*</code> over JSON-RPC</td>
+</tr>
+<tr>
+<td>Inventory service</td>
+<td>inventory</td>
+<td>none outbound (or JSON-RPC to others it consumes)</td>
+</tr>
+<tr>
+<td>Mixed grouping</td>
+<td>any subset</td>
+<td>in-process inside the group, JSON-RPC across groups</td>
+</tr>
+</tbody>
+</table>
+<p>Startup validation rejects any deployment where a disabled module has no client URL or an enabled module has no datasource, so a misconfigured shape fails fast instead of failing on the first call.</p>
+<h2 id="11-local-vs-remote-parity-risks">11. Local vs remote parity risks<a class="headerlink" href="#11-local-vs-remote-parity-risks" title="Permanent link">&para;</a></h2>
+<p>Because the <code>@RpcApi</code> call is the only inter-module interaction, it is also the only place where local and remote behaviour can differ. A call that is safe in-process can behave differently over the network, and these differences have to be designed out, because the same module code runs in both modes.</p>
+<table>
+<thead>
+<tr>
+<th>Risk</th>
+<th>Why it differs</th>
+<th>Mitigation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Pass-by-reference vs serialization</td>
+<td>Local calls share object references; remote calls copy through JSON</td>
+<td>Immutable records for all DTOs; a <code>rpc.loopback=true</code> mode for dev and test that routes even local calls through the JSON codec</td>
+</tr>
+<tr>
+<td>Transactions</td>
+<td>A local call may join the caller's transaction on a shared datasource; a remote call never can</td>
+<td>No cross-module transactions; the boundary interceptor suspends the caller's transaction on local cross-module calls (<code>modules.boundary.suspend-transactions</code>, default <code>true</code>; see 17.2); module-local outbox (7.3) for cross-module consistency</td>
+</tr>
+<tr>
+<td>Failure modes</td>
+<td>Remote calls can time out, fail midway or be retried</td>
+<td>Idempotent mutating methods (client-supplied request id), timeouts and a retry policy on the client proxy</td>
+</tr>
+<tr>
+<td>Exceptions</td>
+<td>Remote errors pass through an error envelope</td>
+<td>Exception types defined in the <code>-api</code> artifact and rehydrated on the client</td>
+</tr>
+<tr>
+<td>Latency</td>
+<td>Chatty APIs are cheap in-process and costly over the network</td>
+<td>Coarse-grained API methods; no per-row calls in loops</td>
+</tr>
+<tr>
+<td>Observability</td>
+<td>Local calls leave no trace by default</td>
+<td>The same boundary interceptor observes local calls as <code>macro.rpc.client</code>, tagged exactly like remote calls (17.2)</td>
+</tr>
+<tr>
+<td>Security context</td>
+<td>The principal is implicit in-process</td>
+<td>Principal and trace headers propagated explicitly on remote calls</td>
+</tr>
+</tbody>
+</table>
+<h2 id="12-testing-strategy">12. Testing strategy<a class="headerlink" href="#12-testing-strategy" title="Permanent link">&para;</a></h2>
+<p>The same test suites protect both deployment models, because the module code is identical in both.</p>
+<ol>
+<li><strong>Structure.</strong> <code>ApplicationModules.verify()</code> plus the ArchUnit rules (stereotypes, no cross-module event listeners, no cross-module use of anything but <code>@RpcApi</code> types). These tests are what guarantee that JSON-RPC-capable calls are the only inter-module interaction.</li>
+<li><strong>Module slices.</strong> <code>@ApplicationModuleTest</code> bootstraps a single module with its PostgreSQL schema (Testcontainers) and mocks its collaborators' <code>-api</code> interfaces, which is the same situation a split deployment creates.</li>
+<li><strong>Contract tests.</strong> One test suite per <code>-api</code> artifact, run against each binding from section 7.4: <code>local</code>, <code>loopback-codec</code> (JSON round trip in-process), and <code>loopback-http</code> or <code>remote</code> against a started server. A failure in one binding but not the others is a parity bug.</li>
+<li><strong>API compatibility.</strong> japicmp compares each <code>-api</code> artifact with its last released version and fails the build on removed or changed methods, constructors, fields (including record components) and exception types, to keep rolling deployments safe (see 14.3 and 17.2).</li>
+<li><strong>Deployment smoke tests.</strong> Start the image with each profile (monolith, each service) and call one method per module through the public API, including one call that crosses a module boundary.</li>
+<li><strong>Startup validation tests.</strong> Assert that each broken configuration (missing URL, missing datasource) fails with the expected message.</li>
+</ol>
+<h2 id="13-api-documentation-openapi-and-openrpc">13. API documentation: OpenAPI and OpenRPC<a class="headerlink" href="#13-api-documentation-openapi-and-openrpc" title="Permanent link">&para;</a></h2>
+<p>The Java interface is the source of truth, so generated documents cannot drift from the code. JSON-RPC does not map cleanly onto OpenAPI because every call is a <code>POST</code> to one URL, so the design uses two complementary outputs.</p>
+<ul>
+<li><strong>OpenAPI.</strong> Generated at runtime from the <code>@RpcApi</code> interfaces. <em>Implementation note (stage 7):</em> swagger-core (2.2.55, the latest) and springdoc (3.1.1, which targets Boot 4) both still depend on Jackson 2 (<code>com.fasterxml.jackson</code>); no release supports Jackson 3. The record schemas are therefore generated by the <code>rpc-docs</code> module itself, following Jackson's record conventions, and the Swagger annotations are read by name. Swagger UI comes from the <code>org.webjars:swagger-ui</code> webjar, without springdoc. One operation per method at <code>POST /rpc/{module}/{method}</code>.</li>
+<li><strong>Path alias on the server.</strong> The same <code>POST /rpc/{module}/{method}</code> path is also served: bare params object in, bare result out, no envelope. This makes Swagger UI and curl usable, while the real protocol remains the JSON-RPC envelope on <code>/rpc/{module}</code>.</li>
+<li><strong>OpenRPC.</strong> The native description format for JSON-RPC, emitted from the same reflection model; the more faithful document for client generators.</li>
+<li><strong>Endpoints.</strong> <code>/rpc/{module}/openapi.json</code> per module, and a merged document for deployments that run several modules.</li>
+<li><strong>Descriptions.</strong> Optional <code>@Schema</code> and <code>@Operation</code> annotations on the API interfaces.</li>
+</ul>
+<p>No spec file is committed or edited by hand. If a spec is needed as a build artifact, a build step generates it from the compiled <code>-api</code> artifact.</p>
+<h2 id="14-development-process-compared-with-standard-microservices">14. Development process compared with standard microservices<a class="headerlink" href="#14-development-process-compared-with-standard-microservices" title="Permanent link">&para;</a></h2>
+<p>"Standard microservices" here means each service is an independently built, versioned and released component, usually with its own repository, pipeline and client library for its neighbours.</p>
+<h3 id="141-side-by-side">14.1 Side by side<a class="headerlink" href="#141-side-by-side" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Concern</th>
+<th>Macro service</th>
+<th>Standard microservices</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Repository and build</td>
+<td>One repository, one multi-module build, one image</td>
+<td>A repository (or independent build) per service, N images</td>
+</tr>
+<tr>
+<td>Local development</td>
+<td>Run the monolith profile in one JVM with one debugger session; only PostgreSQL is external</td>
+<td>Run several services plus dependencies, or rely on stubs, Docker Compose or a shared dev cluster</td>
+</tr>
+<tr>
+<td>Cross-module refactoring</td>
+<td>IDE rename and move across modules; one commit; the compiler checks every consumer</td>
+<td>Coordinated changes across repositories, published client libraries, deprecation periods</td>
+</tr>
+<tr>
+<td>Changing an API</td>
+<td>A breaking change fails the build of every consumer immediately; compatibility is still required between deployed versions</td>
+<td>Consumer-driven contracts or versioned endpoints; compatibility maintained across independently released services</td>
+</tr>
+<tr>
+<td>Dependency and library upgrades</td>
+<td>One BOM and one upgrade; all modules move together; one classpath that is the union of all modules</td>
+<td>Per-service, independent; versions drift between services</td>
+</tr>
+<tr>
+<td>CI pipeline</td>
+<td>One pipeline; affected modules built with <code>-pl &lt;module&gt; -amd</code>; smoke test per profile</td>
+<td>N pipelines plus a contract broker and integration environments</td>
+</tr>
+<tr>
+<td>Test confidence</td>
+<td>Module slice, contract and profile smoke tests in one run; full system test is starting the monolith profile</td>
+<td>End-to-end tests across deployed services; slower and more prone to flakiness</td>
+</tr>
+<tr>
+<td>Release</td>
+<td>One commit produces one image; each deployment is that image with different configuration</td>
+<td>Each service releases on its own cadence with its own version</td>
+</tr>
+<tr>
+<td>Database migrations</td>
+<td>Flyway per module, reviewed in the same repository; each module still migrates only its own schema</td>
+<td>Per-service repository and migration pipeline</td>
+</tr>
+<tr>
+<td>Debugging and tracing</td>
+<td>In the monolith, ordinary stack traces; once split, distributed tracing</td>
+<td>Distributed tracing needed from day one</td>
+</tr>
+<tr>
+<td>Ownership</td>
+<td><code>CODEOWNERS</code> per module directory; Modulith verification guards boundaries</td>
+<td>Repository ownership; strong team autonomy</td>
+</tr>
+<tr>
+<td>Technology freedom</td>
+<td>One language, runtime and Spring version</td>
+<td>Per-service choices, including other languages</td>
+</tr>
+<tr>
+<td>Blast radius of a bad change</td>
+<td>A bad commit can reach every deployment built from it; mitigated by per-service rollout and profile smoke tests</td>
+<td>A bad release affects only that service</td>
+</tr>
+<tr>
+<td>Patching and security</td>
+<td>One image to scan and patch</td>
+<td>N images</td>
+</tr>
+<tr>
+<td>Scaling and failure isolation</td>
+<td>Available once split, through configuration</td>
+<td>Native</td>
+</tr>
+</tbody>
+</table>
+<h3 id="142-day-to-day-workflow">14.2 Day-to-day workflow<a class="headerlink" href="#142-day-to-day-workflow" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Develop against the monolith profile: one process, direct calls, one database instance with a schema per module.</li>
+<li>Change a module's API: the build immediately shows every consumer that breaks, and they are fixed in the same commit.</li>
+<li>Run <code>verify()</code>, the ArchUnit rules, module slice tests and the contract tests for the changed <code>-api</code> artifacts.</li>
+<li>CI builds one image and starts it once per profile (monolith and each service shape), running the smoke tests.</li>
+<li>Deploy: each service runs the same image with its profile. A service whose module and dependencies did not change can skip the redeploy.</li>
+<li>Split further by configuration only: enable another module in a service, or move it to its own service by adding a URL and a profile.</li>
+</ol>
+<h3 id="143-differences-that-still-matter">14.3 Differences that still matter<a class="headerlink" href="#143-differences-that-still-matter" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Version skew during rollout.</strong> In a rolling deployment, a service on the new commit calls a service still on the old one. Changes to <code>-api</code> artifacts must be additive for the length of the rollout (add fields and methods, deprecate, then remove in a later release), and the compatibility check in section 12 enforces it. This discipline is the same one microservices need, only the window is shorter, because everything ships from one commit.</li>
+<li><strong>The shared classpath.</strong> Every module's dependencies are on every deployment's classpath, so one module's library choice affects all of them. Per-service assembly modules (section 4) remove this when it becomes a problem.</li>
+<li><strong>Distributed monolith risk.</strong> If cross-module calls are chatty or modules share tables, splitting will be painful in either model. The schema-per-role setup (section 9) and coarse-grained APIs (section 11) are the controls.</li>
+</ul>
+<h3 id="144-when-standard-microservices-are-the-better-fit">14.4 When standard microservices are the better fit<a class="headerlink" href="#144-when-standard-microservices-are-the-better-fit" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Many teams need genuinely independent release cadences, rather than one lockstep commit.</li>
+<li>A component needs a different language, runtime or major framework version.</li>
+<li>Regulatory or organizational boundaries require separate repositories, access control or pipelines.</li>
+<li>Dependency sets differ so much that a union classpath is unworkable.</li>
+</ul>
+<p>The macro service is the better fit when one team or a small group owns all the modules, refactoring across module boundaries is frequent, and the option to split later matters more than independent releases today. Splitting later is a configuration and deployment change; moving to full microservices later means giving each <code>-api</code>/<code>-impl</code> pair its own repository and pipeline, which the layout in section 4 already supports.</p>
+<h2 id="15-trade-offs-risks-open-questions-and-next-steps">15. Trade-offs, risks, open questions and next steps<a class="headerlink" href="#15-trade-offs-risks-open-questions-and-next-steps" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>One artifact, config-selected (this design)</th>
+<th>Per-service assembly modules</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Build outputs</td>
+<td>1 jar / image</td>
+<td>N jars / images</td>
+</tr>
+<tr>
+<td>Classpath</td>
+<td>Union of all modules' dependencies</td>
+<td>Only the modules a service needs</td>
+</tr>
+<tr>
+<td>Boundary enforcement</td>
+<td>Build time plus runtime configuration</td>
+<td>Build time (absent jars)</td>
+</tr>
+<tr>
+<td>Operations</td>
+<td>One image deployed N ways</td>
+<td>N pipelines</td>
+</tr>
+<tr>
+<td>Main risk</td>
+<td>A misconfigured deployment runs a module it should not (startup validation mitigates)</td>
+<td>Slightly more build and release plumbing</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Risks to retire early</strong></p>
+<ul>
+<li>JSON-RPC and OpenAPI generation must be confirmed to work with Jackson 3 in Boot 4.</li>
+<li>~~Decide whether the boundary interceptor that suspends transactions on local cross-module calls is enforced or left to convention.~~ Decided in stage 8: enforced by default, switchable (17.2).</li>
+<li>Callers now depend on callee availability for every cross-module interaction; decide which calls need the module-local outbox (7.3).</li>
+<li>No connection pooler is available on AWS, so the per-module pool sizes, replica counts and the database's <code>max_connections</code> must fit the connection budget (9.1). Work this out per environment before the first multi-module deployment.</li>
+</ul>
+<p><strong>Open questions</strong></p>
+<ul>
+<li>What service-to-service authentication is standard here: mTLS, signed tokens or a service mesh?</li>
+<li>Should per-module databases always use separate roles, or only in production?</li>
+<li>Is lockstep release (one commit, one image) acceptable for every module, or does any module need a different cadence?</li>
+</ul>
+<p><strong>Next steps</strong></p>
+<ul>
+<li>[ ] Scaffold the repository: <code>platform</code>, two sample modules (<code>orders</code>, <code>inventory</code>) and the <code>app</code>.</li>
+<li>[ ] Implement the <code>@Module*</code> stereotypes, the condition and the startup validator.</li>
+<li>[ ] Implement the JSON-RPC server dispatcher, client proxy and registrar, with loopback mode.</li>
+<li>[ ] Implement the per-module PostgreSQL, Flyway and transaction-manager configuration.</li>
+<li>[ ] Add the ArchUnit rules (stereotypes, no cross-module event listeners) and the <code>-api</code> compatibility check.</li>
+<li>[ ] Add contract tests and profile smoke tests for the monolith and split shapes.</li>
+</ul>
+<h2 id="16-local-demonstration">16. Local demonstration<a class="headerlink" href="#16-local-demonstration" title="Permanent link">&para;</a></h2>
+<p>The immediate goal is to demonstrate every deployment mode on one developer machine, from the same code, using a domain with real interdependence between modules. Everything runs on localhost, PostgreSQL runs in Docker, and the <code>demo</code> profile (which implies <code>dev</code>) enables the helpers below. Service-to-service security, cloud configuration and image publishing are out of scope for the demo.</p>
+<h3 id="161-demo-domain-order-fulfilment">16.1 Demo domain: order fulfilment<a class="headerlink" href="#161-demo-domain-order-fulfilment" title="Permanent link">&para;</a></h3>
+<p>Eight modules. Each has its own <code>-api</code> and <code>-impl</code>, its own schema, and calls other modules only through their <code>@RpcApi</code> interfaces.</p>
+<table>
+<thead>
+<tr>
+<th>Module</th>
+<th>Responsibility</th>
+<th>Main API methods</th>
+<th>Calls (through their APIs)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>catalog</code></td>
+<td>Products and base prices</td>
+<td><code>getProduct(sku)</code>, <code>productExists(sku)</code></td>
+<td>none</td>
+</tr>
+<tr>
+<td><code>customers</code></td>
+<td>Customer profile, tier, address, payment method reference</td>
+<td><code>getCustomer(id)</code>, <code>getPaymentMethod(id)</code></td>
+<td>none</td>
+</tr>
+<tr>
+<td><code>pricing</code></td>
+<td>Quotes with tier discounts</td>
+<td><code>quote(customerId, lines)</code></td>
+<td><code>catalog</code>, <code>customers</code></td>
+</tr>
+<tr>
+<td><code>inventory</code></td>
+<td>Stock and reservations</td>
+<td><code>getStock(sku)</code>, <code>reserve(orderId, lines)</code>, <code>release(reservationId)</code>, <code>getReservation(id)</code></td>
+<td><code>catalog</code></td>
+</tr>
+<tr>
+<td><code>payments</code></td>
+<td>Authorize, capture, void</td>
+<td><code>authorize(requestId, customerId, amount)</code>, <code>capture(authId)</code>, <code>void(authId)</code></td>
+<td><code>customers</code></td>
+</tr>
+<tr>
+<td><code>shipping</code></td>
+<td>Shipping quotes and shipments</td>
+<td><code>quote(customerId, lines)</code>, <code>createShipment(orderId, customerId, reservationId)</code></td>
+<td><code>customers</code>, <code>inventory</code></td>
+</tr>
+<tr>
+<td><code>notifications</code></td>
+<td>Customer messages (logged to its own schema; no real email)</td>
+<td><code>send(requestId, customerId, template, params)</code></td>
+<td><code>customers</code></td>
+</tr>
+<tr>
+<td><code>orders</code></td>
+<td>The orchestrator and the public entry point</td>
+<td><code>placeOrder(requestId, customerId, lines)</code>, <code>getOrder(orderId)</code></td>
+<td><code>customers</code>, <code>pricing</code>, <code>shipping</code>, <code>inventory</code>, <code>payments</code>, <code>notifications</code></td>
+</tr>
+</tbody>
+</table>
+<pre class="mermaid"><code>graph LR
+  orders --&gt; customers
+  orders --&gt; pricing
+  orders --&gt; shipping
+  orders --&gt; inventory
+  orders --&gt; payments
+  orders --&gt; notifications
+  pricing --&gt; catalog
+  pricing --&gt; customers
+  inventory --&gt; catalog
+  shipping --&gt; inventory
+  shipping --&gt; customers
+  payments --&gt; customers
+  notifications --&gt; customers</code></pre>
+<p>The graph has fan-out (<code>orders</code> calls six modules), chains three calls deep (<code>orders</code> -&gt; <code>shipping</code> -&gt; <code>inventory</code> -&gt; <code>catalog</code>), and diamonds (<code>orders</code> reaches <code>customers</code> directly and through <code>pricing</code>, <code>payments</code> and <code>shipping</code>). It must stay acyclic: Modulith verification rejects module cycles, and a cycle between two <code>@RpcApi</code> interfaces would also make startup and call ordering fragile. If two modules appear to need each other, extract the shared concern into a third module that both call.</p>
+<p><strong><code>orders.placeOrder</code> flow (a saga with compensation)</strong></p>
+<ol>
+<li><code>customers.getCustomer</code> validates the customer.</li>
+<li><code>pricing.quote</code> prices the lines (it calls <code>catalog.getProduct</code> for each line and <code>customers.getCustomer</code> for the tier discount).</li>
+<li><code>shipping.quote</code> prices delivery (it calls <code>customers.getCustomer</code> for the address and <code>inventory.getStock</code> for the warehouse, which calls <code>catalog.productExists</code>).</li>
+<li><code>inventory.reserve</code> reserves stock. Failure: the order is rejected with an out-of-stock error and nothing else has happened.</li>
+<li><code>payments.authorize</code> for the total plus shipping. Failure (declined): <code>inventory.release</code>, order <code>REJECTED</code>.</li>
+<li><code>shipping.createShipment</code>. Failure: <code>payments.void</code> and <code>inventory.release</code>, order <code>FAILED</code>.</li>
+<li><code>payments.capture</code>, order <code>CONFIRMED</code>.</li>
+<li><code>notifications.send</code> through the orders module's outbox, so a notifications outage never blocks or fails the order (section 7.3).</li>
+</ol>
+<p>Compensating calls (<code>release</code>, <code>void</code>) are written to the orders outbox in the same transaction as the order state change and retried by the relay, with idempotent targets keyed by request id. All ordering of calls is explicit in <code>orders</code>; there is no cross-module event and no cross-module transaction.</p>
+<h3 id="162-groupings">16.2 Groupings<a class="headerlink" href="#162-groupings" title="Permanent link">&para;</a></h3>
+<p>Because modules can be grouped into processes in any combination, the demo defines these named groupings. A grouping is just a set of enabled modules plus URLs for the rest.</p>
+<table>
+<thead>
+<tr>
+<th>Group</th>
+<th>Modules</th>
+<th>Port in <code>groups</code> mode</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>front</code></td>
+<td><code>orders</code>, <code>notifications</code></td>
+<td>9181</td>
+</tr>
+<tr>
+<td><code>fulfilment</code></td>
+<td><code>catalog</code>, <code>pricing</code>, <code>inventory</code>, <code>shipping</code></td>
+<td>9182</td>
+</tr>
+<tr>
+<td><code>accounts</code></td>
+<td><code>customers</code>, <code>payments</code></td>
+<td>9183</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>Edge</th>
+<th>Inside one group (direct call)</th>
+<th>Across groups (JSON-RPC)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>orders</code> -&gt; <code>notifications</code></td>
+<td>yes (<code>front</code>)</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pricing</code> -&gt; <code>catalog</code>, <code>inventory</code> -&gt; <code>catalog</code>, <code>shipping</code> -&gt; <code>inventory</code></td>
+<td>yes (<code>fulfilment</code>)</td>
+<td></td>
+</tr>
+<tr>
+<td><code>payments</code> -&gt; <code>customers</code></td>
+<td>yes (<code>accounts</code>)</td>
+<td></td>
+</tr>
+<tr>
+<td><code>orders</code> -&gt; <code>pricing</code>, <code>shipping</code>, <code>inventory</code></td>
+<td></td>
+<td><code>front</code> -&gt; <code>fulfilment</code></td>
+</tr>
+<tr>
+<td><code>orders</code> -&gt; <code>customers</code>, <code>payments</code>; <code>notifications</code> -&gt; <code>customers</code></td>
+<td></td>
+<td><code>front</code> -&gt; <code>accounts</code></td>
+</tr>
+<tr>
+<td><code>pricing</code> -&gt; <code>customers</code>; <code>shipping</code> -&gt; <code>customers</code></td>
+<td></td>
+<td><code>fulfilment</code> -&gt; <code>accounts</code></td>
+</tr>
+</tbody>
+</table>
+<p>The grouping graph is <code>front</code> -&gt; <code>fulfilment</code> -&gt; <code>accounts</code> and <code>front</code> -&gt; <code>accounts</code>, which is acyclic. A module graph with no cycles can still produce a cycle between groups (for example, if <code>customers</code> were in <code>fulfilment</code> and <code>shipping</code> in <code>accounts</code>). That is legal at runtime, but each group then needs the other's URL and readiness gets harder, so choose groupings that keep the group graph acyclic.</p>
+<h3 id="163-ports-and-databases">16.3 Ports and databases<a class="headerlink" href="#163-ports-and-databases" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Port</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>All-in-one app</td>
+<td>9181</td>
+<td><code>modulith</code>, <code>macro-monolith</code> and the loopback modes</td>
+</tr>
+<tr>
+<td>Group processes</td>
+<td>9181 <code>front</code>, 9182 <code>fulfilment</code>, 9183 <code>accounts</code></td>
+<td><code>groups</code> and <code>split-dbs</code> modes</td>
+</tr>
+<tr>
+<td>One process per module</td>
+<td>9181 <code>orders</code>, 9182 <code>catalog</code>, 9183 <code>pricing</code>, 9184 <code>inventory</code>, 9185 <code>customers</code>, 9186 <code>payments</code>, 9187 <code>shipping</code>, 9188 <code>notifications</code></td>
+<td><code>microservices</code> and <code>microservices-macro</code> modes</td>
+</tr>
+<tr>
+<td>PostgreSQL A</td>
+<td>5432</td>
+<td>shared instance, one schema per module</td>
+</tr>
+<tr>
+<td>PostgreSQL B, C</td>
+<td>5433, 5434</td>
+<td>extra instances for <code>split-dbs</code> (<code>front</code> on A, <code>fulfilment</code> on B, <code>accounts</code> on C)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="164-demo-modes">16.4 Demo modes<a class="headerlink" href="#164-demo-modes" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Mode</th>
+<th>Artifact(s) run</th>
+<th>Processes</th>
+<th>Cross-module path</th>
+<th>Databases</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>modulith</code></td>
+<td><code>app-modulith</code></td>
+<td>1</td>
+<td>all <code>local</code></td>
+<td>A, eight schemas</td>
+</tr>
+<tr>
+<td><code>macro-monolith</code></td>
+<td><code>app-macro</code>, profile <code>monolith</code></td>
+<td>1</td>
+<td>all <code>local</code></td>
+<td>A</td>
+</tr>
+<tr>
+<td><code>groups</code></td>
+<td><code>app-macro</code> three times, profiles <code>front</code>, <code>fulfilment</code>, <code>accounts</code></td>
+<td>3</td>
+<td>mixed: <code>local</code> inside a group, <code>remote</code> across groups (table in 16.2)</td>
+<td>A</td>
+</tr>
+<tr>
+<td><code>microservices</code></td>
+<td>eight per-service apps (<code>app-&lt;module&gt;-service</code>)</td>
+<td>8</td>
+<td>all <code>remote</code></td>
+<td>A</td>
+</tr>
+<tr>
+<td><code>microservices-macro</code></td>
+<td><code>app-macro</code> eight times, one module enabled each</td>
+<td>8</td>
+<td>all <code>remote</code></td>
+<td>A</td>
+</tr>
+<tr>
+<td><code>loopback-codec</code></td>
+<td><code>app-macro</code>, profile <code>loopback-codec</code></td>
+<td>1</td>
+<td>every call through the JSON codec in-process</td>
+<td>A</td>
+</tr>
+<tr>
+<td><code>loopback-http</code></td>
+<td><code>app-macro</code>, profile <code>loopback-http</code></td>
+<td>1</td>
+<td>every call over HTTP to <code>127.0.0.1:9181</code></td>
+<td>A</td>
+</tr>
+<tr>
+<td><code>split-dbs</code></td>
+<td>as <code>groups</code></td>
+<td>3</td>
+<td>as <code>groups</code></td>
+<td><code>front</code> on A, <code>fulfilment</code> on B, <code>accounts</code> on C</td>
+</tr>
+</tbody>
+</table>
+<p>Per-service apps contain their own <code>-impl</code> plus the <code>-api</code> artifacts of the modules they call, which is exactly that module's <code>allowedDependencies</code>. An enforcer rule checks that an app's declared <code>-api</code> dependencies match it, so a service app cannot silently depend on more than its module may use.</p>
+<h3 id="165-scenarios-the-demonstration-runs-in-every-mode">16.5 Scenarios the demonstration runs in every mode<a class="headerlink" href="#165-scenarios-the-demonstration-runs-in-every-mode" title="Permanent link">&para;</a></h3>
+<p>The same smoke script runs against every mode, calls <code>orders.placeOrder</code> on whichever process hosts <code>orders</code>, and must produce identical results and exception types:</p>
+<table>
+<thead>
+<tr>
+<th>Scenario</th>
+<th>Trigger</th>
+<th>Expected outcome</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Happy path, standard customer</td>
+<td><code>cust-standard</code>, in-stock SKUs</td>
+<td><code>CONFIRMED</code>; price with no discount</td>
+</tr>
+<tr>
+<td>Tier discount through the chain</td>
+<td><code>cust-gold</code></td>
+<td><code>CONFIRMED</code>; lower total (shows <code>orders</code> -&gt; <code>pricing</code> -&gt; <code>customers</code>)</td>
+</tr>
+<tr>
+<td>Out of stock</td>
+<td>SKU <code>sku-oos</code></td>
+<td>rejected with <code>OutOfStockException</code>; no payment calls in the trace</td>
+</tr>
+<tr>
+<td>Payment declined with compensation</td>
+<td><code>cust-declined</code></td>
+<td><code>REJECTED</code>; trace shows <code>inventory.reserve</code> then <code>inventory.release</code></td>
+</tr>
+<tr>
+<td>Shipping failure with two compensations</td>
+<td>SKU <code>sku-undeliverable</code></td>
+<td><code>FAILED</code>; trace shows <code>payments.void</code> and <code>inventory.release</code></td>
+</tr>
+<tr>
+<td>Dependency down</td>
+<td><code>notifications</code> toggled down with <code>POST /demo/faults</code></td>
+<td>order still <code>CONFIRMED</code>; notification delivered by the outbox relay after the fault is cleared</td>
+</tr>
+<tr>
+<td>Idempotent retry</td>
+<td>same <code>requestId</code> sent twice</td>
+<td>one order, one reservation, one authorization</td>
+</tr>
+</tbody>
+</table>
+<p>Seed data (products, customers, stock) comes from demo-only Flyway migrations in each module's own location, loaded only in the <code>demo</code> profile.</p>
+<h3 id="166-demo-aids">16.6 Demo aids<a class="headerlink" href="#166-demo-aids" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong><code>GET /demo/topology</code></strong> lists, for the modules in that process, whether each is enabled, its binding (<code>local</code>, <code>loopback-codec</code>, <code>loopback-http</code>, <code>remote</code>), the target URL if any, and the datasource host, port and schema (never the password).</li>
+<li><strong>Call trace with correlation:</strong> every <code>placeOrder</code> gets a correlation id that is propagated in an HTTP header and in-process. <code>GET /demo/trace?correlationId=...</code> returns that process's recorded cross-module calls (caller, callee, method, binding actually used, duration, outcome, depth). The same data is logged one line per call, for example <code>pricing -&gt; catalog.getProduct [local] 1 ms ok</code>.</li>
+<li><strong><code>scripts/trace.sh &lt;correlationId&gt;</code></strong> queries every running demo process and prints one merged call tree, with the binding shown on each edge, so the chain <code>orders</code> -&gt; <code>shipping</code> -&gt; <code>inventory</code> -&gt; <code>catalog</code> is visible as a single tree whether it ran in one process or four.</li>
+<li><strong><code>POST /demo/faults</code></strong> (demo profile only) turns a module's failures on or off: <code>notifications</code> down, <code>payments</code> decline, <code>inventory</code> latency. It affects only modules enabled in that process.</li>
+<li><strong>Startup banner</strong> prints the topology when the process starts.</li>
+<li><strong>Scripts:</strong> <code>scripts/db.sh up|down</code> (PostgreSQL containers, roles and schemas), <code>scripts/demo.sh &lt;mode&gt; start|stop|status</code>, <code>scripts/smoke.sh</code>, <code>scripts/trace.sh</code>, and <code>scripts/demo-all.sh</code> (every mode in turn with a pass/fail summary table).</li>
+</ul>
+<h3 id="167-what-the-demonstration-should-show">16.7 What the demonstration should show<a class="headerlink" href="#167-what-the-demonstration-should-show" title="Permanent link">&para;</a></h3>
+<ol>
+<li>The module code and the API interfaces are identical in every mode; only the artifact and configuration change.</li>
+<li>The only interaction between modules is the <code>@RpcApi</code> call, and the merged trace shows each edge's binding change between <code>local</code>, <code>loopback-*</code> and <code>remote</code> as the grouping changes.</li>
+<li>A chain of dependent calls (<code>orders</code> -&gt; <code>shipping</code> -&gt; <code>inventory</code> -&gt; <code>catalog</code>) behaves identically whether it runs in one process or across several.</li>
+<li>Each module keeps its own schema, and in <code>split-dbs</code> each group its own database instance, with no code change.</li>
+<li>A module's database role cannot read another module's schema, even when all eight are in one process.</li>
+<li>Failures in the middle of the chain compensate correctly (release, void) and a dependency being down does not fail the order.</li>
+<li>Results and exception types are identical across all modes.</li>
+</ol>
+<h2 id="17-implementation-notes-and-deviations">17. Implementation notes and deviations<a class="headerlink" href="#17-implementation-notes-and-deviations" title="Permanent link">&para;</a></h2>
+<p>Where the implementation differs from the sections above. Each item was either removed or is recorded here.</p>
+<h3 id="171-decisions-that-differ-from-the-text-above">17.1 Decisions that differ from the text above<a class="headerlink" href="#171-decisions-that-differ-from-the-text-above" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Area</th>
+<th>Design said</th>
+<th>Implementation</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Persistence API</td>
+<td>Not fixed</td>
+<td>Spring Data JPA/Hibernate per module, each module with its own <code>DataSource</code>, Flyway, <code>EntityManagerFactory</code> and transaction manager (<code>&lt;module&gt;Tm</code>), none <code>@Primary</code></td>
+<td>User decision</td>
+</tr>
+<tr>
+<td>Versions</td>
+<td>Two-week-old releases</td>
+<td>Spring Boot 4.1.2 and Spring Modulith 2.1.2, released days before use</td>
+<td>User waived the rule for these two</td>
+</tr>
+<tr>
+<td>Platform package root</td>
+<td><code>com.acme</code></td>
+<td>Platform code is under <code>io.macroservice.platform.*</code>, outside the application root, so Modulith does not treat it as a module</td>
+<td>Keeps <code>ApplicationModules</code> limited to business modules</td>
+</tr>
+<tr>
+<td><code>payments.void</code></td>
+<td><code>void</code></td>
+<td><code>voidAuthorization</code></td>
+<td><code>void</code> is a Java keyword; the table is <code>payment_authorization</code> and money is in cents</td>
+</tr>
+<tr>
+<td><code>-api</code> dependencies</td>
+<td><code>rpc-api</code> and JDK</td>
+<td>Also <code>spring-modulith-api</code> and <code>swagger-annotations-jakarta</code> at <code>provided</code> scope (annotations only)</td>
+<td><code>@NamedInterface</code> and optional <code>@Operation</code>/<code>@Schema</code> descriptions</td>
+</tr>
+<tr>
+<td>OpenAPI schemas</td>
+<td>swagger-core model converters</td>
+<td>Generated by <code>platform/rpc-docs</code></td>
+<td>No swagger-core or springdoc release supports Jackson 3 (13)</td>
+</tr>
+<tr>
+<td>Demo prerequisites</td>
+<td>Docker and a JDK</td>
+<td>Also <code>curl</code> and <code>python3</code> for the scripts; Maven comes from <code>./mvnw</code></td>
+<td>The scripts post JSON and merge traces</td>
+</tr>
+<tr>
+<td><code>app-modulith</code> in the demo</td>
+<td>No RPC server</td>
+<td>The <code>demo</code> profile enables it on 127.0.0.1 only; <code>ModulithGuard</code> still rejects a disabled module or a non-local binding</td>
+<td>The smoke test needs an HTTP entry to <code>orders</code>; calls between modules stay direct</td>
+</tr>
+<tr>
+<td>Disabled modules in <code>app-macro</code></td>
+<td>Not stated</td>
+<td>Every disabled module on the classpath needs a URL, even one this process never calls</td>
+<td>The registrar builds a proxy per <code>@RpcApi</code></td>
+</tr>
+<tr>
+<td>Call trace (demo)</td>
+<td>One interceptor</td>
+<td><code>demo-support</code> wraps every <code>@RpcApi</code> bean, records the edge on the caller side only, finds the caller module from the call stack, and carries the depth in <code>X-Rpc-Depth</code></td>
+<td>Exact edges and the same tree in every mode</td>
+</tr>
+<tr>
+<td>Boundary interceptor</td>
+<td>An AOP interceptor</td>
+<td>A <code>BeanPostProcessor</code> that wraps each local <code>@RpcApi</code> implementation in a JDK proxy at lowest precedence (outside the callee's own <code>@Transactional</code> proxy)</td>
+<td>Needs no pointcut and works for the dispatcher too</td>
+</tr>
+</tbody>
+</table>
+<h3 id="172-stage-8-boundary-parity-compatibility-and-failure-behaviour">17.2 Stage 8: boundary parity, compatibility and failure behaviour<a class="headerlink" href="#172-stage-8-boundary-parity-compatibility-and-failure-behaviour" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Boundary interceptor.</strong> Every local <code>@RpcApi</code> implementation is wrapped. A call through it (a) is observed as <code>macro.rpc.client</code> with tags <code>module</code>, <code>method</code>, <code>binding</code>, <code>outcome</code> (and <code>error</code> on failure), the same name and tags a remote call gets from its client proxy, so a timer exists per binding and a tracing bridge makes it a span; and (b) suspends an active transaction (PROPAGATION_NOT_SUPPORTED semantics, on every <code>PlatformTransactionManager</code>) unless <code>modules.boundary.suspend-transactions=false</code>. When the dispatcher invokes the bean for a looped-back or remote caller, only (b) applies; the caller's proxy has already recorded the call. Consequences: a local implementation is no longer injectable by its concrete class (only by its <code>@RpcApi</code> interface, which the module rules already require), and <code>boundary</code> is a reserved name under <code>modules.*</code> (the <code>modules</code> map binds it as an empty module, which is harmless).</li>
+<li><strong>Metrics instead of a tracer extension.</strong> Metrics and tracing live in the production-path interceptor, not in the demo-only call tracer, so they exist in every profile; the demo tracer is unchanged.</li>
+<li><strong>Compatibility check.</strong> <code>japicmp-maven-plugin</code> runs at <code>verify</code> in every <code>-api</code> module and is skipped until a baseline exists. CI runs <code>mvn verify -Dapi.compat.skip=false -Dapi.baseline.version=&lt;last release&gt;</code>; the baseline is resolved from the configured repositories like any dependency. Binary-incompatible changes break the build; a method added to an interface does not (additive on the wire). Adding a record component changes the canonical constructor and is reported; keep the old constructor (delegating with a default) to make it pass. Known gap: renaming a method parameter keeps Java compatibility but changes the JSON field name; the generated OpenRPC document changes in that case and should be diffed in review. <code>scripts/check-api-compat.sh</code> proves the check bites.</li>
+<li><strong>Failure behaviour.</strong> The client proxy maps a timeout, a refused or cut connection, HTTP 502/503/504 and <code>-32001</code>/<code>-32002</code> to <code>RpcUnavailableException</code>; a malformed, empty, mismatched-id or mistyped answer and the codes parse error, invalid request, method not found and invalid params to <code>RpcProtocolException</code>; a declared <code>@RpcError</code> to the same exception type; any other error to <code>RpcRemoteException</code>. Only <code>@Idempotent</code> methods are retried, only after an unavailable failure, at most <code>modules.&lt;m&gt;.client.retries</code> times. <code>DomainFailureTests</code> runs the eight modules as eight processes with a fault-injecting proxy in front of payments, shipping and notifications.</li>
+<li><strong>Outbox relay.</strong> A relay now makes its first scan five seconds after it starts (<code>modules.orders.outbox.startup-scan-delay</code>), so entries left pending by a process that died are delivered promptly instead of after a full idle-scan interval (found by the relay-restart test). The delay keeps a freshly started, idle module free of database connections for that moment.</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../../README-dev/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Developer guide">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Developer guide
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../spring-modulith-async/" class="md-footer__link md-footer__link--next" aria-label="Next: Discussion: Spring Modulith async">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Discussion: Spring Modulith async
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "navigation.footer", "content.code.copy", "content.tabs.link", "search.highlight", "toc.follow"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
+      
+    
+  </body>
+</html>
