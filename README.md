@@ -3,7 +3,7 @@
 One Spring Boot 4 / Java 25 codebase that runs as a monolith or as several services, chosen by configuration.
 Modules talk to each other only through `@RpcApi` interfaces (direct call in-process, JSON-RPC 2.0 when split).
 
-Design: [`docs/design/macro-service.md`](docs/design/macro-service.md). Build plan: [`docs/design/staged-prompt.md`](docs/design/staged-prompt.md).
+Developer guide: [`docs/README-dev.md`](docs/README-dev.md). Design: [`docs/design/macro-service.md`](docs/design/macro-service.md). Build plan: [`docs/design/staged-prompt.md`](docs/design/staged-prompt.md).
 
 ## Requirements
 
