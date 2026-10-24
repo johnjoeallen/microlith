@@ -8,7 +8,8 @@ by default, before any need for the split has been shown.
 
 !!! note "Evidence, and the extrapolation from it"
     The numbers on this page come from this project: one domain, one machine. Carrying them over to real systems is the author's judgement, which is why the argument below is made in
-    steps, with its limits stated at the end.
+    steps, with its limits stated at the end. In particular, **every network call here was local** (loopback on one machine) with **no TLS, no authentication, no proxy, load balancer or
+    service mesh** in the path, so the network cost measured is a floor, not a typical figure.
 
 **Thesis.** Starting a product as a set of microservices should not be the default. The default should be a **macro service**: one team's modular service with
 build-enforced module boundaries, deployed as one unit. It is the safe starting point because it keeps every later option open: the same artifact can be deployed as independent, separately scaled services *without
@@ -121,7 +122,7 @@ Review:       every <n> sprints, with the boundary metrics
 | "We have several teams from day one." | Give each team its own macro service with published contracts. The unit is the team, not the module (see [many teams](principles.md#7-many-teams-a-macro-service-per-team-contracts-between-them)). |
 | "Hard isolation is required from the start (compliance, a vendor, another runtime)." | Split exactly that module or group, and leave the rest together. |
 | "We have a mature platform, so a service costs little." | The operational part may be cheap. The latency, throughput and version-skew costs remain, and the boundary risk is unchanged. |
-| "Real services do real work, so the hop is small by comparison." | True, and it makes the relative cost smaller than measured here. A real network makes the absolute cost larger. The effects point in opposite directions, so measure your own journeys. |
+| "Real services do real work, so the hop is small by comparison." | True, and it makes the relative cost smaller than measured here. A real network, TLS, authentication and any proxies make the absolute cost larger than the loopback figures. The effects point in opposite directions, so measure your own journeys. |
 | "A modular monolith erodes into a big ball of mud." | It does when the boundaries are conventions. Here the build enforces them (no cross-module tables, an acyclic graph, compatibility-checked APIs) and the contract tests exercise them through every binding. |
 | "It is harder to hire or scale a team on one codebase." | That is the exit ramp: a second team or a diverging vocabulary means a second macro service. |
 
@@ -133,7 +134,12 @@ Review:       every <n> sprints, with the boundary metrics
 
 ## Where the evidence stops
 
-* **One domain, one machine, loopback networking.** The demo calls are cheap, so the network share of each order is larger than in a service that does real work. A real network costs more per hop. Both effects are real and run in opposite directions.
+* **One machine, loopback only, and nothing else in the path.** Every call between processes ran over the loopback interface of one host. There was no TLS or mTLS (no handshakes, no per-call encryption), no authentication or token
+  validation on each call, no load balancer, gateway or service-mesh sidecar adding hops, no service discovery, and no real network latency, packet loss, retries or timeouts, and no cross-zone traffic. Real deployments have most of these. That makes
+  the measured cost of splitting a **floor** for its network and security part, and the extra hops, handshakes and proxies come on top of every boundary you add.
+* **Cheap calls.** The demo's calls are one primary-key query each, so the network share of an order is larger than in services that do real work per call. This pushes the other way, and is why the relative cost measured here may overstate
+  what a heavy-calls domain would see. The two effects are real and run in opposite directions; measure your own journeys.
+* **One domain and one workload.** The demo's order flow and its order mix; a different domain or mix gives different call counts and different weights.
 * **One run per configuration.** Differences below about 5% are noise; the parallel and cache effects shown are well above it, the outbox-versus-events difference is not.
 * **No long-term operation.** The measurements do not cover on-call load, incidents or a growing team. Those arguments come from the design and from the sprawl scenario, not from data.
 * **Parked work.** A few things the argument leans on are practices rather than shipped features: the cheap-module generator, the boundary-cost tool and a published-versus-internal API marker are in the [parked ideas](principles.md#parked-ideas).

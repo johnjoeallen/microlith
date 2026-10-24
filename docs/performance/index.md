@@ -56,6 +56,6 @@ Four concurrent clients, realistic workload, result cache on, parallel quotes on
 | **The system saturates at about four concurrent orders on this machine.** More clients only queue. | [load](load.md#more-clients) |
 
 !!! warning "Treat the absolute figures with care"
-    One machine, demo-sized JVMs (320 MB heap, C1-only JIT, serial GC), cheap calls and loopback networking. Compare the *shapes with each other*; do not
-    quote 336 orders per second as a capacity. A real network makes the split shapes cost *more* than shown. The [method page](method.md) lists
+    One machine, demo-sized JVMs (320 MB heap, C1-only JIT, serial GC), cheap calls and loopback networking with no TLS, authentication or proxies. Compare the *shapes with each other*; do not
+    quote 336 orders per second as a capacity. A real network, TLS and any gateway or mesh make the split shapes cost *more* than shown. The [method page](method.md) lists
     what the measurements do and do not say.

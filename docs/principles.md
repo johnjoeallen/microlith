@@ -162,7 +162,7 @@ it is one.
 
 The measurements show it. Keeping the chatty chains inside one process in `groups` cut the remote calls per order from 14.4 (eight services) to 8.5, and recovered 36% of the throughput (225 against 166 orders/s).
 
-**Cost of a boundary.** Calls per order that would cross a boundary around each candidate, from the module call counts of one run. Each crossing call costs about 1.1 to 1.3 ms extra here (remote 1.7 to 2.0 ms against local 0.5 to 0.7 ms), against a
+**Cost of a boundary.** Calls per order that would cross a boundary around each candidate, from the module call counts of one run. Each crossing call costs about 1.1 to 1.3 ms extra here (remote 1.7 to 2.0 ms against local 0.5 to 0.7 ms), **on loopback, with no TLS, authentication or proxies, so a floor**, against a
 median of 11.6 ms for the whole order in one process.
 
 | If you split out... | Crossing calls/order | About +ms per order | Notes |

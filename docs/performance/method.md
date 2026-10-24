@@ -8,8 +8,9 @@ Everything runs on **one machine**: 32 CPUs, Linux 6.12, JDK 25, PostgreSQL 17 i
 Each JVM is limited to `-Xmx320m` with the serial GC, so that eight of them fit comfortably.
 
 !!! warning "What a single machine means"
-    A hop between processes here is a loopback TCP connection, typically 1 to 3 ms. A real network is slower, so the *cost of splitting* shown
-    here is a **lower bound**. Client and servers also compete for the same CPUs, which flattens differences once the machine is busy.
+    A hop between processes here is a **loopback** TCP connection on one host, typically 1 to 3 ms. There is **no TLS or mTLS, no authentication on each call, no load balancer, gateway or
+    service mesh, no service discovery, no real network latency or loss, and no cross-zone traffic**. A real deployment has most of these, so the *cost of splitting* shown here is a
+    **lower bound** for its network and security part. Client and servers also compete for the same CPUs, which flattens differences once the machine is busy.
 
 ## The workload
 
@@ -53,7 +54,7 @@ A call served by the [result cache](../features/cache.md) is recorded as its own
     * **Call tracing has a cost.** Recording each call adds a little overhead to every configuration equally. `--no-trace` measures round trips only.
     * **It is a demo domain.** Calls are cheap (one primary-key query each), so the network and framework share of the time is larger than it would
       be for services doing real work.
-    * **No real network, no real data volume,** no failures during the measurement.
+    * **No real network and nothing in the path:** loopback only, no TLS, no authentication, no proxies or mesh. No real data volume, and no failures during the measurement.
 
 ## Reproducing it
 
