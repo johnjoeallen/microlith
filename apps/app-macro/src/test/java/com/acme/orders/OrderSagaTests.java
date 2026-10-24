@@ -150,9 +150,15 @@ class OrderSagaTests {
         assertThat(order.shippingCents()).isEqualTo(700);
         assertThat(order.totalCents()).isEqualTo(2700);
 
-        InOrder steps = inOrder(customers, pricing, shipping, inventory, payments);
-        steps.verify(customers).getCustomer("c");
-        steps.verify(pricing).quote(eq("c"), anyList());
+        // the customer check and the two quotes are independent reads that run at the same time: they come in any order, all before reserve
+        InOrder customerFirst = inOrder(customers, inventory);
+        customerFirst.verify(customers).getCustomer("c");
+        customerFirst.verify(inventory).reserve(eq(requestId + ":reserve"), eq(order.orderId()), anyList());
+        InOrder pricedFirst = inOrder(pricing, inventory);
+        pricedFirst.verify(pricing).quote(eq("c"), anyList());
+        pricedFirst.verify(inventory).reserve(eq(requestId + ":reserve"), eq(order.orderId()), anyList());
+
+        InOrder steps = inOrder(shipping, inventory, payments);
         steps.verify(shipping).quote(eq("c"), anyList());
         steps.verify(inventory).reserve(eq(requestId + ":reserve"), eq(order.orderId()), anyList());
         steps.verify(payments).authorize(requestId + ":authorize", "c", 2700);

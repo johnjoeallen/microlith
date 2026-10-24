@@ -27,6 +27,11 @@ public class RpcAutoConfiguration {
         return new RpcApiRegistrar(environment);
     }
 
+    @Bean
+    static ParallelContext parallelContext() {
+        return new ParallelContext();
+    }
+
     /** The {@code @Cached} layer in front of every {@code @RpcApi} bean; {@code rpc.cache.enabled=false} switches it off. */
     @Bean
     @ConditionalOnProperty(name = "rpc.cache.enabled", matchIfMissing = true)

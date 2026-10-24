@@ -39,6 +39,27 @@ average: `shipping.quote` 5.6 ms, `createShipment` 4.2, `pricing.quote` 4.0, `pa
 - Option 3 could: `pricing.quote`, `shipping.quote` and `getCustomer` are independent and could run in parallel.
 - `@Cached` already removes some read latency (+20-30% orders/s in the split modes).
 
+## Spike result: parallel quotes (option D)
+
+Implemented on this branch: `placeOrder` runs `customers.getCustomer`, `pricing.quote` and `shipping.quote` at the same time on virtual
+threads (`io.macroservice.platform.rpc.Parallel`), joining in the old order so callers see the same exception as before. Thread-bound
+context (logging MDC, the demo trace depth) is carried into the workers. `modules.orders.parallel-quotes=false` restores the sequential
+code. Measured with `scripts/perf.sh --modes modulith,groups,microservices --parallel both --orders 2000 --warmup 300 --concurrency 4`
+(realistic profile, `@Cached` on, one machine, so a loopback hop is about 2 ms):
+
+| Mode | orders/s off to on | p50 ms | p95 ms | p99 ms |
+| --- | --- | --- | --- | --- |
+| `modulith` | 351 to 357 (+2%) | 11.0 to 10.9 | 16.2 to 15.9 | 18.4 to 18.0 |
+| `groups` | 210 to 234 (+11%) | 18.0 to 16.6 (-8%) | 28.1 to 24.7 (-12%) | 31.3 to 27.7 (-12%) |
+| `microservices` | 154 to 182 (+18%) | 24.7 to 21.0 (-15%) | 38.7 to 33.4 (-14%) | 45.2 to 37.3 (-17%) |
+
+- It helps where the calls are remote and does nothing in-process, as predicted. About 15% off the median in `microservices`.
+- Throughput also rose, because at 4 clients the machine is not CPU-bound and the saga was waiting on hops. At saturation (many clients) the gain
+  will shrink. Worth repeating at 16 or 32 clients.
+- No change to what a caller can observe: same results, same exceptions, same number of calls (the unit tests and the full build pass).
+- Cost: one small helper and a context-propagation rule that every thread-bound facility (MDC, trace depth) must follow. Anything new that is thread-bound
+  and matters to a call (security context, transaction) has to register with `Parallel` or must not be used inside a parallel call.
+
 ## Tensions with the current design
 
 - **Process boundaries.** Modulith events are in-JVM. In `groups` / `microservices` an event crosses processes only via externalization
