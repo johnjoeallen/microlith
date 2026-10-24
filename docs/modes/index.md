@@ -6,13 +6,13 @@ The same modules, the same API interfaces and the same tests run in eight shapes
 | Mode | Processes | Artifact | Cross-module calls | Databases |
 | --- | --- | --- | --- | --- |
 | [`modulith`](single-process.md#modulith) | 1 | `app-modulith` | all `local` | one instance, eight schemas |
-| [`macro-monolith`](single-process.md#macro-monolith) | 1 | `app-macro`, profile `monolith` | all `local` | one instance |
-| [`loopback-codec`](single-process.md#loopback-codec) | 1 | `app-macro`, profile `loopback-codec` | all through the JSON codec, in memory | one instance |
-| [`loopback-http`](single-process.md#loopback-http) | 1 | `app-macro`, profile `loopback-http` | all over HTTP to itself | one instance |
-| [`groups`](split.md#groups) | 3 | `app-macro`, profiles `front`, `fulfilment`, `accounts` | `local` inside a group, `remote` between groups | one instance |
-| [`split-dbs`](split.md#split-dbs) | 3 | as `groups` | as `groups` | **three** instances, one per group |
-| [`microservices`](split.md#microservices) | 8 | eight `app-<module>-service` jars | all `remote` | one instance |
-| [`microservices-macro`](split.md#microservices-macro) | 8 | `app-macro` eight times, profile = module | all `remote` | one instance |
+| [`macro-monolith`](single-process.md#macro-monolith) | 1 | `app-macro`, profile `monolith` | all `local` | one instance, eight schemas |
+| [`loopback-codec`](single-process.md#loopback-codec) | 1 | `app-macro`, profile `loopback-codec` | all through the JSON codec, in memory | one instance, eight schemas |
+| [`loopback-http`](single-process.md#loopback-http) | 1 | `app-macro`, profile `loopback-http` | all over HTTP to itself | one instance, eight schemas |
+| [`groups`](split.md#groups) | 3 | `app-macro`, profiles `front`, `fulfilment`, `accounts` | `local` inside a group, `remote` between groups | one instance, eight schemas |
+| [`split-dbs`](split.md#split-dbs) | 3 | as `groups` | as `groups` | **three** instances (A, B, C), one per group |
+| [`microservices`](split.md#microservices) | 8 | eight `app-<module>-service` jars | all `remote` | one instance, eight schemas (a schema, roles and pool per service) |
+| [`microservices-macro`](split.md#microservices-macro) | 8 | `app-macro` eight times, profile = module | all `remote` | one instance, eight schemas (a schema, roles and pool per service) |
 
 All of them serve the orders entry point and the demo shop on **port 9181**, so a client or a load test is pointed at the same URL in every mode.
 

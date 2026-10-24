@@ -41,7 +41,7 @@ Same code, same tests, same workload, eight deployment shapes ([the measurements
 | Processes to run, patch and be on call for | 1 | 3 | 8 |
 
 Each call between processes costs about 1.1 to 1.3 ms more than a local one (0.5 to 0.7 ms), and an order makes about 20 calls. Cache and parallel reads win part of it back (+13 to 26% and +9 to 18% in the split modes), but those are mitigations
-of a cost the team chose to take on. For a single team that coordinates perfectly well, the benefit side of that bargain is mostly options it does not yet need.
+of a cost the team chose to take on. All three columns used the same single PostgreSQL instance (see [where the evidence stops](#where-the-evidence-stops)). For a single team that coordinates perfectly well, the benefit side of that bargain is mostly options it does not yet need.
 
 ### 3. Microservices mainly buy team independence; one team has no use for it yet
 
@@ -137,6 +137,9 @@ Review:       every <n> sprints, with the boundary metrics
 * **One machine, loopback only, and nothing else in the path.** Every call between processes ran over the loopback interface of one host. There was no TLS or mTLS (no handshakes, no per-call encryption), no authentication or token
   validation on each call, no load balancer, gateway or service-mesh sidecar adding hops, no service discovery, and no real network latency, packet loss, retries or timeouts, and no cross-zone traffic. Real deployments have most of these. That makes
   the measured cost of splitting a **floor** for its network and security part, and the extra hops, handshakes and proxies come on top of every boundary you add.
+* **One shared database server.** Every mode except `split-dbs` used a single PostgreSQL instance with a schema per module, so even the eight services shared one database server. That isolates the cost of the
+  *process* boundary, which is the point of the comparison, but it does not charge the services for what real microservices usually add: a database instance per service to provision, secure, back up, monitor and size.
+  Three instances in `split-dbs` cost nothing measurable here (230 against 225 orders/s), though that is on one machine. So again the cost measured for the split shapes is a floor.
 * **Cheap calls.** The demo's calls are one primary-key query each, so the network share of an order is larger than in services that do real work per call. This pushes the other way, and is why the relative cost measured here may overstate
   what a heavy-calls domain would see. The two effects are real and run in opposite directions; measure your own journeys.
 * **One domain and one workload.** The demo's order flow and its order mix; a different domain or mix gives different call counts and different weights.
