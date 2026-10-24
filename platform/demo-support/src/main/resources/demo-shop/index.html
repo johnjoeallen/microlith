@@ -1,0 +1,323 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Microlith Shop</title>
+<style>
+  :root {
+    --bg: #f6f7f9; --card: #fff; --text: #1d2330; --muted: #667085; --line: #e3e6ec;
+    --accent: #2a5bd7; --ok: #137a3f; --bad: #b42318; --warn: #a15c07; --chip: #eef1f6;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #14171d; --card: #1d222b; --text: #e8ebf2; --muted: #98a2b3; --line: #2d3441;
+            --accent: #6f93ff; --ok: #4cc38a; --bad: #ff7b72; --warn: #e3b341; --chip: #262c37; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.45 system-ui, sans-serif; }
+  header { padding: 14px 16px; border-bottom: 1px solid var(--line); background: var(--card); }
+  header h1 { margin: 0 0 6px; font-size: 18px; }
+  .mods { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip { background: var(--chip); border-radius: 999px; padding: 2px 10px; font-size: 12px; color: var(--muted); }
+  .chip b { color: var(--text); font-weight: 600; }
+  .chip.off { opacity: .5; }
+  main { display: grid; gap: 16px; padding: 16px; max-width: 1100px; margin: 0 auto; grid-template-columns: 1fr; }
+  @media (min-width: 880px) { main { grid-template-columns: 3fr 2fr; } }
+  section { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; }
+  section h2 { margin: 0 0 10px; font-size: 15px; }
+  table { width: 100%; border-collapse: collapse; }
+  td, th { padding: 6px 4px; text-align: left; border-bottom: 1px solid var(--line); vertical-align: middle; }
+  th { font-size: 12px; color: var(--muted); font-weight: 600; }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  input, select, button { font: inherit; color: var(--text); background: var(--card); border: 1px solid var(--line); border-radius: 6px; padding: 5px 8px; }
+  input[type=number] { width: 4.5em; }
+  button { cursor: pointer; }
+  button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  button:disabled { opacity: .5; cursor: default; }
+  .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 8px 0; }
+  .muted { color: var(--muted); font-size: 13px; }
+  .status { font-weight: 600; }
+  .CONFIRMED { color: var(--ok); } .REJECTED, .FAILED, .error { color: var(--bad); } .PENDING, .RESERVED, .AUTHORIZED { color: var(--warn); }
+  pre { margin: 8px 0 0; padding: 8px; background: var(--chip); border-radius: 6px; overflow: auto; font-size: 12px; max-height: 260px; }
+  .scenario { font-size: 12px; padding: 2px 8px; }
+  label.sw { display: flex; gap: 6px; align-items: center; margin: 4px 0; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Microlith Shop <span class="muted" id="proc"></span></h1>
+  <div class="mods" id="mods"></div>
+</header>
+<main>
+  <div>
+    <section>
+      <h2>Products</h2>
+      <table>
+        <thead><tr><th>Product</th><th class="num">Price</th><th class="num">In stock</th><th class="num">Qty</th></tr></thead>
+        <tbody id="products"></tbody>
+      </table>
+      <div class="row">
+        <label>Customer <select id="customer"></select></label>
+        <span class="muted" id="custinfo"></span>
+      </div>
+      <div class="row">
+        <button id="quote">Get quote</button>
+        <button id="place" class="primary">Place order</button>
+        <button id="retry" disabled>Retry same request</button>
+        <button id="refresh">Refresh stock</button>
+      </div>
+      <div id="quoteout" class="muted"></div>
+    </section>
+
+    <section style="margin-top:16px">
+      <h2>Order</h2>
+      <div id="orderout" class="muted">No order placed yet.</div>
+      <div class="row">
+        <input id="lookup" placeholder="order id" size="30"><button id="find">Look up</button>
+      </div>
+      <details><summary class="muted">Call trace (module-to-module calls for this order)</summary><pre id="trace">-</pre></details>
+    </section>
+  </div>
+
+  <div>
+    <section>
+      <h2>Try a scenario</h2>
+      <p class="muted">Fills in the cart and customer for you.</p>
+      <div class="row" id="scenarios"></div>
+    </section>
+    <section style="margin-top:16px">
+      <h2>Failure switches</h2>
+      <p class="muted">Each switch is sent to the process that runs the module.</p>
+      <label class="sw"><input type="checkbox" id="f-notif"> Notifications down (order still confirms; message is retried)</label>
+      <label class="sw"><input type="checkbox" id="f-pay"> Payments decline everything</label>
+      <label class="sw">Inventory latency <input type="number" id="f-lat" value="0" min="0" step="100"> ms <button id="f-apply">Apply</button></label>
+      <div class="muted" id="fout"></div>
+    </section>
+    <section style="margin-top:16px">
+      <h2>Log</h2>
+      <pre id="log">-</pre>
+    </section>
+  </div>
+</main>
+
+<script>
+"use strict";
+const SKUS = ["sku-widget", "sku-gadget", "sku-oos", "sku-undeliverable"];
+const CUSTOMERS = ["cust-standard", "cust-gold", "cust-declined"];
+const SCENARIOS = [
+  ["Happy path", "cust-standard", { "sku-widget": 2 }],
+  ["Gold discount", "cust-gold", { "sku-widget": 2 }],
+  ["Out of stock", "cust-standard", { "sku-oos": 1 }],
+  ["Card declined", "cust-declined", { "sku-widget": 1 }],
+  ["Undeliverable", "cust-standard", { "sku-undeliverable": 1 }],
+];
+const $ = id => document.getElementById(id);
+const euro = c => (c / 100).toLocaleString(undefined, { style: "currency", currency: "EUR" });
+const state = { topo: null, requestId: null, correlationId: null, lastLines: null, lastCustomer: null };
+
+function log(msg) {
+  const el = $("log");
+  el.textContent = (new Date().toLocaleTimeString() + "  " + msg + "\n" + (el.textContent === "-" ? "" : el.textContent)).slice(0, 4000);
+}
+
+function moduleUrl(m) {
+  const info = state.topo.modules.find(x => x.module === m);
+  return info && info.url ? info.url : location.origin + "/rpc/" + m;
+}
+const originOf = url => new URL(url).origin;
+const uuid = () => (crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + Math.random().toString(16).slice(2));
+
+async function rpc(module, method, params, headers) {
+  const res = await fetch(moduleUrl(module), {
+    method: "POST",
+    headers: Object.assign({ "Content-Type": "application/json" }, headers || {}),
+    body: JSON.stringify({ jsonrpc: "2.0", method: module + "." + method, params, id: 1 }),
+  });
+  const body = await res.json();
+  if (body.error) {
+    const e = new Error(body.error.message || "error");
+    e.code = body.error.code;
+    throw e;
+  }
+  return body.result;
+}
+const describeError = e => (e.code ? "error " + e.code + ": " : "") + e.message;
+
+function el(tag, props, ...kids) {
+  const n = Object.assign(document.createElement(tag), props || {});
+  for (const k of kids) n.append(k);
+  return n;
+}
+
+async function loadTopology() {
+  state.topo = await (await fetch("/demo/topology")).json();
+  $("proc").textContent = "· " + state.topo.process + " :" + state.topo.port + " · " + state.topo.profiles.join(", ");
+  const box = $("mods");
+  box.replaceChildren();
+  for (const m of state.topo.modules) {
+    const where = m.url ? originOf(m.url).replace("http://", "") : "this process";
+    const c = el("span", { className: "chip" + (m.enabled ? "" : " off") }, el("b", { textContent: m.module }), " " + m.binding + " · " + where);
+    box.append(c);
+  }
+}
+
+async function loadProducts() {
+  const body = $("products");
+  const rows = await Promise.all(SKUS.map(async sku => {
+    let product = null, stock = null, err = null;
+    try { product = await rpc("catalog", "getProduct", { sku }); } catch (e) { err = describeError(e); }
+    try { stock = await rpc("inventory", "getStock", { sku }); } catch (e) { err = err || describeError(e); }
+    return { sku, product, stock, err };
+  }));
+  const qtys = {};
+  body.querySelectorAll("input").forEach(i => qtys[i.dataset.sku] = i.value);
+  body.replaceChildren();
+  for (const r of rows) {
+    const qty = el("input", { type: "number", min: 0, value: qtys[r.sku] || 0 });
+    qty.dataset.sku = r.sku;
+    body.append(el("tr", null,
+      el("td", null, el("div", { textContent: r.product ? r.product.name : r.sku }), el("div", { className: "muted", textContent: r.sku + (r.err ? " · " + r.err : "") })),
+      el("td", { className: "num", textContent: r.product ? euro(r.product.priceCents) : "-" }),
+      el("td", { className: "num", textContent: r.stock ? r.stock.available : "-" }),
+      el("td", { className: "num" }, qty)));
+  }
+}
+
+async function loadCustomers() {
+  const sel = $("customer");
+  for (const id of CUSTOMERS) sel.append(el("option", { value: id, textContent: id }));
+  sel.onchange = showCustomer;
+  await showCustomer();
+}
+async function showCustomer() {
+  try {
+    const c = await rpc("customers", "getCustomer", { customerId: $("customer").value });
+    $("custinfo").textContent = c.name + " · " + c.tier + " · " + c.address.city;
+  } catch (e) { $("custinfo").textContent = describeError(e); }
+}
+
+function cartLines() {
+  return [...$("products").querySelectorAll("input")].filter(i => +i.value > 0).map(i => ({ sku: i.dataset.sku, quantity: +i.value }));
+}
+
+async function quote() {
+  const lines = cartLines(), customerId = $("customer").value;
+  if (!lines.length) { $("quoteout").textContent = "Add something to the cart first."; return; }
+  try {
+    const q = await rpc("pricing", "quote", { customerId, lines });
+    const s = await rpc("shipping", "quote", { customerId, lines });
+    $("quoteout").textContent = "Subtotal " + euro(q.subtotalCents) + " · discount " + euro(q.discountCents) +
+      " · shipping " + euro(s.costCents) + " (from " + s.warehouse + ") · total " + euro(q.totalCents + s.costCents);
+  } catch (e) { $("quoteout").textContent = describeError(e); }
+}
+
+function renderOrder(o) {
+  const out = $("orderout");
+  out.className = "";
+  out.replaceChildren(
+    el("div", null, "Order ", el("b", { textContent: o.orderId }), " · ", el("span", { className: "status " + o.status, textContent: o.status })),
+    el("div", { className: "muted", textContent: o.lines.map(l => l.quantity + " × " + l.sku).join(", ") + " · customer " + o.customerId }),
+    el("div", { textContent: "Subtotal " + euro(o.subtotalCents) + " · discount " + euro(o.discountCents) + " · shipping " + euro(o.shippingCents) + " · total " + euro(o.totalCents) }),
+    o.failureReason ? el("div", { className: "error", textContent: o.failureReason }) : "");
+  $("lookup").value = o.orderId;
+}
+
+async function submit(requestId, customerId, lines) {
+  state.requestId = requestId; state.lastCustomer = customerId; state.lastLines = lines;
+  state.correlationId = "shop-" + uuid();
+  $("retry").disabled = false;
+  $("place").disabled = true;
+  try {
+    const order = await rpc("orders", "placeOrder", { requestId, customerId, lines }, { "X-Correlation-Id": state.correlationId });
+    renderOrder(order);
+    log("placeOrder " + requestId.slice(0, 8) + " -> " + order.status);
+    watch(order.orderId);
+  } catch (e) {
+    const out = $("orderout");
+    out.className = "error";
+    out.textContent = describeError(e);
+    log("placeOrder failed: " + describeError(e));
+  } finally {
+    $("place").disabled = false;
+    await loadProducts();
+    await loadTrace();
+  }
+}
+
+// Compensations (stock release, payment void, confirmation message) are applied later by the outbox relay, so keep looking.
+async function watch(orderId) {
+  for (let i = 0; i < 6; i++) {
+    await new Promise(r => setTimeout(r, 1500));
+    try {
+      const o = await rpc("orders", "getOrder", { orderId });
+      if ($("lookup").value === orderId) renderOrder(o);
+    } catch (e) { return; }
+    await loadProducts();
+  }
+}
+
+async function loadTrace() {
+  if (!state.correlationId) return;
+  try {
+    const url = originOf(moduleUrl("orders")) + "/demo/trace?correlationId=" + encodeURIComponent(state.correlationId);
+    const recs = await (await fetch(url)).json();
+    $("trace").textContent = recs.length
+      ? recs.map(r => "  ".repeat(r.depth || 0) + r.caller + " -> " + r.callee + "." + r.method + " [" + r.binding + "] " + r.durationMs + " ms " + r.outcome).join("\n")
+      : "No calls recorded in the orders process.";
+  } catch (e) { $("trace").textContent = describeError(e); }
+}
+
+async function applyFaults(body) {
+  const targets = { notificationsDown: "notifications", paymentsDecline: "payments", inventoryLatencyMs: "inventory" };
+  const out = [];
+  for (const [key, value] of Object.entries(body)) {
+    try {
+      const res = await fetch(originOf(moduleUrl(targets[key])) + "/demo/faults", {
+        method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ [key]: value }) });
+      const j = await res.json();
+      out.push(key + "=" + value + (j.applied && key in j.applied ? " applied" : " ignored"));
+    } catch (e) { out.push(key + ": " + describeError(e)); }
+  }
+  $("fout").textContent = out.join(" · ");
+}
+
+function init() {
+  $("quote").onclick = quote;
+  $("refresh").onclick = loadProducts;
+  $("place").onclick = () => {
+    const lines = cartLines();
+    if (!lines.length) { $("orderout").textContent = "Add something to the cart first."; return; }
+    submit(uuid(), $("customer").value, lines);
+  };
+  $("retry").onclick = () => state.requestId && submit(state.requestId, state.lastCustomer, state.lastLines);
+  $("find").onclick = async () => {
+    try { renderOrder(await rpc("orders", "getOrder", { orderId: $("lookup").value.trim() })); }
+    catch (e) { $("orderout").className = "error"; $("orderout").textContent = describeError(e); }
+  };
+  $("f-notif").onchange = e => applyFaults({ notificationsDown: e.target.checked });
+  $("f-pay").onchange = e => applyFaults({ paymentsDecline: e.target.checked });
+  $("f-apply").onclick = () => applyFaults({ inventoryLatencyMs: +$("f-lat").value });
+  for (const [name, customer, cart] of SCENARIOS) {
+    const b = el("button", { className: "scenario", textContent: name });
+    b.onclick = () => {
+      $("customer").value = customer; showCustomer();
+      $("products").querySelectorAll("input").forEach(i => i.value = cart[i.dataset.sku] || 0);
+    };
+    $("scenarios").append(b);
+  }
+}
+
+(async () => {
+  init();
+  try {
+    await loadTopology();
+    await loadCustomers();
+    await loadProducts();
+  } catch (e) {
+    $("orderout").className = "error";
+    $("orderout").textContent = "Could not load the demo (is the demo profile active?): " + describeError(e);
+  }
+})();
+</script>
+</body>
+</html>

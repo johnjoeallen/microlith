@@ -55,6 +55,36 @@ public class DemoAutoConfiguration {
             return new DemoController(topology, traces, faults, properties);
         }
 
+        /**
+         * The shop page at {@code /shop} calls other processes' {@code /rpc} and {@code /demo} endpoints straight from the
+         * browser when modules are split, so the demo profile allows cross-origin calls from the loopback hosts only.
+         */
+        @Bean
+        org.springframework.web.servlet.config.annotation.WebMvcConfigurer shopConfigurer() {
+            return new org.springframework.web.servlet.config.annotation.WebMvcConfigurer() {
+                @Override
+                public void addResourceHandlers(org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry registry) {
+                    registry.addResourceHandler("/shop/**").addResourceLocations("classpath:/demo-shop/");
+                }
+
+                @Override
+                public void addViewControllers(org.springframework.web.servlet.config.annotation.ViewControllerRegistry registry) {
+                    registry.addRedirectViewController("/shop", "/shop/index.html");
+                    registry.addRedirectViewController("/shop/", "/shop/index.html");
+                }
+
+                @Override
+                public void addCorsMappings(org.springframework.web.servlet.config.annotation.CorsRegistry registry) {
+                    for (String path : new String[] {"/rpc/**", "/demo/**"}) {
+                        registry.addMapping(path)
+                                .allowedOriginPatterns("http://127.0.0.1:*", "http://localhost:*")
+                                .allowedMethods("GET", "POST", "OPTIONS")
+                                .allowedHeaders("*");
+                    }
+                }
+            };
+        }
+
         @Bean
         org.springframework.boot.web.servlet.FilterRegistrationBean<TraceDepthFilter> traceDepthFilter() {
             org.springframework.boot.web.servlet.FilterRegistrationBean<TraceDepthFilter> registration =
