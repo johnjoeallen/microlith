@@ -59,7 +59,13 @@ class OrdersPersistenceConfiguration {
         return ModuleJpa.entityManagerFactory(MODULE, dataSource, schema, "com.acme.orders.internal");
     }
 
+    /**
+     * Primary, because Spring Modulith's event publication registry is {@code @Transactional} without naming a manager and
+     * there is one manager per module. The registry stores its rows in the orders schema, so this is the right one; it works only
+     * because orders is the one module that publishes events.
+     */
     @Bean(name = "ordersTm")
+    @org.springframework.context.annotation.Primary
     PlatformTransactionManager ordersTm(@Qualifier("ordersEmf") EntityManagerFactory emf) {
         return new JpaTransactionManager(emf);
     }

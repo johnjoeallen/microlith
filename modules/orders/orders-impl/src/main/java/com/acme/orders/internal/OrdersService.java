@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import org.slf4j.MDC;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.dao.DataIntegrityViolationException;
 
@@ -118,7 +119,7 @@ class OrdersService implements OrdersApi {
                 return store.fail(order.getOrderId(), "SHIPPING_FAILED", e.getMessage(), List.of(voidPayment(order), release(order)));
             }
             payments.capture(requestId + ":capture", order.getAuthorizationId());                    // 7. capture, CONFIRMED
-            order = store.confirm(order.getOrderId(), shipment.shipmentId(), notification(order));   // 8. notification via the outbox
+            order = store.confirm(order.getOrderId(), shipment.shipmentId(), notification(order));   // 8. notification: an event, stored with this change
         }
         return order;
     }
@@ -136,25 +137,17 @@ class OrdersService implements OrdersApi {
         return AnnotationUtils.findAnnotation(e.getClass(), RpcError.class) != null;
     }
 
-    private static OutboxCommand release(OrderEntity order) {
-        return new OutboxCommand("inventory.release", order.getRequestId() + ":release", map("reservationId", order.getReservationId()));
+    private static OrderEvents.ReleaseReservation release(OrderEntity order) {
+        return new OrderEvents.ReleaseReservation(order.getRequestId() + ":release", order.getReservationId(), MDC.get("correlationId"));
     }
 
-    private static OutboxCommand voidPayment(OrderEntity order) {
-        return new OutboxCommand("payments.void", order.getRequestId() + ":void", map("authId", order.getAuthorizationId()));
+    private static OrderEvents.VoidPayment voidPayment(OrderEntity order) {
+        return new OrderEvents.VoidPayment(order.getRequestId() + ":void", order.getAuthorizationId(), MDC.get("correlationId"));
     }
 
-    private static OutboxCommand notification(OrderEntity order) {
-        return new OutboxCommand("notifications.send", order.getRequestId() + ":notify", map("customerId", order.getCustomerId(),
-                "template", "order-confirmed", "orderId", order.getOrderId(), "totalCents", Long.toString(order.getTotalCents())));
-    }
-
-    private static Map<String, String> map(String... keysAndValues) {
-        Map<String, String> map = new LinkedHashMap<>();
-        for (int i = 0; i < keysAndValues.length; i += 2) {
-            map.put(keysAndValues[i], keysAndValues[i + 1]);
-        }
-        return map;
+    private static OrderEvents.OrderConfirmed notification(OrderEntity order) {
+        return new OrderEvents.OrderConfirmed(order.getRequestId() + ":notify", order.getOrderId(), order.getCustomerId(),
+                order.getTotalCents(), "order-confirmed", MDC.get("correlationId"));
     }
 
     private static void validate(String requestId, String customerId, List<OrderLine> lines) {

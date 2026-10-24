@@ -1,1 +1,2 @@
 io.macroservice.platform.support.ModuleSupportAutoConfiguration
+io.macroservice.platform.support.EventPublicationStandIn

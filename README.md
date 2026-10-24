@@ -72,7 +72,7 @@ the comparison table across modes and, per mode, the round-trip and per-call tab
 Notes: the clients are a closed loop on persistent connections. Tracing adds a little overhead (compare with `--no-trace`).
 Each process keeps its 200,000 most recent calls (`demo.trace.capacity`), so a very long or fast run can still overwrite
 traces before they are read; the driver warns when that happens (raise the capacity or lower `--concurrency`). The demo seeds only 150 units of stock, so the driver raises it
-first (`--no-stock` to skip). Later async work (the notification, delivered by the outbox) is picked up by re-reading
+first (`--no-stock` to skip). Later async work (the notification, delivered by an event listener) is picked up by re-reading
 traces until they stop changing (`--settle`, `--drain`).
 
 ## Caching: `@Cached`
@@ -172,10 +172,12 @@ Eight modules, each with its own `-api`, `-impl`, schema, Flyway location and po
 shipping quote, reserve stock, authorize payment, create shipment, capture, notify. The order state
 (`PENDING -> RESERVED -> AUTHORIZED -> CONFIRMED`, or `REJECTED` / `FAILED`) is persisted, every step is idempotent through
 a request id derived from the order's (`<requestId>:reserve`, `:authorize`, `:ship`, `:capture`), and a repeated call resumes
-where the order stopped. Compensations (`inventory.release`, `payments.void`) and the confirmation message go through
-a module-local outbox written in the same transaction as the state change; a relay retries them with exponential backoff
-(`modules.orders.outbox.*`), so a callee outage never fails the order. The relay scans the database only when woken by a
-commit, while work is pending, or on a slow idle scan (`idle-scan-interval`, 60s), so an idle module holds no connection.
+where the order stopped. Compensations (`inventory.release`, `payments.void`) and the confirmation message are Spring Modulith
+events (`OrderEvents`) published in the same transaction as the state change: the event publication registry stores them in the
+orders schema (`event_publication`), the listeners run asynchronously after the commit and call the other module through its
+`@RpcApi`, and a failed one is redelivered with exponential backoff (`modules.orders.events.*`), so a callee outage never fails
+the order. Redelivery scans the database only after a failure, shortly after start and on a slow idle scan (`idle-scan-interval`,
+60s), so an idle module holds no connection. See `docs/design/spring-modulith-events.md`.
 
 `payments.voidAuthorization` is the design's `payments.void` (Java cannot name a method `void`).
 
@@ -232,7 +234,7 @@ With the `demo` profile (it implies `dev`) every process also serves:
 | `POST /demo/faults` | `{"notificationsDown":true,"paymentsDecline":true,"inventoryLatencyMs":300}`; only applies to modules enabled in that process |
 
 Every `placeOrder` gets a correlation id (or takes `X-Correlation-Id`); it travels in the MDC, in the `X-Correlation-Id` header on
-remote calls and through the outbox, so the relay's compensating calls stay attached to the order. Each call is also logged, for
+remote calls and in the stored events, so the compensating calls of the listeners stay attached to the order. Each call is also logged, for
 example `pricing -> catalog.getProduct [local] 1 ms ok`.
 
 ## API documentation (stage 7)

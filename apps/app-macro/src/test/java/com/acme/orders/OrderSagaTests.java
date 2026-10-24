@@ -68,7 +68,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 /**
  * The order saga with every collaborator mocked at its -api: each scenario of section 16.5, plus resuming an
- * interrupted order. The orders schema, the state machine, the outbox and its relay are real.
+ * interrupted order. The orders schema, the state machine, the event publication registry and its redelivery are real.
  */
 @ApplicationModuleTest
 @ActiveProfiles("demo")
@@ -77,9 +77,9 @@ class OrderSagaTests {
     @DynamicPropertySource
     static void properties(DynamicPropertyRegistry registry) {
         ModuleSlice.properties(registry, "orders");
-        registry.add("modules.orders.outbox.poll-interval", () -> "100ms");
-        registry.add("modules.orders.outbox.backoff-base", () -> "100ms");
-        registry.add("modules.orders.outbox.backoff-max", () -> "500ms");
+        registry.add("modules.orders.events.retry-interval", () -> "100ms");
+        registry.add("modules.orders.events.backoff-base", () -> "100ms");
+        registry.add("modules.orders.events.backoff-max", () -> "500ms");
     }
 
     @MockitoBean
@@ -137,8 +137,9 @@ class OrderSagaTests {
         }
     }
 
-    private String outboxStatus(String requestId) throws Exception {
-        return scalar("select status from outbox where request_id = ?", requestId);
+    /** Status of the event publication whose event carries this request id (Spring Modulith's event_publication table). */
+    private String eventStatus(String requestId) throws Exception {
+        return scalar("select status from event_publication where serialized_event like ?", "%\"requestId\":\"" + requestId + "\"%");
     }
 
     @Test
@@ -177,7 +178,7 @@ class OrderSagaTests {
         verifyNoInteractions(payments);
         verify(shipping, never()).createShipment(anyString(), anyString(), anyString(), anyString());
         assertThat(scalar("select status from orders where request_id = ?", requestId)).isEqualTo("REJECTED");
-        assertThat(scalar("select count(*) from outbox where order_id = (select order_id from orders where request_id = ?)", requestId)).isEqualTo("0");
+        assertThat(scalar("select count(*) from event_publication where serialized_event like ?", "%" + requestId + "%")).isEqualTo("0");
         assertThatThrownBy(() -> orders.placeOrder(requestId, "c", LINES)).as("a repeat gets the same outcome").isExactlyInstanceOf(OutOfStockException.class);
         verify(inventory, times(1)).reserve(anyString(), anyString(), anyList());
     }
@@ -193,7 +194,7 @@ class OrderSagaTests {
         steps.verify(inventory, timeout(10_000)).release(requestId + ":release", "res-" + requestId + ":reserve");
         verify(payments, never()).voidAuthorization(anyString(), anyString());
         verify(shipping, never()).createShipment(anyString(), anyString(), anyString(), anyString());
-        await().atMost(Duration.ofSeconds(10)).untilAsserted(() -> assertThat(outboxStatus(requestId + ":release")).isEqualTo("DONE"));
+        await().atMost(Duration.ofSeconds(10)).untilAsserted(() -> assertThat(eventStatus(requestId + ":release")).isEqualTo("COMPLETED"));
     }
 
     @Test
@@ -213,7 +214,7 @@ class OrderSagaTests {
         String requestId = newRequestId();
         int[] failures = {0};
         doAnswer(call -> {
-            // earlier tests may still have entries in the shared outbox; only this order's message is made to fail
+            // earlier tests may still have entries in the shared event table; only this order's message is made to fail
             if (call.getArgument(0).equals(requestId + ":notify") && failures[0]++ < 3) {
                 throw new NotificationUnavailableException("down");
             }
@@ -222,7 +223,7 @@ class OrderSagaTests {
         Order order = orders.placeOrder(requestId, "c", LINES);
         assertThat(order.status()).isEqualTo(OrderStatus.CONFIRMED);
         verify(notifications, timeout(15_000).atLeast(4)).send(eq(requestId + ":notify"), eq("c"), eq("order-confirmed"), eq(Map.of("orderId", order.orderId(), "totalCents", "2700")));
-        await().atMost(Duration.ofSeconds(15)).untilAsserted(() -> assertThat(outboxStatus(requestId + ":notify")).isEqualTo("DONE"));
+        await().atMost(Duration.ofSeconds(15)).untilAsserted(() -> assertThat(eventStatus(requestId + ":notify")).isEqualTo("COMPLETED"));
     }
 
     @Test

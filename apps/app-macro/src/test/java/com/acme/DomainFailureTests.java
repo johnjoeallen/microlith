@@ -74,8 +74,9 @@ class DomainFailureTests {
 
     private void host(String module, String... extra) {
         hosts.put(module, apps.start(true, TestApps.demo(), TestApps.topology(urls, module), databases.get(module),
-                TestApps.args("--server.port=" + ports.get(module), "--modules.orders.outbox.poll-interval=200ms",
-                        "--modules.orders.outbox.backoff-base=200ms", "--modules.orders.outbox.backoff-max=1s"), TestApps.args(extra)));
+                TestApps.args("--server.port=" + ports.get(module), "--modules.orders.events.retry-interval=200ms",
+                        "--modules.orders.events.backoff-base=200ms", "--modules.orders.events.backoff-max=1s", "--modules.orders.events.startup-scan-delay=1s"),
+                TestApps.args(extra)));
     }
 
     private static int freePort() throws IOException {
@@ -175,11 +176,11 @@ class DomainFailureTests {
 
         Order order = orders.placeOrder(requestId, "cust-standard", LINES);
 
-        // the order does not wait for the message; the relay delivers it, the first (cut) delivery included, only once
+        // the order does not wait for the message; the registry delivers it, the first (cut) delivery included, only once
         assertThat(order.status()).isEqualTo(OrderStatus.CONFIRMED);
         assertExactlyOneOfEverything(requestId);
         await().atMost(Duration.ofSeconds(30)).untilAsserted(() ->
-                assertThat(scalar("orders", "select status from outbox where request_id = ?", requestId + ":notify")).isEqualTo("DONE"));
+                assertThat(scalar("orders", "select status from event_publication where serialized_event like ?", notifyEvent(requestId))).isEqualTo("COMPLETED"));
     }
 
     @Test
@@ -190,7 +191,7 @@ class DomainFailureTests {
 
         assertThat(orders.placeOrder(requestId, "cust-standard", LINES).status()).isEqualTo(OrderStatus.CONFIRMED);
         await().atMost(Duration.ofSeconds(15)).untilAsserted(() ->
-                assertThat(scalar("orders", "select status from outbox where request_id = ?", requestId + ":notify")).isEqualTo("PENDING"));
+                assertThat(scalar("orders", "select count(*) from event_publication where completion_date is null and serialized_event like ?", notifyEvent(requestId))).isEqualTo("1"));
         assertThat(scalar("notifications", "select count(*) from message where request_id = ?", requestId + ":notify")).isEqualTo("0");
 
         // the orders process dies with the message undelivered and comes back with the same database
@@ -201,6 +202,11 @@ class DomainFailureTests {
 
         assertExactlyOneOfEverything(requestId);
         await().atMost(Duration.ofSeconds(30)).untilAsserted(() ->
-                assertThat(scalar("orders", "select status from outbox where request_id = ?", requestId + ":notify")).isEqualTo("DONE"));
+                assertThat(scalar("orders", "select status from event_publication where serialized_event like ?", notifyEvent(requestId))).isEqualTo("COMPLETED"));
+    }
+
+    /** LIKE pattern for the stored notification event of an order (Spring Modulith's event_publication table). */
+    private static String notifyEvent(String requestId) {
+        return "%\"requestId\":\"" + requestId + ":notify\"%";
     }
 }
