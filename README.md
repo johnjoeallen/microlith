@@ -68,6 +68,7 @@ in the split modes. Raw samples (`orders.csv`, `calls.csv`) and `summary.json` g
 Each run also writes a timestamped markdown report, `perf-<timestamp>.md`, next to the raw data: the parameters, commit, host,
 the comparison table across modes and, per mode, the round-trip and per-call tables.
 `--cache on|off|both` (with `--modes`) starts the modes with the `@Cached` layer on, off, or both, so you can compare them.
+`--parallel on|off|both` does the same for orders' parallel quotes (`modules.orders.parallel-quotes`).
 
 Notes: the clients are a closed loop on persistent connections. Tracing adds a little overhead (compare with `--no-trace`).
 Each process keeps its 200,000 most recent calls (`demo.trace.capacity`), so a very long or fast run can still overwrite

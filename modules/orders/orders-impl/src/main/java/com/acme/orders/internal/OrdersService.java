@@ -1,5 +1,6 @@
 package com.acme.orders.internal;
 
+import com.acme.customers.api.Customer;
 import com.acme.customers.api.CustomersApi;
 import com.acme.inventory.api.InventoryApi;
 import com.acme.inventory.api.OutOfStockException;
@@ -21,6 +22,7 @@ import com.acme.shipping.api.ShipLine;
 import com.acme.shipping.api.Shipment;
 import com.acme.shipping.api.ShippingApi;
 import com.acme.shipping.api.ShippingQuote;
+import io.macroservice.platform.rpc.Parallel;
 import io.macroservice.platform.rpc.RpcError;
 import io.macroservice.platform.support.ModuleService;
 import java.util.ArrayList;
@@ -29,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 import org.slf4j.MDC;
 import org.springframework.core.annotation.AnnotationUtils;
+import org.springframework.core.env.Environment;
 import org.springframework.dao.DataIntegrityViolationException;
 
 /**
@@ -57,9 +60,11 @@ class OrdersService implements OrdersApi {
     private final ShippingApi shipping;
     private final InventoryApi inventory;
     private final PaymentsApi payments;
+    private final boolean parallelQuotes;
 
     OrdersService(OrderStore store, CustomersApi customers, PricingApi pricing, ShippingApi shipping, InventoryApi inventory,
-            PaymentsApi payments) {
+            PaymentsApi payments, Environment environment) {
+        this.parallelQuotes = environment.getProperty("modules.orders.parallel-quotes", Boolean.class, true);
         this.store = store;
         this.customers = customers;
         this.pricing = pricing;
@@ -73,9 +78,24 @@ class OrdersService implements OrdersApi {
         validate(requestId, customerId, lines);
         OrderEntity order = store.findByRequestId(requestId);
         if (order == null) {
-            customers.getCustomer(customerId);                                                       // 1. validate the customer
-            Quote quote = pricing.quote(customerId, lines.stream().map(l -> new QuoteLine(l.sku(), l.quantity())).toList());   // 2.
-            ShippingQuote delivery = shipping.quote(customerId, lines.stream().map(l -> new ShipLine(l.sku(), l.quantity())).toList());   // 3.
+            List<QuoteLine> quoteLines = lines.stream().map(l -> new QuoteLine(l.sku(), l.quantity())).toList();
+            List<ShipLine> shipLines = lines.stream().map(l -> new ShipLine(l.sku(), l.quantity())).toList();
+            Quote quote;
+            ShippingQuote delivery;
+            if (parallelQuotes) {
+                // 1-3 do not depend on each other and are reads, so they run at the same time; joining in this order throws
+                // the same exception a sequential run would throw first
+                Parallel.Pending<Customer> known = Parallel.supply(() -> customers.getCustomer(customerId));
+                Parallel.Pending<Quote> priced = Parallel.supply(() -> pricing.quote(customerId, quoteLines));
+                Parallel.Pending<ShippingQuote> shipped = Parallel.supply(() -> shipping.quote(customerId, shipLines));
+                known.join();                                                                        // 1. validate the customer
+                quote = priced.join();                                                               // 2. price
+                delivery = shipped.join();                                                           // 3. delivery cost
+            } else {
+                customers.getCustomer(customerId);                                                   // 1. validate the customer
+                quote = pricing.quote(customerId, quoteLines);                                       // 2.
+                delivery = shipping.quote(customerId, shipLines);                                    // 3.
+            }
             try {
                 order = store.createPending(requestId, customerId, encode(lines), quote.subtotalCents(), quote.discountCents(),
                         delivery.costCents(), quote.totalCents() + delivery.costCents());

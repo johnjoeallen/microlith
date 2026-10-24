@@ -11,6 +11,22 @@ final class CallContext {
     private CallContext() {
     }
 
+    /** Carries the call depth into the worker thread of a {@code Parallel} call, so its edges nest where a plain call's would. */
+    static {
+        io.macroservice.platform.rpc.Parallel.register("demo-depth", new io.macroservice.platform.rpc.Parallel.ContextPropagator() {
+            @Override
+            public Object capture() {
+                return depth();
+            }
+
+            @Override
+            public Runnable restore(Object captured) {
+                depth((Integer) captured);
+                return () -> depth(0);
+            }
+        });
+    }
+
     static int depth() {
         return DEPTH.get();
     }

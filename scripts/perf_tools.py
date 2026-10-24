@@ -6,7 +6,7 @@ Drives orders.placeOrder against the running demo mode with N concurrent clients
   2. the latency of every module-to-module call inside those orders, from the /demo/trace records of every process,
      grouped by caller -> callee.method and binding.
 
-  perf_tools.py [--orders N | --duration S] [--concurrency C] [--warmup W] [--settle S] [--drain S] [--modes M,M|all] [--cache on|off|both] [--no-trace] [--no-stock] [--out DIR]
+  perf_tools.py [--orders N | --duration S] [--concurrency C] [--warmup W] [--settle S] [--drain S] [--modes M,M|all] [--cache on|off|both] [--parallel on|off|both] [--no-trace] [--no-stock] [--out DIR]
 """
 import argparse
 import bisect
@@ -317,7 +317,7 @@ def write_report(directory, args, summaries):
         L += [f"## {title}", "", note, "", md_table(header, rows, left), ""]
     L += ["## Detail per run", "", "The same figures one run at a time, with every module-to-module call and each call's binding.", ""]
     for m in summaries:
-        title = m["mode"] + (f" (cache {m['cache']})" if "cache" in m else "")
+        title = m["mode"] + (f" (cache {m['cache']}, parallel quotes {m['parallel']})" if "cache" in m else "")
         L += [f"### {title}", ""]
         if "roundTripMs" not in m:
             L += [f"No measurement: {m.get('error', 'every order failed')}.", ""]
@@ -357,8 +357,11 @@ def write_report(directory, args, summaries):
     return path
 
 
+VARIED = set()      # which of "cache" / "parallel" differ between the runs being compared; only those appear in labels
+
+
 def label(m):
-    return m["mode"] + (f" cache {m['cache']}" if "cache" in m else "")
+    return m["mode"] + "".join(f" {k} {m[k]}" for k in ("cache", "parallel") if k in VARIED and k in m)
 
 
 def change(before, after):
@@ -368,6 +371,8 @@ def change(before, after):
 def comparison_tables(summaries):
     """Every table puts the measured modes side by side: [(title, note, header, rows, left-aligned columns)]."""
     measured = [m for m in summaries if "roundTripMs" in m]
+    VARIED.clear()
+    VARIED.update(k for k in ("cache", "parallel") if len({m.get(k) for m in summaries}) > 1)
     tables = []
     rows = []
     for m in summaries:
@@ -379,20 +384,24 @@ def comparison_tables(summaries):
     tables.append(("placeOrder round trip", "Client side, ms. Declined orders (expected) are excluded from the latencies.",
                    ["run", "orders/s", "ok", "declined", "min", "mean", "p50", "p90", "p95", "p99", "max", "calls/order", "result"], rows, 1))
 
-    by_mode = collections.defaultdict(dict)
-    for m in measured:
-        if "cache" in m:
-            by_mode[m["mode"]][m["cache"]] = m
-    pairs = [(mode, v["off"], v["on"]) for mode, v in by_mode.items() if "off" in v and "on" in v]
-    if pairs:
+    for dimension, title in (("cache", "Cache effect (off to on)"), ("parallel", "Parallel quotes effect (off to on)")):
+        other = "parallel" if dimension == "cache" else "cache"
+        groups = collections.defaultdict(dict)
+        for m in measured:
+            if dimension in m:
+                groups[(m["mode"], m.get(other))][m[dimension]] = m
+        pairs = [(key, v["off"], v["on"]) for key, v in groups.items() if "off" in v and "on" in v]
+        if not pairs:
+            continue
         rows = []
-        for mode, off, on in pairs:
-            row = [mode, f"{off['ordersPerSecond']:.0f}", f"{on['ordersPerSecond']:.0f}", change(off["ordersPerSecond"], on["ordersPerSecond"])]
+        for (mode, fixed), off, on in pairs:
+            name = mode + (f" ({other} {fixed})" if other in VARIED else "")
+            row = [name, f"{off['ordersPerSecond']:.0f}", f"{on['ordersPerSecond']:.0f}", change(off["ordersPerSecond"], on["ordersPerSecond"])]
             for k in ("p50", "p95", "p99"):
                 a, b = off["roundTripMs"][k], on["roundTripMs"][k]
                 row += [fmt(a), fmt(b), change(a, b)]
             rows.append(row)
-        tables.append(("Cache effect (off to on)", "Higher orders/s and lower latencies are better.",
+        tables.append((title, "Higher orders/s and lower latencies are better.",
                        ["mode", "orders/s off", "on", "change", "p50 off", "on", "change", "p95 off", "on", "change", "p99 off", "on", "change"], rows, 1))
 
     columns = [label(m) for m in measured if m.get("edges")]
@@ -442,6 +451,8 @@ def main():
     parser.add_argument("--out", help="directory for the raw samples and summary (default .demo/perf/<timestamp>)")
     parser.add_argument("--cache", choices=["on", "off", "both"], default="on",
                         help="with --modes: run with the @Cached layer on (default), off, or both, to compare (rpc.cache.enabled)")
+    parser.add_argument("--parallel", choices=["on", "off", "both"], default="on",
+                        help="with --modes: orders runs its customer check and two quotes in parallel (default on), sequentially (off), or both")
     parser.add_argument("--modes", help="comma-separated modes to start, measure and stop in turn (each on a clean database), or 'all'; "
                                         "without it the mode that is already running is measured")
     args = parser.parse_args()
@@ -581,23 +592,26 @@ def run_modes(args):
     base = Path(args.out) if args.out else DEMO / "perf" / STAMP
     demo_sh = str(ROOT / "scripts" / "demo.sh")
     summaries = []
-    variants = ["off", "on"] if args.cache == "both" else [args.cache]
-    for mode, variant in [(m, v) for m in modes for v in variants]:
-        label = mode if len(variants) == 1 else f"{mode}-cache-{variant}"
-        print(f"\n================ {mode} (cache {variant}) ================", flush=True)
-        env = dict(os.environ, RPC_CACHE_ENABLED="true" if variant == "on" else "false")
+    cache_variants = ["off", "on"] if args.cache == "both" else [args.cache]
+    parallel_variants = ["off", "on"] if args.parallel == "both" else [args.parallel]
+    for mode, variant, parallel in [(m, c, p) for m in modes for c in cache_variants for p in parallel_variants]:
+        label = mode + (f"-cache-{variant}" if len(cache_variants) > 1 else "") + (f"-parallel-{parallel}" if len(parallel_variants) > 1 else "")
+        print(f"\n================ {mode} (cache {variant}, parallel quotes {parallel}) ================", flush=True)
+        env = dict(os.environ, RPC_CACHE_ENABLED="true" if variant == "on" else "false",
+                   MODULES_ORDERS_PARALLEL_QUOTES="true" if parallel == "on" else "false")
         started = subprocess.run([demo_sh, mode, "start"], capture_output=True, text=True, env=env)
         if started.returncode != 0:
             print(f"{mode} did not start:\n" + (started.stdout + started.stderr)[-1500:])
             subprocess.run([demo_sh, mode, "stop"], capture_output=True)
-            summaries.append({"mode": mode, "cache": variant, "clean": False, "error": "did not start"})
+            summaries.append({"mode": mode, "cache": variant, "parallel": parallel, "clean": False, "error": "did not start"})
             continue
         try:
             summary = measure(args, base / label)
             summary["cache"] = variant
+            summary["parallel"] = parallel
             summaries.append(summary)
         except BaseException:
-            summaries.append({"mode": mode, "cache": variant, "clean": False, "error": "measurement failed"})
+            summaries.append({"mode": mode, "cache": variant, "parallel": parallel, "clean": False, "error": "measurement failed"})
             raise
         finally:
             subprocess.run([demo_sh, mode, "stop"], capture_output=True)
