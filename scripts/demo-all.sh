@@ -12,7 +12,7 @@ for mode in "${modes[@]}"; do
   echo; echo "================ $mode ================"
   "$root/scripts/db.sh" reset >/dev/null || { echo "database reset failed"; exit 1; }
   result="PASS"; bindings="-"; processes="-"
-  if "$root/scripts/demo.sh" "$mode" up; then
+  if "$root/scripts/demo.sh" "$mode" start; then
     processes=$(wc -l < "$demo_dir/processes" | tr -d ' ')
     rm -f "$demo_dir/last-bindings"
     if "$root/scripts/smoke.sh"; then :; else result="FAIL"; fi
@@ -20,7 +20,7 @@ for mode in "${modes[@]}"; do
   else
     result="FAIL (did not start)"
   fi
-  "$root/scripts/demo.sh" "$mode" down >/dev/null
+  "$root/scripts/demo.sh" "$mode" stop >/dev/null
   [ "$result" = "PASS" ] || failed=1
   rows+=("$(printf '%-20s %-9s %-34s %s' "$mode" "$processes" "$bindings" "$result")")
 done

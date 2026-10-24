@@ -1,24 +1,24 @@
 # Group 'fulfilment': catalog, pricing, inventory, shipping here, everything else over JSON-RPC at its group's port.
 server:
-  port: 8082
+  port: 9182
 modules:
   catalog:
     enabled: true
   customers:
     enabled: false
-    url: http://localhost:8083/rpc/customers
+    url: http://localhost:9183/rpc/customers
   pricing:
     enabled: true
   inventory:
     enabled: true
   payments:
     enabled: false
-    url: http://localhost:8083/rpc/payments
+    url: http://localhost:9183/rpc/payments
   shipping:
     enabled: true
   notifications:
     enabled: false
-    url: http://localhost:8081/rpc/notifications
+    url: http://localhost:9181/rpc/notifications
   orders:
     enabled: false
-    url: http://localhost:8081/rpc/orders
+    url: http://localhost:9181/rpc/orders

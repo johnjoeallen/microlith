@@ -31,7 +31,7 @@ def http(method, url, body=None, headers=None, timeout=60):
 def processes():
     path = DEMO / "processes"
     if not path.exists():
-        sys.exit("no demo is running (scripts/demo.sh <mode> up)")
+        sys.exit("no demo is running (scripts/demo.sh <mode> start)")
     return [(n, int(p)) for n, p, _ in (line.split() for line in path.read_text().splitlines() if line.strip())]
 
 

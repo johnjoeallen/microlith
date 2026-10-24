@@ -1,45 +1,47 @@
 #!/usr/bin/env bash
-# Runs one demo mode on this machine. Needs the databases (scripts/db.sh up) and the built jars (built on first use).
+# Runs one demo mode on this machine. Starts the databases with it (scripts/db.sh up) and builds the jars on first use.
 #
-#   scripts/demo.sh <mode> up|down|status
+#   scripts/demo.sh <mode> start|stop|status
 #
 # modes: modulith  macro-monolith  groups  microservices  microservices-macro  loopback-codec  loopback-http  split-dbs
 #
+# 'start' brings PostgreSQL up first; 'stop' stops it again but keeps the data (scripts/db.sh down wipes it).
 # Writes PID files and logs under .demo/ and waits until every process reports ready.
 set -euo pipefail
 source "$(dirname "$0")/_common.sh"
 
 mode="${1:-}"; action="${2:-}"
 modules=(orders catalog pricing inventory customers payments shipping notifications)
-declare -A port=([orders]=8081 [catalog]=8082 [pricing]=8083 [inventory]=8084 [customers]=8085 [payments]=8086 [shipping]=8087 [notifications]=8088)
+declare -A port=([orders]=9181 [catalog]=9182 [pricing]=9183 [inventory]=9184 [customers]=9185 [payments]=9186 [shipping]=9187 [notifications]=9188)
 java_opts="${DEMO_JAVA_OPTS:--Xmx320m -XX:+UseSerialGC -XX:TieredStopAtLevel=1}"
 
-usage() { echo "usage: $0 <modulith|macro-monolith|groups|microservices|microservices-macro|loopback-codec|loopback-http|split-dbs> up|down|status" >&2; exit 2; }
+usage() { echo "usage: $0 <modulith|macro-monolith|groups|microservices|microservices-macro|loopback-codec|loopback-http|split-dbs> start|stop|status" >&2; exit 2; }
 [ -n "$mode" ] && [ -n "$action" ] || usage
 
 # the processes of a mode: "<name> <jar-app> <port> <profiles>"
 plan() {
   local m g
   case "$mode" in
-    modulith)       echo "modulith app-modulith 8080 demo" ;;
-    macro-monolith) echo "macro app-macro 8080 monolith,demo" ;;
-    loopback-codec) echo "macro app-macro 8080 loopback-codec,demo" ;;
-    loopback-http)  echo "macro app-macro 8080 loopback-http,demo" ;;
-    groups)         echo "front app-macro 8081 front,demo"; echo "fulfilment app-macro 8082 fulfilment,demo"; echo "accounts app-macro 8083 accounts,demo" ;;
-    split-dbs)      echo "front app-macro 8081 front,split-dbs,demo"; echo "fulfilment app-macro 8082 fulfilment,split-dbs,demo"; echo "accounts app-macro 8083 accounts,split-dbs,demo" ;;
+    modulith)       echo "modulith app-modulith 9100 demo" ;;
+    macro-monolith) echo "macro app-macro 9100 monolith,demo" ;;
+    loopback-codec) echo "macro app-macro 9100 loopback-codec,demo" ;;
+    loopback-http)  echo "macro app-macro 9100 loopback-http,demo" ;;
+    groups)         echo "front app-macro 9181 front,demo"; echo "fulfilment app-macro 9182 fulfilment,demo"; echo "accounts app-macro 9183 accounts,demo" ;;
+    split-dbs)      echo "front app-macro 9181 front,split-dbs,demo"; echo "fulfilment app-macro 9182 fulfilment,split-dbs,demo"; echo "accounts app-macro 9183 accounts,split-dbs,demo" ;;
     microservices)       for m in "${modules[@]}"; do echo "$m app-$m-service ${port[$m]} demo"; done ;;
     microservices-macro) for m in "${modules[@]}"; do echo "$m app-macro ${port[$m]} $m,demo"; done ;;
     *) usage ;;
   esac
 }
 
-orders_port() { case "$mode" in modulith|macro-monolith|loopback-codec|loopback-http) echo 8080 ;; *) echo 8081 ;; esac; }
+orders_port() { case "$mode" in modulith|macro-monolith|loopback-codec|loopback-http) echo 9100 ;; *) echo 9181 ;; esac; }
 
 ready() { curl -fs "http://127.0.0.1:$1/actuator/health/readiness" 2>/dev/null | grep -q '"UP"'; }
 
-up() {
-  [ -e "$demo_dir/mode" ] && { echo "a demo is already running (mode $(cat "$demo_dir/mode")); run: $0 $(cat "$demo_dir/mode") down" >&2; exit 1; }
+start() {
+  [ -e "$demo_dir/mode" ] && { echo "a demo is already running (mode $(cat "$demo_dir/mode")); run: $0 $(cat "$demo_dir/mode") stop" >&2; exit 1; }
   ensure_built
+  "$root/scripts/db.sh" up
   mkdir -p "$demo_dir/logs"; : > "$demo_dir/processes"
   echo "$mode" > "$demo_dir/mode"
   echo "http://127.0.0.1:$(orders_port)" > "$demo_dir/orders.url"
@@ -54,8 +56,8 @@ up() {
   local deadline=$((SECONDS + ${DEMO_START_TIMEOUT:-240})) pid
   while read -r name prt pid; do
     until ready "$prt"; do
-      kill -0 "$pid" 2>/dev/null || { echo "$name died during startup; last log lines:" >&2; tail -25 "$demo_dir/logs/$name.log" >&2; down; exit 1; }
-      [ $SECONDS -lt $deadline ] || { echo "$name was not ready in time (see $demo_dir/logs/$name.log)" >&2; down; exit 1; }
+      kill -0 "$pid" 2>/dev/null || { echo "$name died during startup; last log lines:" >&2; tail -25 "$demo_dir/logs/$name.log" >&2; stop; exit 1; }
+      [ $SECONDS -lt $deadline ] || { echo "$name was not ready in time (see $demo_dir/logs/$name.log)" >&2; stop; exit 1; }
       sleep 1
     done
   done < "$demo_dir/processes"
@@ -64,7 +66,7 @@ up() {
   echo "orders entry point: $(cat "$demo_dir/orders.url")/rpc/orders"
 }
 
-down() {
+stop() {
   [ -e "$demo_dir/processes" ] || { rm -rf "$demo_dir/mode" "$demo_dir/orders.url"; echo "nothing to stop"; return 0; }
   local name prt pid
   while read -r name prt pid; do kill "$pid" 2>/dev/null || true; done < "$demo_dir/processes"
@@ -78,6 +80,11 @@ down() {
   echo "stopped"
 }
 
+stop_all() {
+  stop
+  $compose stop >/dev/null 2>&1 && echo "PostgreSQL stopped (data kept)"
+}
+
 status() {
   [ -e "$demo_dir/mode" ] || { echo "no demo is running"; return 0; }
   echo "mode: $(cat "$demo_dir/mode")"
@@ -88,4 +95,4 @@ status() {
   done < "$demo_dir/processes"
 }
 
-case "$action" in up) up ;; down) down ;; status) status ;; *) usage ;; esac
+case "$action" in start) start ;; stop) stop_all ;; status) status ;; *) usage ;; esac

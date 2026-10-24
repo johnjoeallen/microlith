@@ -112,7 +112,7 @@ class RpcApiRegistrar implements BeanDefinitionRegistryPostProcessor {
         if (settings.hasUrl()) {
             return settings.url();
         }
-        String port = environment.getProperty("local.server.port", environment.getProperty("server.port", "8080"));
+        String port = environment.getProperty("local.server.port", environment.getProperty("server.port", "9100"));
         return "http://127.0.0.1:" + port + "/rpc/" + module;
     }
 

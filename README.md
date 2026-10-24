@@ -42,7 +42,7 @@ Pool metrics: `macro.db.pool.connections{module,state}` and `macro.db.pool.timeo
 
 ```bash
 java -jar apps/app-modulith/target/app-modulith-0.1.0-SNAPSHOT.jar --spring.profiles.active=demo --rpc.server.enabled=true
-curl -s -X POST localhost:8080/rpc/orders -H 'Content-Type: application/json' \
+curl -s -X POST localhost:9100/rpc/orders -H 'Content-Type: application/json' \
   -d '{"jsonrpc":"2.0","method":"orders.placeOrder","params":{"request":{"requestId":"m-1","customerId":"cust-1","sku":"sku-1","quantity":2}},"id":1}'
 ```
 
@@ -51,24 +51,24 @@ curl -s -X POST localhost:8080/rpc/orders -H 'Content-Type: application/json' \
 ### Shape 2: two processes, two PostgreSQL instances (orders on A, inventory on B)
 
 ```bash
-java -jar apps/app-inventory-service/target/app-inventory-service-0.1.0-SNAPSHOT.jar --spring.profiles.active=demo &   # :8084, instance B
-java -jar apps/app-orders-service/target/app-orders-service-0.1.0-SNAPSHOT.jar &                                     # :8081, instance A
-curl -s -X POST localhost:8081/rpc/orders -H 'Content-Type: application/json' \
+java -jar apps/app-inventory-service/target/app-inventory-service-0.1.0-SNAPSHOT.jar --spring.profiles.active=demo &   # :9184, instance B
+java -jar apps/app-orders-service/target/app-orders-service-0.1.0-SNAPSHOT.jar &                                     # :9181, instance A
+curl -s -X POST localhost:9181/rpc/orders -H 'Content-Type: application/json' \
   -d '{"jsonrpc":"2.0","method":"orders.placeOrder","params":{"request":{"requestId":"s-1","customerId":"cust-1","sku":"sku-1","quantity":2}},"id":1}'
 ```
 
 ## Two services, raw JSON-RPC and the alias (stage 3)
 
 ```bash
-java -jar apps/app-inventory-service/target/app-inventory-service-0.1.0-SNAPSHOT.jar &   # :8084
-java -jar apps/app-orders-service/target/app-orders-service-0.1.0-SNAPSHOT.jar &         # :8081, calls inventory over JSON-RPC
+java -jar apps/app-inventory-service/target/app-inventory-service-0.1.0-SNAPSHOT.jar &   # :9184
+java -jar apps/app-orders-service/target/app-orders-service-0.1.0-SNAPSHOT.jar &         # :9181, calls inventory over JSON-RPC
 
 # raw JSON-RPC 2.0 envelope (orders calls inventory over HTTP)
-curl -s -X POST localhost:8081/rpc/orders -H 'Content-Type: application/json' \
+curl -s -X POST localhost:9181/rpc/orders -H 'Content-Type: application/json' \
   -d '{"jsonrpc":"2.0","method":"orders.placeOrder","params":{"request":{"requestId":"req-1","customerId":"cust-1","sku":"sku-1","quantity":2}},"id":1}'
 
 # convenience alias: bare params in, bare result out (HTTP status carries errors)
-curl -s -X POST localhost:8084/rpc/inventory/getStock -H 'Content-Type: application/json' -d '{"sku":"sku-1"}'
+curl -s -X POST localhost:9184/rpc/inventory/getStock -H 'Content-Type: application/json' -d '{"sku":"sku-1"}'
 ```
 
 `app-modulith` serves no RPC (`rpc.server.enabled=false`); `app-macro` runs all modules (`monolith` profile by default).
@@ -103,7 +103,7 @@ Demo data (profile `demo`): products `sku-widget` (1000), `sku-gadget` (2500), `
 (shipping always fails); customers `cust-standard`, `cust-gold` (10% off), `cust-declined` (card is declined). Amounts are cents.
 
 ```bash
-call() { curl -s -X POST localhost:8080/rpc/orders -H 'Content-Type: application/json' -d "{\"jsonrpc\":\"2.0\",\"method\":\"orders.placeOrder\",\"params\":{\"requestId\":\"$1\",\"customerId\":\"$2\",\"lines\":[{\"sku\":\"$3\",\"quantity\":$4}]},\"id\":1}"; echo; }
+call() { curl -s -X POST localhost:9100/rpc/orders -H 'Content-Type: application/json' -d "{\"jsonrpc\":\"2.0\",\"method\":\"orders.placeOrder\",\"params\":{\"requestId\":\"$1\",\"customerId\":\"$2\",\"lines\":[{\"sku\":\"$3\",\"quantity\":$4}]},\"id\":1}"; echo; }
 call happy-1      cust-standard sku-widget        2   # CONFIRMED, total 2700
 call gold-1       cust-gold     sku-widget        2   # CONFIRMED, 200 off, total 2500
 call oos-1        cust-standard sku-oos           1   # error 1001 OutOfStockException
@@ -118,28 +118,28 @@ Needs a JDK, Docker, `curl` and `python3`. The jars are built on first use (`./m
 
 ```bash
 scripts/db.sh up                       # three PostgreSQL instances (A 5432, B 5433, C 5434), schemas and roles bootstrapped
-scripts/demo.sh groups up              # any mode: modulith macro-monolith groups microservices microservices-macro loopback-codec loopback-http split-dbs
+scripts/demo.sh groups start             # any mode: modulith macro-monolith groups microservices microservices-macro loopback-codec loopback-http split-dbs
 scripts/smoke.sh                       # the scenarios of section 16.5 + the expected binding on every edge + the merged call tree
 scripts/trace.sh <correlationId>       # the merged call tree of one order, across every running process
 scripts/demo.sh groups status
-scripts/demo.sh groups down
+scripts/demo.sh groups stop
 scripts/db.sh down                     # wipes the data
 scripts/demo-all.sh                    # every mode on a clean database, with a summary table (pass/fail, bindings seen)
 ```
 
 | Mode | Processes | Cross-module path |
 | --- | --- | --- |
-| `modulith` | `app-modulith` on 8080 | all local |
-| `macro-monolith` | `app-macro` (`monolith`) on 8080 | all local |
-| `groups` | `app-macro` as `front` 8081, `fulfilment` 8082, `accounts` 8083 | local inside a group, remote across |
-| `microservices` | the eight `app-<module>-service` apps on 8081-8088 | all remote |
+| `modulith` | `app-modulith` on 9100 | all local |
+| `macro-monolith` | `app-macro` (`monolith`) on 9100 | all local |
+| `groups` | `app-macro` as `front` 9181, `fulfilment` 9182, `accounts` 9183 | local inside a group, remote across |
+| `microservices` | the eight `app-<module>-service` apps on 9181-9188 | all remote |
 | `microservices-macro` | `app-macro` eight times, one module enabled each (profile = module name) | all remote |
-| `loopback-codec`, `loopback-http` | `app-macro` on 8080 | every call through the JSON codec / over HTTP to 127.0.0.1 |
+| `loopback-codec`, `loopback-http` | `app-macro` on 9100 | every call through the JSON codec / over HTTP to 127.0.0.1 |
 | `split-dbs` | as `groups`, profile `split-dbs`: front on A, fulfilment on B, accounts on C | as `groups` |
 
 `app-macro` has no module wiring baked in; profiles do it (`monolith`, `front`, `fulfilment`, `accounts`, one per module,
 `loopback-codec`, `loopback-http`, `split-dbs`), or environment variables, for example
-`MODULES_INVENTORY_ENABLED=false MODULES_INVENTORY_URL=http://host:8084/rpc/inventory`.
+`MODULES_INVENTORY_ENABLED=false MODULES_INVENTORY_URL=http://host:9184/rpc/inventory`.
 The eight service apps are generated from one template: `scripts/new-service-app.sh --all` (`--check` finds a stale one).
 `app-modulith` refuses to start with any module disabled or bound to anything but `local`.
 
@@ -166,9 +166,9 @@ OpenAPI 3.1 and OpenRPC documents are generated at runtime from the `@RpcApi` in
 | `/swagger-ui` | Swagger UI, **dev profile only** (so also in `demo`) |
 
 ```bash
-scripts/db.sh up && scripts/demo.sh macro-monolith up
-open http://127.0.0.1:8080/swagger-ui        # pick "inventory", try inventory.getStock
-curl -s localhost:8080/rpc/inventory/openapi.json | jq '.paths | keys'
+scripts/db.sh up && scripts/demo.sh macro-monolith start
+open http://127.0.0.1:9100/swagger-ui        # pick "inventory", try inventory.getStock
+curl -s localhost:9100/rpc/inventory/openapi.json | jq '.paths | keys'
 ```
 
 Descriptions are optional: put `@Operation(summary = ...)` on a method, `@Parameter(description = ...)` on a parameter or `@Schema(description = ...)` on a record or component in the `-api` artifact (`swagger-annotations-jakarta` at `provided` scope; the annotations jar is on every runtime classpath through `rpc-docs`). Records are described as Jackson writes them: all components are required, and a component is nullable only if annotated with an annotation named `Nullable`.

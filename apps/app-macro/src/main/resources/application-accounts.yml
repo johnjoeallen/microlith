@@ -1,26 +1,26 @@
 # Group 'accounts': customers, payments here, everything else over JSON-RPC at its group's port.
 server:
-  port: 8083
+  port: 9183
 modules:
   catalog:
     enabled: false
-    url: http://localhost:8082/rpc/catalog
+    url: http://localhost:9182/rpc/catalog
   customers:
     enabled: true
   pricing:
     enabled: false
-    url: http://localhost:8082/rpc/pricing
+    url: http://localhost:9182/rpc/pricing
   inventory:
     enabled: false
-    url: http://localhost:8082/rpc/inventory
+    url: http://localhost:9182/rpc/inventory
   payments:
     enabled: true
   shipping:
     enabled: false
-    url: http://localhost:8082/rpc/shipping
+    url: http://localhost:9182/rpc/shipping
   notifications:
     enabled: false
-    url: http://localhost:8081/rpc/notifications
+    url: http://localhost:9181/rpc/notifications
   orders:
     enabled: false
-    url: http://localhost:8081/rpc/orders
+    url: http://localhost:9181/rpc/orders

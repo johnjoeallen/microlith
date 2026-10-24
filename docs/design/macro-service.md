@@ -220,7 +220,7 @@ modules:
   inventory:
     enabled: true
     binding: loopback-http
-    url: http://127.0.0.1:8080/rpc/inventory
+    url: http://127.0.0.1:9100/rpc/inventory
 ```
 
 Rules:
@@ -508,9 +508,9 @@ Because modules can be grouped into processes in any combination, the demo defin
 
 | Group | Modules | Port in `groups` mode |
 | --- | --- | --- |
-| `front` | `orders`, `notifications` | 8081 |
-| `fulfilment` | `catalog`, `pricing`, `inventory`, `shipping` | 8082 |
-| `accounts` | `customers`, `payments` | 8083 |
+| `front` | `orders`, `notifications` | 9181 |
+| `fulfilment` | `catalog`, `pricing`, `inventory`, `shipping` | 9182 |
+| `accounts` | `customers`, `payments` | 9183 |
 
 | Edge | Inside one group (direct call) | Across groups (JSON-RPC) |
 | --- | --- | --- |
@@ -527,9 +527,9 @@ The grouping graph is `front` -> `fulfilment` -> `accounts` and `front` -> `acco
 
 | Item | Port | Notes |
 | --- | --- | --- |
-| All-in-one app | 8080 | `modulith`, `macro-monolith` and the loopback modes |
-| Group processes | 8081 `front`, 8082 `fulfilment`, 8083 `accounts` | `groups` and `split-dbs` modes |
-| One process per module | 8081 `orders`, 8082 `catalog`, 8083 `pricing`, 8084 `inventory`, 8085 `customers`, 8086 `payments`, 8087 `shipping`, 8088 `notifications` | `microservices` and `microservices-macro` modes |
+| All-in-one app | 9100 | `modulith`, `macro-monolith` and the loopback modes |
+| Group processes | 9181 `front`, 9182 `fulfilment`, 9183 `accounts` | `groups` and `split-dbs` modes |
+| One process per module | 9181 `orders`, 9182 `catalog`, 9183 `pricing`, 9184 `inventory`, 9185 `customers`, 9186 `payments`, 9187 `shipping`, 9188 `notifications` | `microservices` and `microservices-macro` modes |
 | PostgreSQL A | 5432 | shared instance, one schema per module |
 | PostgreSQL B, C | 5433, 5434 | extra instances for `split-dbs` (`front` on A, `fulfilment` on B, `accounts` on C) |
 
@@ -543,7 +543,7 @@ The grouping graph is `front` -> `fulfilment` -> `accounts` and `front` -> `acco
 | `microservices` | eight per-service apps (`app-<module>-service`) | 8 | all `remote` | A |
 | `microservices-macro` | `app-macro` eight times, one module enabled each | 8 | all `remote` | A |
 | `loopback-codec` | `app-macro`, profile `loopback-codec` | 1 | every call through the JSON codec in-process | A |
-| `loopback-http` | `app-macro`, profile `loopback-http` | 1 | every call over HTTP to `127.0.0.1:8080` | A |
+| `loopback-http` | `app-macro`, profile `loopback-http` | 1 | every call over HTTP to `127.0.0.1:9100` | A |
 | `split-dbs` | as `groups` | 3 | as `groups` | `front` on A, `fulfilment` on B, `accounts` on C |
 
 Per-service apps contain their own `-impl` plus the `-api` artifacts of the modules they call, which is exactly that module's `allowedDependencies`. An enforcer rule checks that an app's declared `-api` dependencies match it, so a service app cannot silently depend on more than its module may use.
@@ -571,7 +571,7 @@ Seed data (products, customers, stock) comes from demo-only Flyway migrations in
 - **`scripts/trace.sh <correlationId>`** queries every running demo process and prints one merged call tree, with the binding shown on each edge, so the chain `orders` -> `shipping` -> `inventory` -> `catalog` is visible as a single tree whether it ran in one process or four.
 - **`POST /demo/faults`** (demo profile only) turns a module's failures on or off: `notifications` down, `payments` decline, `inventory` latency. It affects only modules enabled in that process.
 - **Startup banner** prints the topology when the process starts.
-- **Scripts:** `scripts/db.sh up|down` (PostgreSQL containers, roles and schemas), `scripts/demo.sh <mode> up|down|status`, `scripts/smoke.sh`, `scripts/trace.sh`, and `scripts/demo-all.sh` (every mode in turn with a pass/fail summary table).
+- **Scripts:** `scripts/db.sh up|down` (PostgreSQL containers, roles and schemas), `scripts/demo.sh <mode> start|stop|status`, `scripts/smoke.sh`, `scripts/trace.sh`, and `scripts/demo-all.sh` (every mode in turn with a pass/fail summary table).
 
 ### 16.7 What the demonstration should show
 

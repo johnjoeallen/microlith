@@ -11,23 +11,23 @@ Every shape is the same code; only configuration differs. `scripts/demo.sh` wrap
 
 ```bash
 scripts/db.sh up                        # PostgreSQL A 5432, B 5433, C 5434, schemas and roles from docs/db/bootstrap.sql
-scripts/demo.sh <mode> up               # start the processes of a mode
+scripts/demo.sh <mode> start              # start the processes of a mode
 scripts/smoke.sh                        # scenarios + expected binding on every edge + merged call tree
 scripts/trace.sh <correlationId>        # the call tree of one order across all processes
-scripts/demo.sh <mode> down
+scripts/demo.sh <mode> stop
 scripts/db.sh down                      # stops and wipes the databases
 scripts/demo-all.sh                     # every mode on a clean database, summary table
 ```
 
 | Shape | `<mode>` | Processes | Cross-module calls |
 | --- | --- | --- | --- |
-| Modulith (one jar, only the modules' `-impl`) | `modulith` | `app-modulith` :8080 | all local, direct |
-| Macro service as a monolith | `macro-monolith` | `app-macro` profile `monolith` :8080 | all local |
-| Macro service in groups | `groups` | `app-macro` profiles `front` :8081, `fulfilment` :8082, `accounts` :8083 | local inside a group, JSON-RPC across |
-| Microservices (eight jars) | `microservices` | the eight `app-<module>-service` :8081-8088 | all JSON-RPC |
+| Modulith (one jar, only the modules' `-impl`) | `modulith` | `app-modulith` :9100 | all local, direct |
+| Macro service as a monolith | `macro-monolith` | `app-macro` profile `monolith` :9100 | all local |
+| Macro service in groups | `groups` | `app-macro` profiles `front` :9181, `fulfilment` :9182, `accounts` :9183 | local inside a group, JSON-RPC across |
+| Microservices (eight jars) | `microservices` | the eight `app-<module>-service` :9181-9188 | all JSON-RPC |
 | Microservices from the macro jar | `microservices-macro` | `app-macro` eight times, profile = module name | all JSON-RPC |
-| Everything through the JSON codec | `loopback-codec` | `app-macro` :8080 | in-process, serialized |
-| Everything over HTTP to itself | `loopback-http` | `app-macro` :8080 | HTTP to 127.0.0.1 |
+| Everything through the JSON codec | `loopback-codec` | `app-macro` :9100 | in-process, serialized |
+| Everything over HTTP to itself | `loopback-http` | `app-macro` :9100 | HTTP to 127.0.0.1 |
 | Groups on three databases | `split-dbs` | as `groups`; front on A, fulfilment on B, accounts on C | as `groups` |
 
 Without the scripts, for example the groups shape (databases up first):
@@ -41,7 +41,7 @@ done
 
 Changing a module's place is configuration only: `modules.<m>.enabled=true|false`, `modules.<m>.url=http://host:port/rpc/<m>` for a module that runs
 elsewhere, `modules.<m>.binding=local|loopback-codec|loopback-http|remote` to force one, `modules.<m>.datasource.*` for its database.
-Environment variables work too, for example `MODULES_INVENTORY_ENABLED=false MODULES_INVENTORY_URL=http://host:8084/rpc/inventory`.
+Environment variables work too, for example `MODULES_INVENTORY_ENABLED=false MODULES_INVENTORY_URL=http://host:9184/rpc/inventory`.
 
 Useful while running (demo profile, which implies dev): `GET /demo/topology`, `GET /demo/trace?correlationId=`, `POST /demo/faults`,
 `/swagger-ui`, `/rpc/openapi.json`, `/actuator/health`.
@@ -129,4 +129,4 @@ Running a service app needs the URLs of the modules it calls (`modules.<callee>.
 | `RpcUnavailableException` | The callee is down, timed out (`modules.<m>.client.read-timeout`, default 10 s; `connect-timeout` 2 s) or its bulkhead rejected the call. |
 | Warning about the connection budget at startup | The pool sizes of the enabled modules exceed `platform.db.connection-budget`; lower `max-pool-size` or raise the budget. With `platform.db.enforce-budget=true` startup fails instead. |
 | A bean of an `@RpcApi` cannot be injected by its class | Local implementations are wrapped in a proxy; inject the interface. |
-| Port already in use after a crash | `scripts/demo.sh <mode> down`; logs are in `.demo/logs/`. |
+| Port already in use after a crash | `scripts/demo.sh <mode> stop`; logs are in `.demo/logs/`. |

@@ -1,27 +1,27 @@
 # Only 'notifications' in this process; every other module is reached over JSON-RPC at its own port.
 server:
-  port: 8088
+  port: 9188
 modules:
   catalog:
     enabled: false
-    url: http://localhost:8082/rpc/catalog
+    url: http://localhost:9182/rpc/catalog
   customers:
     enabled: false
-    url: http://localhost:8085/rpc/customers
+    url: http://localhost:9185/rpc/customers
   pricing:
     enabled: false
-    url: http://localhost:8083/rpc/pricing
+    url: http://localhost:9183/rpc/pricing
   inventory:
     enabled: false
-    url: http://localhost:8084/rpc/inventory
+    url: http://localhost:9184/rpc/inventory
   payments:
     enabled: false
-    url: http://localhost:8086/rpc/payments
+    url: http://localhost:9186/rpc/payments
   shipping:
     enabled: false
-    url: http://localhost:8087/rpc/shipping
+    url: http://localhost:9187/rpc/shipping
   notifications:
     enabled: true
   orders:
     enabled: false
-    url: http://localhost:8081/rpc/orders
+    url: http://localhost:9181/rpc/orders

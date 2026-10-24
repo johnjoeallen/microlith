@@ -11,7 +11,7 @@
 set -euo pipefail
 root="$(cd "$(dirname "$0")/.." && pwd)"
 modules=(catalog customers pricing inventory payments shipping notifications orders)
-declare -A port=([orders]=8081 [catalog]=8082 [pricing]=8083 [inventory]=8084 [customers]=8085 [payments]=8086 [shipping]=8087 [notifications]=8088)
+declare -A port=([orders]=9181 [catalog]=9182 [pricing]=9183 [inventory]=9184 [customers]=9185 [payments]=9186 [shipping]=9187 [notifications]=9188)
 
 allowed() { # the modules <m> may call, one per line
   grep -o '"[a-z]*::api"' "$root/modules/$1/$1-impl/src/main/java/com/acme/$1/package-info.java" | tr -d '"' | sed 's/::api//' | sort || true

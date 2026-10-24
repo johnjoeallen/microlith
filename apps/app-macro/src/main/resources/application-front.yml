@@ -1,25 +1,25 @@
 # Group 'front': orders, notifications here, everything else over JSON-RPC at its group's port.
 server:
-  port: 8081
+  port: 9181
 modules:
   catalog:
     enabled: false
-    url: http://localhost:8082/rpc/catalog
+    url: http://localhost:9182/rpc/catalog
   customers:
     enabled: false
-    url: http://localhost:8083/rpc/customers
+    url: http://localhost:9183/rpc/customers
   pricing:
     enabled: false
-    url: http://localhost:8082/rpc/pricing
+    url: http://localhost:9182/rpc/pricing
   inventory:
     enabled: false
-    url: http://localhost:8082/rpc/inventory
+    url: http://localhost:9182/rpc/inventory
   payments:
     enabled: false
-    url: http://localhost:8083/rpc/payments
+    url: http://localhost:9183/rpc/payments
   shipping:
     enabled: false
-    url: http://localhost:8082/rpc/shipping
+    url: http://localhost:9182/rpc/shipping
   notifications:
     enabled: true
   orders:
