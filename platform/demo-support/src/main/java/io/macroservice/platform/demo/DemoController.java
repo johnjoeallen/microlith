@@ -41,6 +41,12 @@ class DemoController {
         return ResponseEntity.ok(traces.find(correlationId));
     }
 
+    /** What this process sent and received as an HTTP client: calls, and the envelope size before encoding against the bytes on the wire. */
+    @GetMapping("/wire")
+    Map<String, Long> wire() {
+        return io.macroservice.platform.rpcstarter.WireStats.snapshot();
+    }
+
     @GetMapping("/faults")
     Map<String, Object> faults() {
         return Map.of("state", faults.snapshot());

@@ -36,13 +36,37 @@ class RpcController {
         this.mapper = mapper;
     }
 
+    /**
+     * The envelope endpoint accepts JSON, gzip-compressed JSON, BSON and gzip-compressed BSON (Content-Type and Content-Encoding) and answers in the
+     * format the caller asked for (Accept and Accept-Encoding); a caller that sends neither gets plain JSON, as before.
+     */
     @PostMapping("/{module}")
-    ResponseEntity<String> envelope(@PathVariable String module, @RequestBody(required = false) String body,
+    ResponseEntity<byte[]> envelope(@PathVariable String module, @RequestBody(required = false) byte[] body,
+            @RequestHeader(name = "Content-Type", required = false) String contentType,
+            @RequestHeader(name = "Content-Encoding", required = false) String contentEncoding,
+            @RequestHeader(name = "Accept", required = false) String accept,
+            @RequestHeader(name = "Accept-Encoding", required = false) String acceptEncoding,
             @RequestHeader(name = CORRELATION_HEADER, required = false) String correlationId,
             @RequestHeader(name = TRACEPARENT_HEADER, required = false) String traceparent) {
         return withContext(correlationId, traceparent, () -> {
-            JsonNode response = dispatcher.handleEnvelope(module, body);
-            return response == null ? ResponseEntity.noContent().build() : json(HttpStatus.OK, response);
+            String json;
+            try {
+                json = body == null ? null : WireCodec.decode(body, contentType, contentEncoding, mapper);
+            } catch (RuntimeException undecodable) {
+                json = "{";      // not gzip or not BSON: answered as a parse error, like malformed JSON
+            }
+            JsonNode response = dispatcher.handleEnvelope(module, json);
+            if (response == null) {
+                return ResponseEntity.noContent().build();
+            }
+            boolean bson = WireCodec.isBson(accept);
+            boolean gzip = WireCodec.isGzip(acceptEncoding);
+            WireFormat format = bson ? (gzip ? WireFormat.BSON_GZIP : WireFormat.BSON) : (gzip ? WireFormat.GZIP : WireFormat.JSON);
+            ResponseEntity.BodyBuilder reply = ResponseEntity.status(HttpStatus.OK).contentType(MediaType.parseMediaType(format.mediaType()));
+            if (gzip) {
+                reply = reply.header("Content-Encoding", "gzip");
+            }
+            return reply.body(WireCodec.encode(format, mapper.writeValueAsString(response), mapper));
         });
     }
 
@@ -94,8 +118,8 @@ class RpcController {
         return ResponseEntity.status(status).contentType(MediaType.APPLICATION_JSON).body(mapper.writeValueAsString(body));
     }
 
-    private static ResponseEntity<String> withContext(String correlationId, String traceparent,
-            java.util.function.Supplier<ResponseEntity<String>> action) {
+    private static <T> ResponseEntity<T> withContext(String correlationId, String traceparent,
+            java.util.function.Supplier<ResponseEntity<T>> action) {
         String previousCorrelation = MDC.get(MdcHeaderPropagator.CORRELATION_KEY);
         String previousTrace = MDC.get(MdcHeaderPropagator.TRACEPARENT_KEY);
         try {

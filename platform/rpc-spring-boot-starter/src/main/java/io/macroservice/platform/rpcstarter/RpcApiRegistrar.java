@@ -102,7 +102,8 @@ class RpcApiRegistrar implements BeanDefinitionRegistryPostProcessor {
         JsonMapper mapper = beanFactory.getBeanProvider(JsonMapper.class).getIfAvailable(() -> JsonMapper.builder().build());
         RpcTransport transport = switch (binding) {
             case LOOPBACK_CODEC -> new CodecRpcTransport(() -> beanFactory.getBean(RpcDispatcher.class), mapper);
-            case LOOPBACK_HTTP, REMOTE -> new HttpRpcTransport(() -> urlOf(module, settings, binding), settings.client());
+            case LOOPBACK_HTTP, REMOTE -> new HttpRpcTransport(() -> urlOf(module, settings, binding), settings.client(),
+                    WireFormat.parse(environment.getProperty("rpc.client.wire")), mapper);
             case LOCAL -> throw new IllegalStateException("local needs no proxy");
         };
         return beanFactory.getBean(RpcClientProxyFactory.class).create(api, module, transport, settings.client(), name(binding));
