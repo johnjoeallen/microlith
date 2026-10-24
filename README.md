@@ -40,6 +40,24 @@ scripts/perf.sh --modes groups,microservices     # start, measure and stop each 
 scripts/perf.sh --modes all --orders 300         # all eight modes, one comparison table at the end
 ```
 
+A realistic comparison (the `realistic` profile, which is the default), with the `@Cached` layer off and on, in two split modes:
+
+```bash
+scripts/perf.sh --modes groups,microservices --cache both --duration 120 --warmup 500 --concurrency 8
+```
+
+That starts each mode on a clean database, loads 10,000 customers and 2,000 SKUs, warms up with 500 orders, sends 120 s of load from 8
+clients (about four times the cache TTL, so hit rates settle), stops the mode, and prints one comparison table. The run takes about
+10 minutes (four measured runs plus start-up). The report is written to `.demo/perf/<timestamp>/perf-<timestamp>.md`.
+For a quick look at one running mode instead: `scripts/perf.sh --orders 2000 --warmup 200 --concurrency 8`.
+
+The workload is the `realistic` profile by default: 10,000 customers and 2,000 SKUs with Zipf-skewed popularity (a few popular SKUs
+and repeat customers), 1-4 lines per order, 8% gold and 2% always-declined customers (declined orders are reported separately, not
+as failures). `--profile small|realistic|large` picks another (`small` = the demo's two customers and two SKUs, `large` = 100,000
+and 20,000); `--customers`, `--skus`, `--customer-skew`, `--sku-skew` and `--seed` override. The driver bulk-loads the customers,
+products and stock first (`--no-seed` to skip), so every `--modes` run starts from a clean database.
+Use runs of at least three times the cache TTL (30 s) for meaningful hit rates.
+
 It reports the client round trip of every `orders.placeOrder` (orders/s, error count, min/mean/p50/p90/p95/p99/max) and the
 latency of every module-to-module call inside those orders, grouped by `caller -> callee.method` and binding
 (`local`, `loopback-codec`, `loopback-http`, `remote`), plus calls per order. The call figures come from the
@@ -47,11 +65,25 @@ latency of every module-to-module call inside those orders, grouped by `caller -
 in the split modes. Raw samples (`orders.csv`, `calls.csv`) and `summary.json` go to `.demo/perf/<timestamp>/` (one sub-directory per mode, plus
 `comparison.json`, with `--modes`).
 
+Each run also writes a timestamped markdown report, `perf-<timestamp>.md`, next to the raw data: the parameters, commit, host,
+the comparison table across modes and, per mode, the round-trip and per-call tables.
+`--cache on|off|both` (with `--modes`) starts the modes with the `@Cached` layer on, off, or both, so you can compare them.
+
 Notes: the clients are a closed loop on persistent connections. Tracing adds a little overhead (compare with `--no-trace`).
 Each process keeps its 200,000 most recent calls (`demo.trace.capacity`), so a very long or fast run can still overwrite
 traces before they are read; the driver warns when that happens (raise the capacity or lower `--concurrency`). The demo seeds only 150 units of stock, so the driver raises it
 first (`--no-stock` to skip). Later async work (the notification, delivered by the outbox) is picked up by re-reading
 traces until they stop changing (`--settle`, `--drain`).
+
+## Caching: `@Cached`
+
+An `@RpcApi` method marked `@Cached(ttlSeconds = 30, maxSize = 10_000)` has its result reused by callers (a Caffeine cache per
+method, keyed by the arguments). It sits in front of **every** binding, local included, so a call costs the same wherever the module
+runs, and it is skipped for the one call the RPC dispatcher makes for a remote caller (that caller has its own cache). Failures and
+`null` results are never cached. Use it only for reads of slowly changing reference data: today `customers.getCustomer`,
+`customers.getPaymentMethod`, `catalog.getProduct` and `catalog.productExists`. Not for anything that changes state or reads
+fast-moving state (`inventory.getStock`, reservations). Results are shared between callers, so they must be immutable.
+Switch it off with `rpc.cache.enabled=false` (env `RPC_CACHE_ENABLED=false`). In the demo call trace a hit has binding `cache`.
 
 ## Requirements
 

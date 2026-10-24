@@ -115,7 +115,7 @@ class ChainContractTests {
                     .filter(r -> !r.caller().equals("client")).toList();
             assertThat(records.stream().map(r -> r.caller() + ">" + r.callee() + "." + r.method()).sorted().toList())
                     .containsExactlyElementsOf(expected.stream().sorted().toList());
-            assertThat(records).allSatisfy(r -> assertThat(r.binding()).as(r.line()).isEqualTo(binding));
+            assertThat(records).allSatisfy(r -> assertThat(r.binding()).as(r.line()).isIn(binding, "cache")); // "cache": a @Cached hit
         });
     }
 }

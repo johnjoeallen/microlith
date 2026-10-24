@@ -166,6 +166,12 @@ public class RpcDispatcher implements SmartInitializingSingleton {
     }
 
     private Object invoke(Target target, Object[] arguments) throws Exception {
+        // The remote caller has its own cache, so the layer in front of this bean is skipped for this one call. Only a bean that
+        // has a layer consumes the signal; for any other it would be left behind for the first cached call the implementation makes.
+        boolean layered = target.bean instanceof io.macroservice.platform.rpc.CacheLayer;
+        if (layered) {
+            io.macroservice.platform.rpc.CacheSignals.bypassNext();
+        }
         try {
             return target.method.invoke(target.bean, arguments);
         } catch (InvocationTargetException e) {
@@ -174,6 +180,10 @@ public class RpcDispatcher implements SmartInitializingSingleton {
                 throw exception;
             }
             throw (Error) cause;
+        } finally {
+            if (layered) {
+                io.macroservice.platform.rpc.CacheSignals.consumeBypass();
+            }
         }
     }
 

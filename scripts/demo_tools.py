@@ -215,7 +215,7 @@ class Smoke:
             for r in collect(cid):
                 seen.add(r["binding"])
                 want = expected_binding(self.mode, r["caller"], r["callee"])
-                if r["binding"] != want:
+                if r["binding"] not in (want, "cache"):      # "cache": answered by a @Cached layer instead of the call
                     problems.append(f"{r['caller']} -> {r['callee']}.{r['method']} used [{r['binding']}], expected [{want}]")
         (DEMO / "last-bindings").write_text(",".join(sorted(seen)))
         if problems:

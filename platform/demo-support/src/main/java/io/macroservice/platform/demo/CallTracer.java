@@ -1,5 +1,6 @@
 package io.macroservice.platform.demo;
 
+import io.macroservice.platform.rpc.CacheSignals;
 import io.macroservice.platform.rpc.RpcApi;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
@@ -50,11 +51,17 @@ final class CallTracer implements InvocationHandler {
         long wallStart = System.currentTimeMillis() * 1000;
         long started = System.nanoTime();
         String outcome = "ok";
+        String used = binding;
         try {
             if (!serverEntry) {
                 CallContext.depth(depth + 1);
             }
-            return call(method, args);
+            CacheSignals.consumeHit();
+            Object result = call(method, args);
+            if (CacheSignals.consumeHit()) {
+                used = "cache";                      // answered by the @Cached layer, no module call was made
+            }
+            return result;
         } catch (Throwable failure) {
             outcome = "error:" + failure.getClass().getSimpleName();
             throw failure;
@@ -62,7 +69,7 @@ final class CallTracer implements InvocationHandler {
             if (!serverEntry) {
                 CallContext.depth(depth);
                 if (correlationId != null) {
-                    TraceRecord record = new TraceRecord(correlationId, wallStart, caller, module, method.getName(), binding, depth,
+                    TraceRecord record = new TraceRecord(correlationId, wallStart, caller, module, method.getName(), used, depth,
                             (System.nanoTime() - started) / 1_000_000.0, outcome);
                     store.add(record);
                     log.info("{}", record.line());

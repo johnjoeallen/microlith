@@ -91,7 +91,7 @@ class DemoEndpointsTests {
         assertThat(get(http, "/demo/trace?correlationId=nobody")).isEmpty();
         boolean chain = false;
         for (JsonNode r : records) {
-            assertThat(r.get("binding").stringValue()).isEqualTo("local");
+            assertThat(r.get("binding").stringValue()).isIn("local", "cache"); // a @Cached hit is reported as "cache"
             assertThat(r.get("outcome").stringValue()).isEqualTo("ok");
             chain |= r.get("caller").stringValue().equals("inventory") && r.get("callee").stringValue().equals("catalog")
                     && r.get("method").stringValue().equals("productExists")

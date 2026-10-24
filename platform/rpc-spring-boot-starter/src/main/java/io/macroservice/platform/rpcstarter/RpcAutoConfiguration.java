@@ -27,6 +27,13 @@ public class RpcAutoConfiguration {
         return new RpcApiRegistrar(environment);
     }
 
+    /** The {@code @Cached} layer in front of every {@code @RpcApi} bean; {@code rpc.cache.enabled=false} switches it off. */
+    @Bean
+    @ConditionalOnProperty(name = "rpc.cache.enabled", matchIfMissing = true)
+    static CachingBeanPostProcessor cachingBeanPostProcessor() {
+        return new CachingBeanPostProcessor();
+    }
+
     @Bean
     static BoundaryInterceptor boundaryInterceptor(Environment environment) {
         return new BoundaryInterceptor(environment);
