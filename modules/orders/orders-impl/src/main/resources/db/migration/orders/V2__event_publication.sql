@@ -1,5 +1,5 @@
--- Spring Modulith's event publication registry (schema v2, PostgreSQL) replaces the hand-built outbox.
-DROP TABLE outbox;
+-- Spring Modulith's event publication registry (schema v2, PostgreSQL), used when modules.orders.async=events.
+-- The outbox table from V1 stays: it is used when modules.orders.async=outbox (the default).
 
 CREATE TABLE event_publication
 (

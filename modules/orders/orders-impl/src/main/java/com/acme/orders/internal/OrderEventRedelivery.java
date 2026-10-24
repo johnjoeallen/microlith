@@ -1,5 +1,6 @@
 package com.acme.orders.internal;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import io.macroservice.platform.support.ModuleComponent;
 import java.time.Duration;
 import java.time.Instant;
@@ -21,6 +22,7 @@ import org.springframework.scheduling.annotation.Scheduled;
  * recovers publications a process left behind when it died (those older than {@code stale-after}).
  */
 @ModuleComponent(module = "orders")
+@ConditionalOnProperty(name = "modules.orders.async", havingValue = "events")
 public class OrderEventRedelivery {
 
     private static final Logger log = LoggerFactory.getLogger(OrderEventRedelivery.class);

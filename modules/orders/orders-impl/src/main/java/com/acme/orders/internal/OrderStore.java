@@ -5,24 +5,23 @@ import io.macroservice.platform.support.ModuleComponent;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Every order state change, together with the events that belong to it, in ONE transaction of the orders schema. Spring
- * Modulith's event publication registry stores each published event in that transaction (the {@code event_publication}
- * table), and delivers it to its listener after the commit. Nothing in here calls another module.
+ * Every order state change, together with the follow-ups that belong to it, in ONE transaction of the orders schema. The
+ * follow-up is made durable in that transaction by {@link FollowUps} (an outbox row or a Spring Modulith event, per
+ * {@code modules.orders.async}) and delivered after the commit. Nothing in here calls another module.
  */
 @ModuleComponent(module = "orders")
 @Transactional("ordersTm")
 public class OrderStore {
 
     private final OrderRepository orders;
-    private final ApplicationEventPublisher events;
+    private final FollowUps followUps;
 
-    OrderStore(OrderRepository orders, ApplicationEventPublisher events) {
+    OrderStore(OrderRepository orders, FollowUps followUps) {
         this.orders = orders;
-        this.events = events;
+        this.followUps = followUps;
     }
 
     @Transactional(value = "ordersTm", readOnly = true)
@@ -66,7 +65,7 @@ public class OrderStore {
         OrderEntity order = orders.findById(orderId).orElseThrow();
         order.setStatus(OrderStatus.CONFIRMED);
         order.setShipmentId(shipmentId);
-        events.publishEvent(notification);
+        followUps.publish(notification);
         return order;
     }
 
@@ -75,7 +74,7 @@ public class OrderStore {
         order.setStatus(status);
         order.setFailureCode(code);
         order.setFailureReason(reason == null ? null : reason.substring(0, Math.min(reason.length(), 500)));
-        commands.forEach(events::publishEvent);
+        commands.forEach(followUps::publish);
         return order;
     }
 }

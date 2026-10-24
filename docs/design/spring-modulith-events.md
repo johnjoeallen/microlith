@@ -1,6 +1,6 @@
 # Spring Modulith events instead of the hand-built outbox
 
-Branch `spike/spring-modulith-events`. The orders module's outbox and relay are replaced by Spring Modulith 2.1.2's own model:
+Branches `spike/spring-modulith-events` (replaces the outbox) and `spike/switchable-async` (keeps both, `modules.orders.async=outbox|events`, default `outbox`). The events model is Spring Modulith 2.1.2's own:
 domain events, the **event publication registry**, and asynchronous transactional listeners. Everything else (the synchronous saga,
 `@RpcApi` calls, per-module schemas and roles) is unchanged.
 
@@ -65,3 +65,13 @@ executor needs no such tuning.
 Equal on the critical path, far better at draining asynchronous work, and the saga stays explicit. Costs: a custom repository, a custom redelivery
 policy, a primary transaction manager and a stand-in bean, i.e. Modulith's registry is usable here but only after adapting it to the
 one-schema-per-module design. If a second module needs events, the primary-transaction-manager approach stops working.
+
+## Making it switchable (`spike/switchable-async`)
+
+`OrderStore` publishes follow-ups through a small port, `FollowUps`. `OutboxFollowUps` (default) turns them into outbox rows;
+`EventFollowUps` publishes Modulith events. The components of the unused mechanism are not created (`@ConditionalOnProperty` on
+the relay, the listeners, the redelivery policy and the event repository), both tables exist (`outbox` from V1, `event_publication`
+from V2), and an unknown value fails at start-up (`AsyncModeCheck`). The saga and failure tests run once per mechanism
+(`OutboxOrderSagaTests` / `EventsOrderSagaTests`, `OutboxDomainFailureTests` / `EventsDomainFailureTests`).
+Costs of keeping both: Modulith's event auto-configuration, the primary `ordersTm` and the stand-in repository bean are present even in
+`outbox` mode, and a few hundred lines of code for the mechanism that is not selected.

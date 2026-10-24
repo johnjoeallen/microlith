@@ -6,6 +6,7 @@ import com.acme.payments.api.PaymentsApi;
 import io.macroservice.platform.support.ModuleComponent;
 import java.util.Map;
 import org.slf4j.MDC;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 
 /**
  * What the orders module still has to tell other modules after an order changed state. Each is published inside the
@@ -19,11 +20,11 @@ public final class OrderEvents {
     }
 
     /** Give a reservation back to inventory. */
-    public record ReleaseReservation(String requestId, String reservationId, String correlationId) {
+    public record ReleaseReservation(String requestId, String orderId, String reservationId, String correlationId) {
     }
 
     /** Void a payment authorization. */
-    public record VoidPayment(String requestId, String authorizationId, String correlationId) {
+    public record VoidPayment(String requestId, String orderId, String authorizationId, String correlationId) {
     }
 
     /** Tell the customer that the order is confirmed. */
@@ -32,6 +33,7 @@ public final class OrderEvents {
 
     /** The listeners. Idempotent targets (request id) make redelivery safe. */
     @ModuleComponent(module = "orders")
+    @ConditionalOnProperty(name = "modules.orders.async", havingValue = "events")
     public static class Listeners {
 
         private final InventoryApi inventory;

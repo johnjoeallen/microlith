@@ -158,11 +158,11 @@ class OrdersService implements OrdersApi {
     }
 
     private static OrderEvents.ReleaseReservation release(OrderEntity order) {
-        return new OrderEvents.ReleaseReservation(order.getRequestId() + ":release", order.getReservationId(), MDC.get("correlationId"));
+        return new OrderEvents.ReleaseReservation(order.getRequestId() + ":release", order.getOrderId(), order.getReservationId(), MDC.get("correlationId"));
     }
 
     private static OrderEvents.VoidPayment voidPayment(OrderEntity order) {
-        return new OrderEvents.VoidPayment(order.getRequestId() + ":void", order.getAuthorizationId(), MDC.get("correlationId"));
+        return new OrderEvents.VoidPayment(order.getRequestId() + ":void", order.getOrderId(), order.getAuthorizationId(), MDC.get("correlationId"));
     }
 
     private static OrderEvents.OrderConfirmed notification(OrderEntity order) {

@@ -1,5 +1,6 @@
 package com.acme.orders.internal;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import io.macroservice.platform.support.ModuleComponent;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -27,6 +28,7 @@ import org.springframework.modulith.events.core.TargetEventPublication;
  * the order change that caused it. Completion mode UPDATE only (completed rows are kept, not deleted or archived).
  */
 @ModuleComponent(module = "orders")
+@ConditionalOnProperty(name = "modules.orders.async", havingValue = "events")
 public class OrdersEventPublicationRepository implements EventPublicationRepository {
 
     private final JdbcTemplate jdbc;

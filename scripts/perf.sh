@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Drives orders against the running demo mode and reports client round trips plus the latency of every
 # module-to-module call (from the /demo/trace records of every process).
-#   scripts/perf.sh [--orders N | --duration S] [--concurrency C] [--warmup W] [--settle S] [--drain S] [--modes M,M|all] [--cache on|off|both] [--parallel on|off|both] [--profile small|realistic|large] [--customers N] [--skus N] [--no-trace] [--no-seed] [--out DIR]
+#   scripts/perf.sh [--orders N | --duration S] [--concurrency C] [--warmup W] [--settle S] [--drain S] [--modes M,M|all] [--cache on|off|both] [--parallel on|off|both] [--async outbox|events|both] [--profile small|realistic|large] [--customers N] [--skus N] [--no-trace] [--no-seed] [--out DIR]
 #   --modes groups,microservices | all   start, measure and stop each mode in turn on a clean database, then compare them
 #   without --modes a demo mode must already be running: scripts/demo.sh <mode> start
 # Raw samples (orders.csv, calls.csv), summary.json and a perf-<timestamp>.md report are written under .demo/perf/<timestamp>/.

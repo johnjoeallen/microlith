@@ -31,7 +31,7 @@ import org.springframework.context.ConfigurableApplicationContext;
  * work, a callee whose answer is garbage, a callee process that is killed and restarted, and an orders process that
  * is restarted with work pending. Whatever happens, repeating a request must leave exactly one of every side effect.
  */
-class DomainFailureTests {
+abstract class DomainFailureTests {
 
     private static final List<OrderLine> LINES = List.of(new OrderLine("sku-widget", 2));
 
@@ -75,7 +75,9 @@ class DomainFailureTests {
     private void host(String module, String... extra) {
         hosts.put(module, apps.start(true, TestApps.demo(), TestApps.topology(urls, module), databases.get(module),
                 TestApps.args("--server.port=" + ports.get(module), "--modules.orders.events.retry-interval=200ms",
-                        "--modules.orders.events.backoff-base=200ms", "--modules.orders.events.backoff-max=1s", "--modules.orders.events.startup-scan-delay=1s"),
+                        "--modules.orders.events.backoff-base=200ms", "--modules.orders.events.backoff-max=1s", "--modules.orders.events.startup-scan-delay=1s",
+                        "--modules.orders.outbox.poll-interval=200ms", "--modules.orders.outbox.backoff-base=200ms", "--modules.orders.outbox.backoff-max=1s",
+                        "--modules.orders.async=" + asyncMode()),
                 TestApps.args(extra)));
     }
 
@@ -180,7 +182,7 @@ class DomainFailureTests {
         assertThat(order.status()).isEqualTo(OrderStatus.CONFIRMED);
         assertExactlyOneOfEverything(requestId);
         await().atMost(Duration.ofSeconds(30)).untilAsserted(() ->
-                assertThat(scalar("orders", "select status from event_publication where serialized_event like ?", notifyEvent(requestId))).isEqualTo("COMPLETED"));
+                assertThat(scalar("orders", notifyStatusSql(), notifyArgument(requestId))).isEqualTo(deliveredStatus()));
     }
 
     @Test
@@ -191,7 +193,7 @@ class DomainFailureTests {
 
         assertThat(orders.placeOrder(requestId, "cust-standard", LINES).status()).isEqualTo(OrderStatus.CONFIRMED);
         await().atMost(Duration.ofSeconds(15)).untilAsserted(() ->
-                assertThat(scalar("orders", "select count(*) from event_publication where completion_date is null and serialized_event like ?", notifyEvent(requestId))).isEqualTo("1"));
+                assertThat(scalar("orders", undeliveredNotifySql(), notifyArgument(requestId))).isEqualTo("1"));
         assertThat(scalar("notifications", "select count(*) from message where request_id = ?", requestId + ":notify")).isEqualTo("0");
 
         // the orders process dies with the message undelivered and comes back with the same database
@@ -202,11 +204,19 @@ class DomainFailureTests {
 
         assertExactlyOneOfEverything(requestId);
         await().atMost(Duration.ofSeconds(30)).untilAsserted(() ->
-                assertThat(scalar("orders", "select status from event_publication where serialized_event like ?", notifyEvent(requestId))).isEqualTo("COMPLETED"));
+                assertThat(scalar("orders", notifyStatusSql(), notifyArgument(requestId))).isEqualTo(deliveredStatus()));
     }
 
-    /** LIKE pattern for the stored notification event of an order (Spring Modulith's event_publication table). */
-    private static String notifyEvent(String requestId) {
-        return "%\"requestId\":\"" + requestId + ":notify\"%";
-    }
+    /** {@code outbox} or {@code events}: how the orders module delivers its follow-ups in this variant. */
+    abstract String asyncMode();
+
+    /** SQL (one argument, see {@link #notifyArgument}) giving the delivery status of the order's notification, and what "delivered" is called. */
+    abstract String notifyStatusSql();
+
+    abstract String deliveredStatus();
+
+    /** SQL giving "1" while the order's notification is stored but not yet delivered. */
+    abstract String undeliveredNotifySql();
+
+    abstract String notifyArgument(String requestId);
 }
