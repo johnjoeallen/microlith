@@ -1,5 +1,6 @@
 package com.acme.orders.internal;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import io.macroservice.platform.support.ModuleComponent;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -8,6 +9,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * all the time, so an idle orders module holds no connection.
  */
 @ModuleComponent(module = "orders")
+@ConditionalOnProperty(name = "modules.orders.async", havingValue = "outbox", matchIfMissing = true)
 public class OutboxSignal {
 
     private final AtomicBoolean pending = new AtomicBoolean();

@@ -1,5 +1,6 @@
 package com.acme.orders.internal;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import com.acme.inventory.api.InventoryApi;
 import com.acme.notifications.api.NotificationsApi;
 import com.acme.payments.api.PaymentsApi;
@@ -25,6 +26,7 @@ import org.springframework.transaction.support.TransactionTemplate;
  * affects the order that produced the entry.
  */
 @ModuleComponent(module = "orders")
+@ConditionalOnProperty(name = "modules.orders.async", havingValue = "outbox", matchIfMissing = true)
 public class OutboxRelay {
 
     private static final Logger log = LoggerFactory.getLogger(OutboxRelay.class);

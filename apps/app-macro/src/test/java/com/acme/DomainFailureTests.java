@@ -31,7 +31,7 @@ import org.springframework.context.ConfigurableApplicationContext;
  * work, a callee whose answer is garbage, a callee process that is killed and restarted, and an orders process that
  * is restarted with work pending. Whatever happens, repeating a request must leave exactly one of every side effect.
  */
-class DomainFailureTests {
+abstract class DomainFailureTests {
 
     private static final List<OrderLine> LINES = List.of(new OrderLine("sku-widget", 2));
 
@@ -74,8 +74,11 @@ class DomainFailureTests {
 
     private void host(String module, String... extra) {
         hosts.put(module, apps.start(true, TestApps.demo(), TestApps.topology(urls, module), databases.get(module),
-                TestApps.args("--server.port=" + ports.get(module), "--modules.orders.outbox.poll-interval=200ms",
-                        "--modules.orders.outbox.backoff-base=200ms", "--modules.orders.outbox.backoff-max=1s"), TestApps.args(extra)));
+                TestApps.args("--server.port=" + ports.get(module), "--modules.orders.events.retry-interval=200ms",
+                        "--modules.orders.events.backoff-base=200ms", "--modules.orders.events.backoff-max=1s", "--modules.orders.events.startup-scan-delay=1s",
+                        "--modules.orders.outbox.poll-interval=200ms", "--modules.orders.outbox.backoff-base=200ms", "--modules.orders.outbox.backoff-max=1s",
+                        "--modules.orders.async=" + asyncMode()),
+                TestApps.args(extra)));
     }
 
     private static int freePort() throws IOException {
@@ -175,11 +178,11 @@ class DomainFailureTests {
 
         Order order = orders.placeOrder(requestId, "cust-standard", LINES);
 
-        // the order does not wait for the message; the relay delivers it, the first (cut) delivery included, only once
+        // the order does not wait for the message; the registry delivers it, the first (cut) delivery included, only once
         assertThat(order.status()).isEqualTo(OrderStatus.CONFIRMED);
         assertExactlyOneOfEverything(requestId);
         await().atMost(Duration.ofSeconds(30)).untilAsserted(() ->
-                assertThat(scalar("orders", "select status from outbox where request_id = ?", requestId + ":notify")).isEqualTo("DONE"));
+                assertThat(scalar("orders", notifyStatusSql(), notifyArgument(requestId))).isEqualTo(deliveredStatus()));
     }
 
     @Test
@@ -190,7 +193,7 @@ class DomainFailureTests {
 
         assertThat(orders.placeOrder(requestId, "cust-standard", LINES).status()).isEqualTo(OrderStatus.CONFIRMED);
         await().atMost(Duration.ofSeconds(15)).untilAsserted(() ->
-                assertThat(scalar("orders", "select status from outbox where request_id = ?", requestId + ":notify")).isEqualTo("PENDING"));
+                assertThat(scalar("orders", undeliveredNotifySql(), notifyArgument(requestId))).isEqualTo("1"));
         assertThat(scalar("notifications", "select count(*) from message where request_id = ?", requestId + ":notify")).isEqualTo("0");
 
         // the orders process dies with the message undelivered and comes back with the same database
@@ -201,6 +204,19 @@ class DomainFailureTests {
 
         assertExactlyOneOfEverything(requestId);
         await().atMost(Duration.ofSeconds(30)).untilAsserted(() ->
-                assertThat(scalar("orders", "select status from outbox where request_id = ?", requestId + ":notify")).isEqualTo("DONE"));
+                assertThat(scalar("orders", notifyStatusSql(), notifyArgument(requestId))).isEqualTo(deliveredStatus()));
     }
+
+    /** {@code outbox} or {@code events}: how the orders module delivers its follow-ups in this variant. */
+    abstract String asyncMode();
+
+    /** SQL (one argument, see {@link #notifyArgument}) giving the delivery status of the order's notification, and what "delivered" is called. */
+    abstract String notifyStatusSql();
+
+    abstract String deliveredStatus();
+
+    /** SQL giving "1" while the order's notification is stored but not yet delivered. */
+    abstract String undeliveredNotifySql();
+
+    abstract String notifyArgument(String requestId);
 }

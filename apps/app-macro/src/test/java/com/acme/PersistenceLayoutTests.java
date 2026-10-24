@@ -66,6 +66,7 @@ class PersistenceLayoutTests {
         assertThat(TestApps.MODULES.stream().map(m -> schemaOf(context, m)).distinct()).hasSize(8);
         assertThat(tables(db, schemaOf(context, "orders"), "orders")).isEqualTo(1);
         assertThat(tables(db, schemaOf(context, "orders"), "outbox")).isEqualTo(1);
+        assertThat(tables(db, schemaOf(context, "orders"), "event_publication")).isEqualTo(1);
         assertThat(tables(db, schemaOf(context, "orders"), "stock")).isZero();
         assertThat(tables(db, schemaOf(context, "inventory"), "stock")).isEqualTo(1);
         assertThat(tables(db, schemaOf(context, "inventory"), "orders")).isZero();
