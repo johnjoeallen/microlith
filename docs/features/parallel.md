@@ -39,7 +39,7 @@ ShippingQuote delivery = shipped.join();
 ## Switching it off
 
 ```bash
-MODULES_ORDERS_PARALLEL_QUOTES=false scripts/demo.sh microservices start     # or: modules.orders.parallel-quotes=false
+scripts/demo.sh microservices start --parallel off      # or: modules.orders.parallel-quotes=false (env MODULES_ORDERS_PARALLEL_QUOTES=false)
 scripts/perf.sh --modes microservices --parallel both
 ```
 

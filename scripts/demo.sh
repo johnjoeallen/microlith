@@ -1,7 +1,13 @@
 #!/usr/bin/env bash
 # Runs one demo mode on this machine. Gives every start clean, freshly initialised databases (scripts/db.sh reset) and builds the jars on first use.
 #
-#   scripts/demo.sh <mode> start|stop|status
+#   scripts/demo.sh <mode> start [--async outbox|events] [--cache on|off] [--parallel on|off]
+#   scripts/demo.sh <mode> stop|status
+#
+# options (start only; each overrides the environment variable named here, which still works):
+#   --async outbox|events   how orders delivers its follow-ups: outbox relay (default) or Spring Modulith events   (MODULES_ORDERS_ASYNC)
+#   --cache on|off          the @Cached result cache, default on                                                    (RPC_CACHE_ENABLED)
+#   --parallel on|off       orders runs the customer check and the two quotes in parallel, default on               (MODULES_ORDERS_PARALLEL_QUOTES)
 #
 # modes: modulith  macro-monolith  groups  microservices  microservices-macro  loopback-codec  loopback-http  split-dbs
 #
@@ -12,12 +18,41 @@ set -euo pipefail
 source "$(dirname "$0")/_common.sh"
 
 mode="${1:-}"; action="${2:-}"
+opt_async=""; opt_cache=""; opt_parallel=""
 modules=(orders catalog pricing inventory customers payments shipping notifications)
 declare -A port=([orders]=9181 [catalog]=9182 [pricing]=9183 [inventory]=9184 [customers]=9185 [payments]=9186 [shipping]=9187 [notifications]=9188)
 java_opts="${DEMO_JAVA_OPTS:--Xmx320m -XX:+UseSerialGC -XX:TieredStopAtLevel=1}"
 
-usage() { echo "usage: $0 <modulith|macro-monolith|groups|microservices|microservices-macro|loopback-codec|loopback-http|split-dbs> start|stop|status" >&2; exit 2; }
+usage() {
+  echo "usage: $0 <modulith|macro-monolith|groups|microservices|microservices-macro|loopback-codec|loopback-http|split-dbs> start [options] | stop | status" >&2
+  echo "options (start only): --async outbox|events   --cache on|off   --parallel on|off" >&2
+  exit 2
+}
 [ -n "$mode" ] && [ -n "$action" ] || usage
+
+# options after the action
+shift 2
+while [ $# -gt 0 ]; do
+  [ "$action" = start ] || { echo "options apply to 'start' only (got $1 with '$action')" >&2; usage; }
+  [ $# -ge 2 ] || { echo "$1 needs a value" >&2; usage; }
+  case "$1" in
+    --async)    [ "$2" = outbox ] || [ "$2" = events ] || { echo "--async must be outbox or events, not '$2'" >&2; usage; }; opt_async="$2" ;;
+    --cache)    [ "$2" = on ] || [ "$2" = off ] || { echo "--cache must be on or off, not '$2'" >&2; usage; }; opt_cache="$2" ;;
+    --parallel) [ "$2" = on ] || [ "$2" = off ] || { echo "--parallel must be on or off, not '$2'" >&2; usage; }; opt_parallel="$2" ;;
+    *) echo "unknown option '$1'" >&2; usage ;;
+  esac
+  shift 2
+done
+onoff() { [ "$1" = on ] && echo true || echo false; }
+[ -z "$opt_async" ] || export MODULES_ORDERS_ASYNC="$opt_async"
+[ -z "$opt_cache" ] || export RPC_CACHE_ENABLED="$(onoff "$opt_cache")"
+[ -z "$opt_parallel" ] || export MODULES_ORDERS_PARALLEL_QUOTES="$(onoff "$opt_parallel")"
+# the settings in effect, as shown by 'status' (options, else the environment, else the defaults)
+settings() {
+  printf 'async=%s cache=%s parallel=%s' "${MODULES_ORDERS_ASYNC:-outbox}" \
+    "$([ "${RPC_CACHE_ENABLED:-true}" = false ] && echo off || echo on)" \
+    "$([ "${MODULES_ORDERS_PARALLEL_QUOTES:-true}" = false ] && echo off || echo on)"
+}
 
 # the processes of a mode: "<name> <jar-app> <port> <profiles>"
 plan() {
@@ -45,6 +80,7 @@ start() {
   "$root/scripts/db.sh" reset
   mkdir -p "$demo_dir/logs"; : > "$demo_dir/processes"
   echo "$mode" > "$demo_dir/mode"
+  settings > "$demo_dir/settings"
   echo "http://127.0.0.1:$(orders_port)" > "$demo_dir/orders.url"
   local name app prt profiles
   while read -r name app prt profiles; do
@@ -68,7 +104,7 @@ start() {
 }
 
 stop() {
-  [ -e "$demo_dir/processes" ] || { rm -rf "$demo_dir/mode" "$demo_dir/orders.url"; echo "nothing to stop"; return 0; }
+  [ -e "$demo_dir/processes" ] || { rm -rf "$demo_dir/mode" "$demo_dir/orders.url" "$demo_dir/settings"; echo "nothing to stop"; return 0; }
   local name prt pid
   while read -r name prt pid; do kill "$pid" 2>/dev/null || true; done < "$demo_dir/processes"
   for _ in $(seq 1 30); do
@@ -77,7 +113,7 @@ stop() {
     [ $alive -eq 0 ] && break; sleep 1
   done
   while read -r name prt pid; do kill -9 "$pid" 2>/dev/null || true; done < "$demo_dir/processes"
-  rm -f "$demo_dir/processes" "$demo_dir/mode" "$demo_dir/orders.url"
+  rm -f "$demo_dir/processes" "$demo_dir/mode" "$demo_dir/orders.url" "$demo_dir/settings"
   echo "stopped"
 }
 
@@ -88,7 +124,7 @@ stop_all() {
 
 status() {
   [ -e "$demo_dir/mode" ] || { echo "no demo is running"; return 0; }
-  echo "mode: $(cat "$demo_dir/mode")"
+  echo "mode: $(cat "$demo_dir/mode")   ($(cat "$demo_dir/settings" 2>/dev/null || echo "settings unknown"))"
   local name prt pid state
   while read -r name prt pid; do
     if ! kill -0 "$pid" 2>/dev/null; then state="DEAD"; elif ready "$prt"; then state="ready"; else state="starting / not ready"; fi

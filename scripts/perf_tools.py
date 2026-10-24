@@ -613,9 +613,8 @@ def run_modes(args):
         label = (mode + (f"-cache-{variant}" if len(cache_variants) > 1 else "") + (f"-parallel-{parallel}" if len(parallel_variants) > 1 else "")
                  + (f"-async-{asynchronous}" if len(async_variants) > 1 else ""))
         print(f"\n================ {mode} (cache {variant}, parallel quotes {parallel}, async {asynchronous}) ================", flush=True)
-        env = dict(os.environ, RPC_CACHE_ENABLED="true" if variant == "on" else "false",
-                   MODULES_ORDERS_PARALLEL_QUOTES="true" if parallel == "on" else "false", MODULES_ORDERS_ASYNC=asynchronous)
-        started = subprocess.run([demo_sh, mode, "start"], capture_output=True, text=True, env=env)
+        started = subprocess.run([demo_sh, mode, "start", "--cache", variant, "--parallel", parallel, "--async", asynchronous],
+                                 capture_output=True, text=True)
         if started.returncode != 0:
             print(f"{mode} did not start:\n" + (started.stdout + started.stderr)[-1500:])
             subprocess.run([demo_sh, mode, "stop"], capture_output=True)

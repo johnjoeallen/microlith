@@ -12,6 +12,19 @@ scripts/demo.sh modulith status
 scripts/demo.sh modulith stop         # stops the processes, then PostgreSQL
 ```
 
+Three switches can be set when starting (they are ordinary properties, so environment variables and config files work too):
+
+| Option | Values | What it does |
+| --- | --- | --- |
+| `--async` | `outbox` (default), `events` | how orders delivers its follow-ups: the [outbox relay or Spring Modulith events](features/follow-ups.md) |
+| `--cache` | `on` (default), `off` | the [`@Cached` result cache](features/cache.md) |
+| `--parallel` | `on` (default), `off` | the [parallel customer check and quotes](features/parallel.md) |
+
+```bash
+scripts/demo.sh groups start --async events --cache off --parallel off
+scripts/demo.sh groups status         # mode: groups   (async=events cache=off parallel=off)
+```
+
 `start` resets PostgreSQL to a clean, freshly initialised state every time (schemas and roles from `docs/db/bootstrap.sql`, migrations and demo data
 when the app boots), builds the jars on first use, starts the mode and waits until every process is ready. Only one mode runs at a time.
 Logs and PID files are under `.demo/`.

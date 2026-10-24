@@ -24,7 +24,7 @@ Because delivery goes through `@RpcApi`, it works in every [mode](../modes/index
 | Idle cost | none (scans only when woken, with a slow idle scan) | none (scans only after a failure, shortly after start, and on a slow idle scan) |
 
 ```bash
-MODULES_ORDERS_ASYNC=events scripts/demo.sh modulith start         # or: modules.orders.async=events
+scripts/demo.sh modulith start --async events         # or: modules.orders.async=events (env MODULES_ORDERS_ASYNC=events)
 scripts/perf.sh --modes modulith,groups --async both
 ```
 

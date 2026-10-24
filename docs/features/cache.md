@@ -43,7 +43,7 @@ Deliberately **not** annotated: `inventory.getStock` and `getReservation` (they 
 ## Switching it off
 
 ```bash
-RPC_CACHE_ENABLED=false scripts/demo.sh groups start        # or: rpc.cache.enabled=false
+scripts/demo.sh groups start --cache off                    # or: rpc.cache.enabled=false (env RPC_CACHE_ENABLED=false)
 scripts/perf.sh --modes groups --cache both                 # measure with it off and on
 ```
 
