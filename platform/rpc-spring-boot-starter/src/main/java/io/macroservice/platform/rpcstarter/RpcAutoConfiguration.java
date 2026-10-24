@@ -12,6 +12,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.core.env.Environment;
 import io.macroservice.platform.support.ModuleProperties;
 import tools.jackson.databind.json.JsonMapper;
@@ -57,6 +58,17 @@ public class RpcAutoConfiguration {
         @Bean
         RpcController rpcController(RpcDispatcher dispatcher, ObjectProvider<JsonMapper> mapper) {
             return new RpcController(dispatcher, mapper.getIfAvailable(() -> JsonMapper.builder().build()));
+        }
+
+        @Bean
+        RpcDocsController rpcDocsController(RpcDispatcher dispatcher, ObjectProvider<JsonMapper> mapper, Environment environment) {
+            return new RpcDocsController(dispatcher, mapper.getIfAvailable(() -> JsonMapper.builder().build()),
+                    environment.getProperty("rpc.docs.version", "0.1.0"));
+        }
+
+        @Configuration(proxyBeanMethods = false)
+        @Import(SwaggerUiConfiguration.class)
+        static class DevTools {
         }
 
         @Bean

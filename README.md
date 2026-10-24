@@ -155,6 +155,26 @@ Every `placeOrder` gets a correlation id (or takes `X-Correlation-Id`); it trave
 remote calls and through the outbox, so the relay's compensating calls stay attached to the order. Each call is also logged, for
 example `pricing -> catalog.getProduct [local] 1 ms ok`.
 
+## API documentation (stage 7)
+
+OpenAPI 3.1 and OpenRPC documents are generated at runtime from the `@RpcApi` interfaces (module `platform/rpc-docs`); nothing generated is committed. A process serves the documents of the modules it runs, only when `rpc.server.enabled=true`:
+
+| URL | Content |
+|---|---|
+| `/rpc/{module}/openapi.json`, `/rpc/{module}/openrpc.json` | one module |
+| `/rpc/openapi.json`, `/rpc/openrpc.json` | all modules of this process |
+| `/swagger-ui` | Swagger UI, **dev profile only** (so also in `demo`) |
+
+```bash
+scripts/db.sh up && scripts/demo.sh macro-monolith up
+open http://127.0.0.1:8080/swagger-ui        # pick "inventory", try inventory.getStock
+curl -s localhost:8080/rpc/inventory/openapi.json | jq '.paths | keys'
+```
+
+Descriptions are optional: put `@Operation(summary = ...)` on a method, `@Parameter(description = ...)` on a parameter or `@Schema(description = ...)` on a record or component in the `-api` artifact (`swagger-annotations-jakarta` at `provided` scope; the annotations jar is on every runtime classpath through `rpc-docs`). Records are described as Jackson writes them: all components are required, and a component is nullable only if annotated with an annotation named `Nullable`.
+
+`mvn -pl apps/app-macro -am verify` also writes the documents of all modules to `apps/app-macro/target/api-docs/` (`openapi.json`, `openrpc.json` and one pair per module) for CI to publish.
+
 ## Layout
 
 | Path | Purpose |

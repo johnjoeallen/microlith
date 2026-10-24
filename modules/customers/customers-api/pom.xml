@@ -14,6 +14,8 @@
   <dependencies>
     <dependency><groupId>com.acme.macro</groupId><artifactId>rpc-api</artifactId></dependency>
     <!-- annotations only (@NamedInterface); provided so it is not transitive -->
+    <!-- optional descriptions for the generated OpenAPI/OpenRPC documents; annotations only, no transitive dependencies -->
+    <dependency><groupId>io.swagger.core.v3</groupId><artifactId>swagger-annotations-jakarta</artifactId><scope>provided</scope></dependency>
     <dependency><groupId>org.springframework.modulith</groupId><artifactId>spring-modulith-api</artifactId><scope>provided</scope></dependency>
   </dependencies>
 

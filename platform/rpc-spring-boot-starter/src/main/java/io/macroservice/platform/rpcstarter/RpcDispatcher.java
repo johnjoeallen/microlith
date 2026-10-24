@@ -40,6 +40,7 @@ public class RpcDispatcher implements SmartInitializingSingleton {
     private final ListableBeanFactory beans;
     private final List<RpcServerInterceptor> interceptors;
     private volatile Map<String, Target> index;
+    private volatile Map<String, Class<?>> apis = Map.of();
 
     public RpcDispatcher(JsonMapper mapper, ListableBeanFactory beans, List<RpcServerInterceptor> interceptors) {
         this.mapper = mapper;
@@ -213,6 +214,12 @@ public class RpcDispatcher implements SmartInitializingSingleton {
         return response;
     }
 
+    /** The {@link RpcApi} interfaces served by a local implementation in this process, by module name. */
+    public Map<String, Class<?>> localApis() {
+        index();
+        return apis;
+    }
+
     private Map<String, Target> index() {
         Map<String, Target> current = index;
         if (current == null) {
@@ -229,6 +236,7 @@ public class RpcDispatcher implements SmartInitializingSingleton {
     private Map<String, Target> buildIndex() {
         Map<String, Target> targets = new HashMap<>();
         Map<String, Object> moduleBeans = new HashMap<>();
+        Map<String, Class<?>> served = new java.util.TreeMap<>();
         for (Object bean : beans.getBeansWithAnnotation(RpcApi.class).values()) {
             if (bean instanceof RpcClientProxy) {
                 continue;
@@ -238,6 +246,7 @@ public class RpcDispatcher implements SmartInitializingSingleton {
                 if (api == null) {
                     continue;
                 }
+                served.put(api.value(), type);
                 Object previous = moduleBeans.put(api.value(), bean);
                 if (previous != null && previous != bean) {
                     throw new IllegalStateException("More than one local implementation of module '%s': %s and %s"
@@ -252,6 +261,7 @@ public class RpcDispatcher implements SmartInitializingSingleton {
                 });
             }
         }
+        apis = java.util.Collections.unmodifiableMap(served);
         return Map.copyOf(targets);
     }
 }
