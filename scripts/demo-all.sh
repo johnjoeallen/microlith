@@ -10,7 +10,6 @@ mkdir -p "$demo_dir"
 rows=(); failed=0
 for mode in "${modes[@]}"; do
   echo; echo "================ $mode ================"
-  "$root/scripts/db.sh" reset >/dev/null || { echo "database reset failed"; exit 1; }
   result="PASS"; bindings="-"; processes="-"
   if "$root/scripts/demo.sh" "$mode" start; then
     processes=$(wc -l < "$demo_dir/processes" | tr -d ' ')

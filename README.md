@@ -5,6 +5,54 @@ Modules talk to each other only through `@RpcApi` interfaces (direct call in-pro
 
 Developer guide: [`docs/README-dev.md`](docs/README-dev.md). Design: [`docs/design/macro-service.md`](docs/design/macro-service.md). Build plan: [`docs/design/staged-prompt.md`](docs/design/staged-prompt.md).
 
+## Quick start: `scripts/demo.sh`
+
+```bash
+scripts/demo.sh <mode> start      # reset PostgreSQL to a clean initialised state, build the jars on first use, start the mode, wait until ready
+scripts/demo.sh <mode> status     # which processes are up
+scripts/demo.sh <mode> stop       # stop the processes, then PostgreSQL
+```
+
+Modes: `modulith`, `macro-monolith`, `groups`, `microservices`, `microservices-macro`, `loopback-codec`, `loopback-http`, `split-dbs`.
+Only one mode runs at a time; `start` refuses while another is running. Logs and PID files are under `.demo/`.
+
+The orders entry point and the shop are on **9181** in every mode:
+
+- Shop: <http://localhost:9181/shop>
+- Swagger UI: <http://localhost:9181/swagger-ui>
+- Topology: <http://localhost:9181/demo/topology>
+- JSON-RPC: `POST http://localhost:9181/rpc/orders`
+
+Other processes: `groups` and `split-dbs` use 9181 `front`, 9182 `fulfilment`, 9183 `accounts`; `microservices` and
+`microservices-macro` use 9181-9188 (orders, catalog, pricing, inventory, customers, payments, shipping, notifications).
+Every `start` wipes and re-initialises the databases, so each run begins clean. Details: [Running the demo modes](#running-the-demo-modes-stage-6).
+
+## Performance: `scripts/perf.sh`
+
+With a mode running (`scripts/demo.sh <mode> start`):
+
+```bash
+scripts/perf.sh                                  # 200 orders, 4 concurrent clients, 20 warmup orders
+scripts/perf.sh --orders 1000 --concurrency 16
+scripts/perf.sh --duration 60 --concurrency 8    # timed run instead of a fixed count
+scripts/perf.sh --no-trace                       # client round trips only (least overhead)
+scripts/perf.sh --modes groups,microservices     # start, measure and stop each mode on a clean database, then compare
+scripts/perf.sh --modes all --orders 300         # all eight modes, one comparison table at the end
+```
+
+It reports the client round trip of every `orders.placeOrder` (orders/s, error count, min/mean/p50/p90/p95/p99/max) and the
+latency of every module-to-module call inside those orders, grouped by `caller -> callee.method` and binding
+(`local`, `loopback-codec`, `loopback-http`, `remote`), plus calls per order. The call figures come from the
+`/demo/trace` records of every running process, so they are measured on the caller's side and include the JSON-RPC hop
+in the split modes. Raw samples (`orders.csv`, `calls.csv`) and `summary.json` go to `.demo/perf/<timestamp>/` (one sub-directory per mode, plus
+`comparison.json`, with `--modes`).
+
+Notes: the clients are a closed loop on persistent connections. Tracing adds a little overhead (compare with `--no-trace`).
+Each process keeps its 200,000 most recent calls (`demo.trace.capacity`), so a very long or fast run can still overwrite
+traces before they are read; the driver warns when that happens (raise the capacity or lower `--concurrency`). The demo seeds only 150 units of stock, so the driver raises it
+first (`--no-stock` to skip). Later async work (the notification, delivered by the outbox) is picked up by re-reading
+traces until they stop changing (`--settle`, `--drain`).
+
 ## Requirements
 
 JDK 25, Maven 3.9+, Docker (from stage 4, for PostgreSQL and Testcontainers).

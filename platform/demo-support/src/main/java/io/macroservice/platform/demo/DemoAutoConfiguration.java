@@ -16,9 +16,10 @@ import org.springframework.core.env.Environment;
 @Profile("demo")
 public class DemoAutoConfiguration {
 
+    /** How many calls a process remembers; {@code demo.trace.capacity} overrides it (the performance driver reads them all back). */
     @Bean
-    TraceStore traceStore() {
-        return new TraceStore(5000);
+    TraceStore traceStore(Environment environment) {
+        return new TraceStore(environment.getProperty("demo.trace.capacity", Integer.class, 200_000));
     }
 
     @Bean

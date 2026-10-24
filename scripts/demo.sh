@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
-# Runs one demo mode on this machine. Starts the databases with it (scripts/db.sh up) and builds the jars on first use.
+# Runs one demo mode on this machine. Gives every start clean, freshly initialised databases (scripts/db.sh reset) and builds the jars on first use.
 #
 #   scripts/demo.sh <mode> start|stop|status
 #
 # modes: modulith  macro-monolith  groups  microservices  microservices-macro  loopback-codec  loopback-http  split-dbs
 #
-# 'start' brings PostgreSQL up first; 'stop' stops it again but keeps the data (scripts/db.sh down wipes it).
+# 'start' wipes and re-creates PostgreSQL (schemas and roles from docs/db/bootstrap.sql; the app migrates and seeds on boot),
+# so every run begins clean. 'stop' stops the processes and then PostgreSQL.
 # Writes PID files and logs under .demo/ and waits until every process reports ready.
 set -euo pipefail
 source "$(dirname "$0")/_common.sh"
@@ -41,7 +42,7 @@ ready() { curl -fs "http://127.0.0.1:$1/actuator/health/readiness" 2>/dev/null |
 start() {
   [ -e "$demo_dir/mode" ] && { echo "a demo is already running (mode $(cat "$demo_dir/mode")); run: $0 $(cat "$demo_dir/mode") stop" >&2; exit 1; }
   ensure_built
-  "$root/scripts/db.sh" up
+  "$root/scripts/db.sh" reset
   mkdir -p "$demo_dir/logs"; : > "$demo_dir/processes"
   echo "$mode" > "$demo_dir/mode"
   echo "http://127.0.0.1:$(orders_port)" > "$demo_dir/orders.url"
@@ -82,7 +83,7 @@ stop() {
 
 stop_all() {
   stop
-  $compose stop >/dev/null 2>&1 && echo "PostgreSQL stopped (data kept)"
+  $compose stop >/dev/null 2>&1 && echo "PostgreSQL stopped"
 }
 
 status() {
