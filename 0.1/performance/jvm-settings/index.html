@@ -1557,6 +1557,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reports/jvm-c2-parallel-rerun-split-dbs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    JVM 2 GB, C2, split-dbs rerun
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1979,7 +2007,7 @@ They leave the shapes that cross a process boundary almost where they were. The 
 <tr>
 <td><strong>C2</strong></td>
 <td><code>-Xmx2g -XX:+UseParallelGC</code> (full tiered JIT)</td>
-<td><a href="../reports/jvm-c2-parallel/">report</a></td>
+<td><a href="../reports/jvm-c2-parallel/">report</a>, <a href="../reports/jvm-c2-parallel-rerun-split-dbs/"><code>split-dbs</code> rerun</a></td>
 </tr>
 </tbody>
 </table>
@@ -2112,26 +2140,26 @@ They leave the shapes that cross a process boundary almost where they were. The 
 <td style="text-align: right;">100.3</td>
 </tr>
 <tr>
-<td>split-dbs</td>
+<td>split-dbs †</td>
 <td>off</td>
 <td style="text-align: right;">206</td>
-<td style="text-align: right;">94</td>
-<td style="text-align: right;">-54%</td>
+<td style="text-align: right;">240</td>
+<td style="text-align: right;">+17%</td>
 <td style="text-align: right;">76.7</td>
-<td style="text-align: right;">173.0</td>
+<td style="text-align: right;">64.2</td>
 <td style="text-align: right;">93.7</td>
-<td style="text-align: right;">373.2</td>
+<td style="text-align: right;">107.5</td>
 </tr>
 <tr>
-<td>split-dbs</td>
+<td>split-dbs †</td>
 <td>on</td>
 <td style="text-align: right;">235</td>
-<td style="text-align: right;">272</td>
-<td style="text-align: right;">+16%</td>
+<td style="text-align: right;">263</td>
+<td style="text-align: right;">+12%</td>
 <td style="text-align: right;">67.4</td>
-<td style="text-align: right;">55.7</td>
+<td style="text-align: right;">58.5</td>
 <td style="text-align: right;">84.2</td>
-<td style="text-align: right;">104.3</td>
+<td style="text-align: right;">98.0</td>
 </tr>
 <tr>
 <td>microservices</td>
@@ -2180,6 +2208,7 @@ They leave the shapes that cross a process boundary almost where they were. The 
 </tbody>
 </table>
 </div>
+<p>† <code>split-dbs</code> was rerun on its own after the main C2 run, with the same load and flags (<a href="../reports/jvm-c2-parallel-rerun-split-dbs/">report</a>), because its first run was an outlier; the table shows the rerun.</p>
 <h2 id="heap-size-and-collector-repeated">Heap size and collector, repeated<a class="headerlink" href="#heap-size-and-collector-repeated" title="Permanent link">&para;</a></h2>
 <p>The comparison above changes the JIT and the collector together. To separate heap size and collector, <code>scripts/jvm_matrix.sh</code> ran every combination of <strong>1 GB or 2 GB</strong> and <strong>serial or parallel GC</strong>, all with the full C2 JIT,
 <strong>five times each</strong>, interleaved (repetition 1 of all four, then repetition 2, and so on) so that drift on the machine hits every configuration alike. Each run is <code>--modes all --cache on --orders 1500 --warmup 200 --concurrency 16</code>,
