@@ -5,7 +5,7 @@ How the numbers on these pages are produced, and how far to trust them.
 ## The machine
 
 Everything runs on **one machine**: 32 CPUs, Linux 6.12, JDK 25, PostgreSQL 17 in Docker, the load generator and all application processes together.
-Each JVM is limited to `-Xmx320m` with the serial GC, so that eight of them fit comfortably.
+Each JVM is limited to `-Xmx320m` with the serial GC, so that eight of them fit comfortably. [JVM settings](jvm-settings.md) repeats the comparison with larger JVMs.
 
 !!! warning "What a single machine means"
     A hop between processes here is a **loopback** TCP connection on one host, typically 1 to 3 ms. There is **no TLS or mTLS, no authentication on each call, no load balancer, gateway or

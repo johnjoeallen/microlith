@@ -1,0 +1,10 @@
+| mode | 1g-Serial | 1g-Parallel | 2g-Serial | 2g-Parallel |
+| --- | ---: | ---: | ---: | ---: |
+| modulith | 437 | 470 | 457 | 464 |
+| macro-monolith | 451 | 467 | 457 | 471 |
+| loopback-codec | 438 | 451 | 436 | 450 |
+| loopback-http | 319 | 329 | 323 | 329 |
+| groups | 261 | 265 | 264 | 263 |
+| split-dbs | 264 | 267 | 263 | 268 |
+| microservices | 168 | 174 | 172 | 172 |
+| microservices-macro | 165 | 172 | 173 | 172 |

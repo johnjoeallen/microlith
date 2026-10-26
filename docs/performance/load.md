@@ -19,7 +19,7 @@ for both rows (so tracing overhead does not distort the comparison), 3,000 measu
 
 !!! warning "Why the ceiling is where it is"
     The demo JVMs are deliberately small (`-Xmx320m`, C1-only JIT, serial GC) so that eight fit on a laptop, and each order makes about 20 module calls,
-    most of them a database query. Change them with `DEMO_JAVA_OPTS` before reading anything into the absolute number.
+    most of them a database query. Change them with `DEMO_JAVA_OPTS` before reading anything into the absolute number; [JVM settings](jvm-settings.md) shows what a full JIT and the parallel GC do.
 
 ## Delivery of follow-ups
 

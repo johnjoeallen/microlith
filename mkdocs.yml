@@ -95,6 +95,7 @@ nav:
       - Cache, parallel quotes and delivery: performance/switches.md
       - Load and delivery speed: performance/load.md
       - Wire formats (gzip, BSON): performance/wire-formats.md
+      - JVM settings (heap, C2, GC): performance/jvm-settings.md
       - Raw reports:
           - Overview: performance/reports.md
           - Modes, cache off and on: performance/reports/modes-cache.md
@@ -105,6 +106,9 @@ nav:
           - Wire formats, realistic orders: performance/reports/wire-small.md
           - Wire formats, 40 lines: performance/reports/wire-lines40.md
           - Wire formats, 150 lines: performance/reports/wire-lines150.md
+          - JVM 2 GB, C1 and serial GC: performance/reports/jvm-c1-2g.md
+          - JVM 2 GB, C2 and parallel GC: performance/reports/jvm-c2-parallel.md
+          - JVM 2 GB, C2, split-dbs rerun: performance/reports/jvm-c2-parallel-rerun-split-dbs.md
   - Running it: running.md
   - Reference:
       - Developer guide: README-dev.md
