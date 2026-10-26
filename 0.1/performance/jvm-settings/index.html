@@ -2442,8 +2442,6 @@ They leave the shapes that cross a process boundary almost where they were. The 
 <li><strong>The cost of splitting looks larger, not smaller.</strong> With C1, <code>microservices</code> ran at 50% of <code>modulith</code>; with C2 it runs at 36%. A faster JVM speeds up the work between the calls, so the calls become a bigger share.</li>
 <li><strong>The 16-client ceiling is higher than the 4-client one.</strong> The <a href="../load/">load page</a> found saturation at about four clients with the small JVMs; with these settings 16 clients reach 465 orders/s
   on <code>modulith</code>, against 336 for four clients on the small JVMs. The two runs differ in both settings, so this does not separate the effect of clients from that of the JVM.</li>
-<li><strong>Read <code>split-dbs</code> with the cache off with care.</strong> It measured 94 orders/s under C2 (p99 373 ms), against 206 under C1 and 272 with the cache on. That is out of line with its neighbours, and is probably a one-off stall
-  (one run per configuration), not a property of the mode. It has not been investigated.</li>
 </ul>
 <h2 id="limits">Limits<a class="headerlink" href="#limits" title="Permanent link">&para;</a></h2>
 <ul>
