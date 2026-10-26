@@ -27,7 +27,7 @@
     
     
       
-        <title>Cache, parallel quotes and delivery - microlith</title>
+        <title>Cache and parallel quotes - microlith</title>
       
     
     
@@ -80,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#cache-parallel-quotes-and-follow-up-delivery" class="md-skip">
+        <a href="#cache-and-parallel-quotes" class="md-skip">
           Skip to content
         </a>
       
@@ -118,7 +118,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Cache, parallel quotes and delivery
+              Cache and parallel quotes
             
           </span>
         </div>
@@ -1003,7 +1003,7 @@
   <span class="md-ellipsis">
     
   
-    Cache, parallel quotes and delivery
+    Cache and parallel quotes
   
 
     
@@ -1021,7 +1021,7 @@
   <span class="md-ellipsis">
     
   
-    Cache, parallel quotes and delivery
+    Cache and parallel quotes
   
 
     
@@ -1068,17 +1068,6 @@
   
 </li>
       
-        <li class="md-nav__item">
-  <a href="#follow-up-delivery-outbox-or-events" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Follow-up delivery: outbox or events
-      
-    </span>
-  </a>
-  
-</li>
-      
     </ul>
   
 </nav>
@@ -1102,7 +1091,7 @@
   <span class="md-ellipsis">
     
   
-    Follow-up delivery speed
+    Follow-up delivery
   
 
     
@@ -1852,17 +1841,6 @@
   
 </li>
       
-        <li class="md-nav__item">
-  <a href="#follow-up-delivery-outbox-or-events" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Follow-up delivery: outbox or events
-      
-    </span>
-  </a>
-  
-</li>
-      
     </ul>
   
 </nav>
@@ -1883,8 +1861,8 @@
   
 
 
-<h1 id="cache-parallel-quotes-and-follow-up-delivery">Cache, parallel quotes and follow-up delivery<a class="headerlink" href="#cache-parallel-quotes-and-follow-up-delivery" title="Permanent link">&para;</a></h1>
-<p>Three optional features, each with an off-switch, each measured by running the same workload with the switch off and on.
+<h1 id="cache-and-parallel-quotes">Cache and parallel quotes<a class="headerlink" href="#cache-and-parallel-quotes" title="Permanent link">&para;</a></h1>
+<p>Two optional features, each with an off-switch, each measured by running the same workload with the switch off and on.
 Same conditions as <a href="../modes/">the mode comparison</a>: 16 clients, 1,500 measured orders, deterministic order stream.</p>
 <h2 id="result-cache">Result cache<a class="headerlink" href="#result-cache" title="Permanent link">&para;</a></h2>
 <p><a href="../../features/cache/"><code>@Cached</code></a> lets four read methods (<code>customers.getCustomer</code>, <code>customers.getPaymentMethod</code>, <code>catalog.getProduct</code>,
@@ -2186,75 +2164,6 @@ Sequential against parallel, for the modes where calls cost something (the cache
   4.7 ms together (mean latencies, single run), a saving of about 4 ms per order. At 16 clients the median also contains queueing, so the fall in the median (110 to 96 ms) is not a simple sum of the saving.</li>
 <li>It removes waiting, not work. It does not make the machine do less, so the gain shrinks when the machine is saturated.</li>
 </ul>
-<h2 id="follow-up-delivery-outbox-or-events">Follow-up delivery: outbox or events<a class="headerlink" href="#follow-up-delivery-outbox-or-events" title="Permanent link">&para;</a></h2>
-<p><a href="../../features/follow-ups/">Follow-ups</a> (the confirmation message, the release of a reservation, the voiding of a payment) are made durable in the order's
-transaction and delivered afterwards, either by the <strong>outbox</strong> relay or as <strong>Spring Modulith events</strong>. On the request path:</p>
-<figure class="viz"><figcaption><strong>Follow-up delivery: throughput</strong><span>orders per second, 16 clients; larger is better</span></figcaption><ul class="viz-legend"><li><span class="sw s1"></span>outbox</li><li><span class="sw s2"></span>events</li></ul><svg viewBox="0 0 760 182" role="img" aria-label="Follow-up delivery: throughput: orders per second, 16 clients; larger is better"><line class="grid" x1="103.8" y1="6" x2="103.8" y2="156"/><text class="tick" x="103.8" y="174" text-anchor="middle">0</text><line class="grid" x1="222.2" y1="6" x2="222.2" y2="156"/><text class="tick" x="222.2" y="174" text-anchor="middle">100</text><line class="grid" x1="340.7" y1="6" x2="340.7" y2="156"/><text class="tick" x="340.7" y="174" text-anchor="middle">200</text><line class="grid" x1="459.1" y1="6" x2="459.1" y2="156"/><text class="tick" x="459.1" y="174" text-anchor="middle">300</text><line class="grid" x1="577.6" y1="6" x2="577.6" y2="156"/><text class="tick" x="577.6" y="174" text-anchor="middle">400</text><line class="grid" x1="696.0" y1="6" x2="696.0" y2="156"/><text class="tick" x="696.0" y="174" text-anchor="middle">500</text><line class="axis" x1="103.8" y1="6" x2="103.8" y2="156"/><g class="row"><title>modulith: outbox 451 orders/s, events 439 orders/s</title><rect class="hit" x="0" y="6" width="760" height="50"/><text class="cat" x="95.8" y="35.0" text-anchor="end">modulith</text><path class="mark s1" d="M103.8,14.0h530.8a4.0,4.0 0 0 1 4.0,4.0v8.0a4.0,4.0 0 0 1 -4.0,4.0h-530.8z"><title>outbox: 451 orders/s</title></path><text class="val" x="644.6" y="26.0">451</text><path class="mark s2" d="M103.8,32.0h516.5a4.0,4.0 0 0 1 4.0,4.0v8.0a4.0,4.0 0 0 1 -4.0,4.0h-516.5z"><title>events: 439 orders/s</title></path><text class="val" x="630.3" y="44.0">439</text></g><g class="row"><title>groups: outbox 253 orders/s, events 244 orders/s</title><rect class="hit" x="0" y="56" width="760" height="50"/><text class="cat" x="95.8" y="85.0" text-anchor="end">groups</text><path class="mark s1" d="M103.8,64.0h295.8a4.0,4.0 0 0 1 4.0,4.0v8.0a4.0,4.0 0 0 1 -4.0,4.0h-295.8z"><title>outbox: 253 orders/s</title></path><text class="val" x="409.6" y="76.0">253</text><path class="mark s2" d="M103.8,82.0h284.7a4.0,4.0 0 0 1 4.0,4.0v8.0a4.0,4.0 0 0 1 -4.0,4.0h-284.7z"><title>events: 244 orders/s</title></path><text class="val" x="398.5" y="94.0">244</text></g><g class="row"><title>microservices: outbox 160 orders/s, events 150 orders/s</title><rect class="hit" x="0" y="106" width="760" height="50"/><text class="cat" x="95.8" y="135.0" text-anchor="end">microservices</text><path class="mark s1" d="M103.8,114.0h185.2a4.0,4.0 0 0 1 4.0,4.0v8.0a4.0,4.0 0 0 1 -4.0,4.0h-185.2z"><title>outbox: 160 orders/s</title></path><text class="val" x="299.0" y="126.0">160</text><path class="mark s2" d="M103.8,132.0h174.1a4.0,4.0 0 0 1 4.0,4.0v8.0a4.0,4.0 0 0 1 -4.0,4.0h-174.1z"><title>events: 150 orders/s</title></path><text class="val" x="287.9" y="144.0">150</text></g></svg><details class="viz-data"><summary>Show the numbers</summary><table><thead><tr><th></th><th>outbox (orders/s)</th><th>events (orders/s)</th></tr></thead><tbody><tr><td>modulith</td><td>451</td><td>439</td></tr><tr><td>groups</td><td>253</td><td>244</td></tr><tr><td>microservices</td><td>160</td><td>150</td></tr></tbody></table></details></figure>
-
-<div class="wide-table">
-<table>
-<thead>
-<tr>
-<th>Mode</th>
-<th style="text-align: right;">orders/s outbox</th>
-<th style="text-align: right;">events</th>
-<th style="text-align: right;">Δ</th>
-<th style="text-align: right;">p50 outbox</th>
-<th style="text-align: right;">events</th>
-<th style="text-align: right;">Δ</th>
-<th style="text-align: right;">p99 outbox</th>
-<th style="text-align: right;">events</th>
-<th style="text-align: right;">Δ</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>modulith</td>
-<td style="text-align: right;">451</td>
-<td style="text-align: right;">439</td>
-<td style="text-align: right;">-3%</td>
-<td style="text-align: right;">33.0</td>
-<td style="text-align: right;">34.4</td>
-<td style="text-align: right;">+4%</td>
-<td style="text-align: right;">85.2</td>
-<td style="text-align: right;">57.9</td>
-<td style="text-align: right;">-32%</td>
-</tr>
-<tr>
-<td>groups</td>
-<td style="text-align: right;">253</td>
-<td style="text-align: right;">244</td>
-<td style="text-align: right;">-4%</td>
-<td style="text-align: right;">60.4</td>
-<td style="text-align: right;">63.2</td>
-<td style="text-align: right;">+5%</td>
-<td style="text-align: right;">96.0</td>
-<td style="text-align: right;">105.2</td>
-<td style="text-align: right;">+10%</td>
-</tr>
-<tr>
-<td>microservices</td>
-<td style="text-align: right;">160</td>
-<td style="text-align: right;">150</td>
-<td style="text-align: right;">-6%</td>
-<td style="text-align: right;">96.0</td>
-<td style="text-align: right;">102.5</td>
-<td style="text-align: right;">+7%</td>
-<td style="text-align: right;">170.1</td>
-<td style="text-align: right;">173.8</td>
-<td style="text-align: right;">+2%</td>
-</tr>
-</tbody>
-</table>
-</div>
-<p><strong>What it shows</strong></p>
-<ul>
-<li>In one process the two are within noise (451 against 439 orders/s, outbox against events).</li>
-<li>Events were <strong>3 to 6% lower</strong> in throughput in this run (in every mode) and the median order 4 to 7% higher. The cause was not investigated (the registry's
-  extra status updates and the asynchronous executor are candidates). It is a small cost, close to the run-to-run noise. Events run inside the same JVM as the orders, so the cost can be expected to grow with the order rate; the outbox moves that work to a table and a relay that can be tuned.</li>
-<li>The p99 swings both ways (<code>modulith</code> 85.2 against 57.9 ms, <code>groups</code> 96.0 against 105.2) and is one slow stretch in one run; the p50 and p95 do not move with it.</li>
-<li>Where the two really differ is <strong>how quickly the follow-ups are delivered</strong>, which a round-trip measurement cannot see. That is <a href="../load/">the next page</a>.</li>
-</ul>
 
 
 
@@ -2309,13 +2218,13 @@ transaction and delivered afterwards, either by the <strong>outbox</strong> rela
         
         
           
-          <a href="../load/" class="md-footer__link md-footer__link--next" aria-label="Next: Follow-up delivery speed">
+          <a href="../load/" class="md-footer__link md-footer__link--next" aria-label="Next: Follow-up delivery">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Follow-up delivery speed
+                Follow-up delivery
               </div>
             </div>
             <div class="md-footer__button md-icon">
