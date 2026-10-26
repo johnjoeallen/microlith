@@ -1,0 +1,2660 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="One Spring Boot codebase that runs as a monolith or as services, chosen by configuration, with measurements of what each shape costs.">
+      
+      
+      
+        <link rel="canonical" href="https://johnjoeallen.github.io/microlith/0.1/performance/wire-formats/">
+      
+      
+        <link rel="prev" href="../load/">
+      
+      
+        <link rel="next" href="../jvm-settings/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
+    
+    
+      
+        <title>Wire formats (gzip, BSON) - microlith</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#wire-formats-gzip-and-bson-over-http" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+      </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="microlith" class="md-header__button md-logo" aria-label="microlith" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            microlith
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Wire formats (gzip, BSON)
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/johnjoeallen/microlith" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    johnjoeallen/microlith
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../architecture/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../case/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  The case
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../principles/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Principles
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../modes/" class="md-tabs__link">
+          
+  
+  
+  Deployment modes
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../features/cache/" class="md-tabs__link">
+          
+  
+  
+  Optional features
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../" class="md-tabs__link">
+          
+  
+  
+  Performance
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../running/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Running it
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../README-dev/" class="md-tabs__link">
+          
+  
+  
+  Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="microlith" class="md-nav__button md-logo" aria-label="microlith" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    microlith
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/johnjoeallen/microlith" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    johnjoeallen/microlith
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../case/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The case
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../principles/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Principles
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment modes
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Deployment modes
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modes/single-process/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    One process
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modes/split/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Split across processes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Optional features
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Optional features
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../features/cache/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Result cache (@Cached)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../features/parallel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Parallel quotes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../features/follow-ups/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Follow-up delivery (outbox or events)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Performance
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Performance
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Summary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../method/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Method
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../modes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The eight modes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../switches/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cache, parallel quotes and delivery
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../load/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Load and delivery speed
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Wire formats (gzip, BSON)
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Wire formats (gzip, BSON)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#what-was-built" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What was built
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#bytes-on-the-wire" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bytes on the wire
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#throughput-and-latency" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Throughput and latency
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-each-format-costs-in-cpu" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What each format costs in CPU
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#where-compression-pays" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Where compression pays
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#conclusions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Conclusions
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#method" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Method
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../jvm-settings/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    JVM settings (heap, C2, GC)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_7_8" id="__nav_7_8_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Raw reports
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_7_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Raw reports
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reports/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reports/modes-cache/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Modes, cache off and on
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reports/parallel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Parallel quotes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reports/async-parallel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Outbox and events
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reports/load-4-clients/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4 clients
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reports/load-16-clients/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    16 clients
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reports/wire-small/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Wire formats, realistic orders
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reports/wire-lines40/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Wire formats, 40 lines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reports/wire-lines150/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Wire formats, 150 lines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reports/jvm-c1-2g/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    JVM 2 GB, C1 and serial GC
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reports/jvm-c2-parallel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    JVM 2 GB, C2 and parallel GC
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../running/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Running it
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" >
+        
+          
+          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../README-dev/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Developer guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Project reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../glossary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/macro-service/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/spring-modulith-async/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Discussion: Spring Modulith async
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/spring-modulith-events/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Spike: Spring Modulith events
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/staged-prompt/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Build plan
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#what-was-built" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What was built
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#bytes-on-the-wire" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bytes on the wire
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#throughput-and-latency" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Throughput and latency
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-each-format-costs-in-cpu" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What each format costs in CPU
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#where-compression-pays" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Where compression pays
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#conclusions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Conclusions
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#method" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Method
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="wire-formats-gzip-and-bson-over-http">Wire formats: gzip and BSON over HTTP<a class="headerlink" href="#wire-formats-gzip-and-bson-over-http" title="Permanent link">&para;</a></h1>
+<p>Does compressing the JSON-RPC envelope, or sending it as BSON, make calls between processes cheaper? Tested on this project's HTTP calls only. Local calls and the
+in-memory <code>loopback-codec</code> binding never use these formats, because there is no network to save and nothing to compress for.</p>
+<p><strong>Short answer.</strong> Keep plain JSON as the default. <strong>gzip</strong> shrinks big envelopes a lot (to 17 to 31% of their size between groups at 40 to 150 order lines) but only shows a latency
+benefit on constrained links, never on loopback, and it does little for the small envelopes of normal orders. <strong>BSON</strong> is <em>larger</em> than JSON for these messages in every case measured.</p>
+<div class="admonition warning">
+<p class="admonition-title">What these measurements can and cannot show</p>
+<p>Everything ran on one machine over <strong>loopback</strong>, with no TLS and no bandwidth limit, so a smaller message cannot arrive any sooner. The end-to-end runs therefore show the
+<em>cost</em> of the formats (and bytes saved), never a latency win. Where compression could win is worked out separately, from a CPU benchmark and the bytes saved
+(<a href="#where-compression-pays">break-even</a>). One run per configuration, so differences below about 5 to 8% are noise.</p>
+</div>
+<h2 id="what-was-built">What was built<a class="headerlink" href="#what-was-built" title="Permanent link">&para;</a></h2>
+<ul>
+<li><code>rpc.client.wire</code> (<code>demo.sh --wire</code>, <code>perf.sh --wire</code>) chooses how the HTTP transport encodes the envelope: <code>json</code> (default), <code>gzip</code>, <code>bson</code> or <code>bson-gzip</code>.</li>
+<li>The <code>/rpc/{module}</code> endpoint accepts all four and answers in the format the caller asks for (<code>Accept</code>, <code>Accept-Encoding</code>); plain JSON callers are unchanged.</li>
+<li>The BSON conversion is checked against the MongoDB library itself (the tests build and read BSON with it), so it is real BSON.</li>
+<li>Each process counts the envelope bytes it sends and receives, before and after encoding, so the runs report <strong>bytes on the wire per order</strong>, not estimates.</li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">A default that would have corrupted the baseline</p>
+<p>Spring 7's JDK HTTP client has compression <strong>on by default</strong>: it adds <code>Accept-Encoding: gzip, deflate</code> to every request and silently decompresses the reply. The platform's transport
+had been sending that header all along, harmlessly, since no server compressed. Once a server honours it, the "plain JSON" baseline would have been compressed too, and the real compressed sizes
+would have been invisible. The transport now turns that off and chooses the encoding itself.</p>
+</div>
+<h2 id="bytes-on-the-wire">Bytes on the wire<a class="headerlink" href="#bytes-on-the-wire" title="Permanent link">&para;</a></h2>
+<p>Per order, from the counters of every process. "JSON bytes/call" is the average call (its request and response envelopes together); the last three columns are the share of the JSON bytes that crossed the wire.</p>
+<table>
+<thead>
+<tr>
+<th>Order size</th>
+<th>Mode</th>
+<th style="text-align: right;">HTTP calls/order</th>
+<th style="text-align: right;">JSON bytes/order</th>
+<th style="text-align: right;">JSON bytes/call</th>
+<th style="text-align: right;">gzip</th>
+<th style="text-align: right;">bson</th>
+<th style="text-align: right;">bson-gzip</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1 to 4 lines (the realistic mix)</td>
+<td>loopback-http</td>
+<td style="text-align: right;">13.7</td>
+<td style="text-align: right;">4,340</td>
+<td style="text-align: right;">318</td>
+<td style="text-align: right;">89%</td>
+<td style="text-align: right;">107%</td>
+<td style="text-align: right;">98%</td>
+</tr>
+<tr>
+<td>1 to 4 lines (the realistic mix)</td>
+<td>groups</td>
+<td style="text-align: right;">8.0</td>
+<td style="text-align: right;">2,911</td>
+<td style="text-align: right;">364</td>
+<td style="text-align: right;">85%</td>
+<td style="text-align: right;">107%</td>
+<td style="text-align: right;">94%</td>
+</tr>
+<tr>
+<td>1 to 4 lines (the realistic mix)</td>
+<td>microservices</td>
+<td style="text-align: right;">14.3</td>
+<td style="text-align: right;">4,533</td>
+<td style="text-align: right;">316</td>
+<td style="text-align: right;">89%</td>
+<td style="text-align: right;">107%</td>
+<td style="text-align: right;">98%</td>
+</tr>
+<tr>
+<td>40 lines</td>
+<td>loopback-http</td>
+<td style="text-align: right;">55.3</td>
+<td style="text-align: right;">21,075</td>
+<td style="text-align: right;">381</td>
+<td style="text-align: right;">63%</td>
+<td style="text-align: right;">112%</td>
+<td style="text-align: right;">71%</td>
+</tr>
+<tr>
+<td>40 lines</td>
+<td>groups</td>
+<td style="text-align: right;">8.3</td>
+<td style="text-align: right;">11,013</td>
+<td style="text-align: right;">1327</td>
+<td style="text-align: right;">31%</td>
+<td style="text-align: right;">116%</td>
+<td style="text-align: right;">39%</td>
+</tr>
+<tr>
+<td>40 lines</td>
+<td>microservices</td>
+<td style="text-align: right;">56.1</td>
+<td style="text-align: right;">21,300</td>
+<td style="text-align: right;">380</td>
+<td style="text-align: right;">63%</td>
+<td style="text-align: right;">112%</td>
+<td style="text-align: right;">71%</td>
+</tr>
+<tr>
+<td>150 lines</td>
+<td>groups</td>
+<td style="text-align: right;">8.6</td>
+<td style="text-align: right;">34,521</td>
+<td style="text-align: right;">4029</td>
+<td style="text-align: right;">17%</td>
+<td style="text-align: right;">119%</td>
+<td style="text-align: right;">24%</td>
+</tr>
+<tr>
+<td>150 lines</td>
+<td>microservices</td>
+<td style="text-align: right;">168.0</td>
+<td style="text-align: right;">68,833</td>
+<td style="text-align: right;">410</td>
+<td style="text-align: right;">57%</td>
+<td style="text-align: right;">114%</td>
+<td style="text-align: right;">64%</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>At realistic order sizes (1 to 4 lines, envelopes of about 150 to 200 bytes) gzip saves 11 to 15%, BSON adds 7%, BSON+gzip saves 2 to 6%.</strong> Too little data per call for gzip to find much to remove.</li>
+<li><strong>Big envelopes compress very well.</strong> Between <code>groups</code> the calls that carry the order lines average 1.3 KB at 40 lines and 4 KB at 150 lines, and gzip takes them to 31% and 17%.</li>
+<li><strong><code>microservices</code> and <code>loopback-http</code> compress less (63% at 40 lines, 57% at 150 lines for <code>microservices</code>).</strong> There most of the calls are tiny per-line lookups (a product, a stock level) of about 400 bytes whatever the order size, and only a few carry the lines.</li>
+<li><strong>BSON is larger than JSON at every size (107 to 119%).</strong> Field names are kept, every value gets a type tag and every string a length, and arrays carry index keys; JSON's digits and brackets are already compact.</li>
+</ul>
+<h2 id="throughput-and-latency">Throughput and latency<a class="headerlink" href="#throughput-and-latency" title="Permanent link">&para;</a></h2>
+<p>Median order (p50) and throughput against plain JSON, four clients. Loopback, so no bandwidth to save:</p>
+<div class="wide-table">
+<table>
+<thead>
+<tr>
+<th>Order size</th>
+<th>Mode</th>
+<th style="text-align: right;">orders/s json</th>
+<th style="text-align: right;">gzip</th>
+<th style="text-align: right;">bson</th>
+<th style="text-align: right;">bson-gzip</th>
+<th style="text-align: right;">p50 ms json</th>
+<th style="text-align: right;">gzip</th>
+<th style="text-align: right;">bson</th>
+<th style="text-align: right;">bson-gzip</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1 to 4 lines (the realistic mix)</td>
+<td>loopback-http</td>
+<td style="text-align: right;">208</td>
+<td style="text-align: right;">219 (+5%)</td>
+<td style="text-align: right;">196 (-5%)</td>
+<td style="text-align: right;">208 (+0%)</td>
+<td style="text-align: right;">18.7</td>
+<td style="text-align: right;">17.7 (-5%)</td>
+<td style="text-align: right;">20.1 (+7%)</td>
+<td style="text-align: right;">18.6 (-1%)</td>
+</tr>
+<tr>
+<td>1 to 4 lines (the realistic mix)</td>
+<td>groups</td>
+<td style="text-align: right;">225</td>
+<td style="text-align: right;">219 (-3%)</td>
+<td style="text-align: right;">218 (-3%)</td>
+<td style="text-align: right;">225 (-0%)</td>
+<td style="text-align: right;">17.4</td>
+<td style="text-align: right;">17.4 (+0%)</td>
+<td style="text-align: right;">17.8 (+3%)</td>
+<td style="text-align: right;">16.5 (-5%)</td>
+</tr>
+<tr>
+<td>1 to 4 lines (the realistic mix)</td>
+<td>microservices</td>
+<td style="text-align: right;">164</td>
+<td style="text-align: right;">151 (-8%)</td>
+<td style="text-align: right;">155 (-6%)</td>
+<td style="text-align: right;">151 (-8%)</td>
+<td style="text-align: right;">23.1</td>
+<td style="text-align: right;">25.1 (+9%)</td>
+<td style="text-align: right;">24.0 (+4%)</td>
+<td style="text-align: right;">24.9 (+8%)</td>
+</tr>
+<tr>
+<td>40 lines</td>
+<td>loopback-http</td>
+<td style="text-align: right;">53</td>
+<td style="text-align: right;">50 (-5%)</td>
+<td style="text-align: right;">52 (-2%)</td>
+<td style="text-align: right;">49 (-7%)</td>
+<td style="text-align: right;">74.0</td>
+<td style="text-align: right;">75.3 (+2%)</td>
+<td style="text-align: right;">72.5 (-2%)</td>
+<td style="text-align: right;">80.2 (+8%)</td>
+</tr>
+<tr>
+<td>40 lines</td>
+<td>groups</td>
+<td style="text-align: right;">73</td>
+<td style="text-align: right;">72 (-1%)</td>
+<td style="text-align: right;">73 (+0%)</td>
+<td style="text-align: right;">73 (-1%)</td>
+<td style="text-align: right;">51.1</td>
+<td style="text-align: right;">51.2 (+0%)</td>
+<td style="text-align: right;">50.9 (-0%)</td>
+<td style="text-align: right;">52.0 (+2%)</td>
+</tr>
+<tr>
+<td>40 lines</td>
+<td>microservices</td>
+<td style="text-align: right;">47</td>
+<td style="text-align: right;">46 (-2%)</td>
+<td style="text-align: right;">46 (-1%)</td>
+<td style="text-align: right;">45 (-3%)</td>
+<td style="text-align: right;">76.7</td>
+<td style="text-align: right;">76.3 (-0%)</td>
+<td style="text-align: right;">77.6 (+1%)</td>
+<td style="text-align: right;">79.1 (+3%)</td>
+</tr>
+<tr>
+<td>150 lines</td>
+<td>groups</td>
+<td style="text-align: right;">25</td>
+<td style="text-align: right;">25 (+0%)</td>
+<td style="text-align: right;">26 (+3%)</td>
+<td style="text-align: right;">25 (-0%)</td>
+<td style="text-align: right;">149.5</td>
+<td style="text-align: right;">149.0 (-0%)</td>
+<td style="text-align: right;">146.4 (-2%)</td>
+<td style="text-align: right;">151.6 (+1%)</td>
+</tr>
+<tr>
+<td>150 lines</td>
+<td>microservices</td>
+<td style="text-align: right;">17</td>
+<td style="text-align: right;">16 (-5%)</td>
+<td style="text-align: right;">16 (-3%)</td>
+<td style="text-align: right;">15 (-7%)</td>
+<td style="text-align: right;">221.1</td>
+<td style="text-align: right;">238.2 (+8%)</td>
+<td style="text-align: right;">242.7 (+10%)</td>
+<td style="text-align: right;">252.6 (+14%)</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>There is no consistent effect: most cells are within noise (a few percent). The one pattern that looks like a cost, <code>microservices</code> at 150 lines (gzip +8%, BSON +10%, BSON+gzip +14% on p50), <strong>cannot be the formats</strong>:
+at about 168 HTTP calls per order and a few microseconds of codec per call (next section), the total CPU cost is 1 to 2 ms of a 221 ms order. It is the run-to-run variation of the eight-process mode, and the run should be repeated before concluding anything from it.</p>
+<h2 id="what-each-format-costs-in-cpu">What each format costs in CPU<a class="headerlink" href="#what-each-format-costs-in-cpu" title="Permanent link">&para;</a></h2>
+<p>Measured with no network, database or web server in the way: encode an object tree to bytes on the sender and decode it on the receiver, for envelopes shaped like the demo's order calls (a request carrying <em>n</em> order lines).
+Median of warmed batches, microseconds per envelope.</p>
+<div class="wide-table">
+<table>
+<thead>
+<tr>
+<th>Order lines</th>
+<th>JSON bytes</th>
+<th style="text-align: right;">Format</th>
+<th style="text-align: right;">Bytes</th>
+<th style="text-align: right;">vs JSON</th>
+<th style="text-align: right;">Encode µs</th>
+<th style="text-align: right;">Decode µs</th>
+<th style="text-align: right;">Extra µs vs JSON</th>
+<th style="text-align: right;">Break-even link speed</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>133</td>
+<td style="text-align: right;">json</td>
+<td style="text-align: right;">133</td>
+<td style="text-align: right;">100%</td>
+<td style="text-align: right;">0.2</td>
+<td style="text-align: right;">0.4</td>
+<td style="text-align: right;">0.0</td>
+<td style="text-align: right;">-</td>
+</tr>
+<tr>
+<td>1</td>
+<td>133</td>
+<td style="text-align: right;">gzip</td>
+<td style="text-align: right;">131</td>
+<td style="text-align: right;">98%</td>
+<td style="text-align: right;">2.9</td>
+<td style="text-align: right;">2.1</td>
+<td style="text-align: right;">4.4</td>
+<td style="text-align: right;">0.5 MB/s (4 Mbit/s)</td>
+</tr>
+<tr>
+<td>1</td>
+<td>133</td>
+<td style="text-align: right;">bson</td>
+<td style="text-align: right;">152</td>
+<td style="text-align: right;">114%</td>
+<td style="text-align: right;">0.4</td>
+<td style="text-align: right;">0.4</td>
+<td style="text-align: right;">0.2</td>
+<td style="text-align: right;">never (no bytes saved)</td>
+</tr>
+<tr>
+<td>1</td>
+<td>133</td>
+<td style="text-align: right;">bson+gzip</td>
+<td style="text-align: right;">143</td>
+<td style="text-align: right;">108%</td>
+<td style="text-align: right;">3.1</td>
+<td style="text-align: right;">2.1</td>
+<td style="text-align: right;">4.7</td>
+<td style="text-align: right;">never (no bytes saved)</td>
+</tr>
+<tr>
+<td>4</td>
+<td>235</td>
+<td style="text-align: right;">json</td>
+<td style="text-align: right;">235</td>
+<td style="text-align: right;">100%</td>
+<td style="text-align: right;">0.3</td>
+<td style="text-align: right;">0.5</td>
+<td style="text-align: right;">0.0</td>
+<td style="text-align: right;">-</td>
+</tr>
+<tr>
+<td>4</td>
+<td>235</td>
+<td style="text-align: right;">gzip</td>
+<td style="text-align: right;">150</td>
+<td style="text-align: right;">64%</td>
+<td style="text-align: right;">3.2</td>
+<td style="text-align: right;">2.3</td>
+<td style="text-align: right;">4.7</td>
+<td style="text-align: right;">18.1 MB/s (145 Mbit/s)</td>
+</tr>
+<tr>
+<td>4</td>
+<td>235</td>
+<td style="text-align: right;">bson</td>
+<td style="text-align: right;">278</td>
+<td style="text-align: right;">118%</td>
+<td style="text-align: right;">0.6</td>
+<td style="text-align: right;">0.5</td>
+<td style="text-align: right;">0.3</td>
+<td style="text-align: right;">never (no bytes saved)</td>
+</tr>
+<tr>
+<td>4</td>
+<td>235</td>
+<td style="text-align: right;">bson+gzip</td>
+<td style="text-align: right;">176</td>
+<td style="text-align: right;">75%</td>
+<td style="text-align: right;">3.8</td>
+<td style="text-align: right;">2.5</td>
+<td style="text-align: right;">5.4</td>
+<td style="text-align: right;">10.8 MB/s (86 Mbit/s)</td>
+</tr>
+<tr>
+<td>10</td>
+<td>439</td>
+<td style="text-align: right;">json</td>
+<td style="text-align: right;">439</td>
+<td style="text-align: right;">100%</td>
+<td style="text-align: right;">0.6</td>
+<td style="text-align: right;">0.8</td>
+<td style="text-align: right;">0.0</td>
+<td style="text-align: right;">-</td>
+</tr>
+<tr>
+<td>10</td>
+<td>439</td>
+<td style="text-align: right;">gzip</td>
+<td style="text-align: right;">172</td>
+<td style="text-align: right;">39%</td>
+<td style="text-align: right;">3.6</td>
+<td style="text-align: right;">2.8</td>
+<td style="text-align: right;">5.0</td>
+<td style="text-align: right;">53.1 MB/s (425 Mbit/s)</td>
+</tr>
+<tr>
+<td>10</td>
+<td>439</td>
+<td style="text-align: right;">bson</td>
+<td style="text-align: right;">530</td>
+<td style="text-align: right;">121%</td>
+<td style="text-align: right;">1.0</td>
+<td style="text-align: right;">1.0</td>
+<td style="text-align: right;">0.5</td>
+<td style="text-align: right;">never (no bytes saved)</td>
+</tr>
+<tr>
+<td>10</td>
+<td>439</td>
+<td style="text-align: right;">bson+gzip</td>
+<td style="text-align: right;">209</td>
+<td style="text-align: right;">48%</td>
+<td style="text-align: right;">4.4</td>
+<td style="text-align: right;">3.1</td>
+<td style="text-align: right;">6.1</td>
+<td style="text-align: right;">37.6 MB/s (301 Mbit/s)</td>
+</tr>
+<tr>
+<td>40</td>
+<td>1,459</td>
+<td style="text-align: right;">json</td>
+<td style="text-align: right;">1,459</td>
+<td style="text-align: right;">100%</td>
+<td style="text-align: right;">1.8</td>
+<td style="text-align: right;">2.6</td>
+<td style="text-align: right;">0.0</td>
+<td style="text-align: right;">-</td>
+</tr>
+<tr>
+<td>40</td>
+<td>1,459</td>
+<td style="text-align: right;">gzip</td>
+<td style="text-align: right;">264</td>
+<td style="text-align: right;">18%</td>
+<td style="text-align: right;">6.6</td>
+<td style="text-align: right;">4.9</td>
+<td style="text-align: right;">7.1</td>
+<td style="text-align: right;">168.8 MB/s (1,350 Mbit/s)</td>
+</tr>
+<tr>
+<td>40</td>
+<td>1,459</td>
+<td style="text-align: right;">bson</td>
+<td style="text-align: right;">1,820</td>
+<td style="text-align: right;">125%</td>
+<td style="text-align: right;">3.0</td>
+<td style="text-align: right;">3.3</td>
+<td style="text-align: right;">1.9</td>
+<td style="text-align: right;">never (no bytes saved)</td>
+</tr>
+<tr>
+<td>40</td>
+<td>1,459</td>
+<td style="text-align: right;">bson+gzip</td>
+<td style="text-align: right;">385</td>
+<td style="text-align: right;">26%</td>
+<td style="text-align: right;">8.8</td>
+<td style="text-align: right;">5.8</td>
+<td style="text-align: right;">10.2</td>
+<td style="text-align: right;">105.2 MB/s (842 Mbit/s)</td>
+</tr>
+<tr>
+<td>150</td>
+<td>5,220</td>
+<td style="text-align: right;">json</td>
+<td style="text-align: right;">5,220</td>
+<td style="text-align: right;">100%</td>
+<td style="text-align: right;">6.6</td>
+<td style="text-align: right;">10.3</td>
+<td style="text-align: right;">0.0</td>
+<td style="text-align: right;">-</td>
+</tr>
+<tr>
+<td>150</td>
+<td>5,220</td>
+<td style="text-align: right;">gzip</td>
+<td style="text-align: right;">591</td>
+<td style="text-align: right;">11%</td>
+<td style="text-align: right;">17.2</td>
+<td style="text-align: right;">14.0</td>
+<td style="text-align: right;">14.3</td>
+<td style="text-align: right;">323.6 MB/s (2,589 Mbit/s)</td>
+</tr>
+<tr>
+<td>150</td>
+<td>5,220</td>
+<td style="text-align: right;">bson</td>
+<td style="text-align: right;">6,621</td>
+<td style="text-align: right;">127%</td>
+<td style="text-align: right;">10.8</td>
+<td style="text-align: right;">11.8</td>
+<td style="text-align: right;">5.7</td>
+<td style="text-align: right;">never (no bytes saved)</td>
+</tr>
+<tr>
+<td>150</td>
+<td>5,220</td>
+<td style="text-align: right;">bson+gzip</td>
+<td style="text-align: right;">1,006</td>
+<td style="text-align: right;">19%</td>
+<td style="text-align: right;">25.1</td>
+<td style="text-align: right;">16.2</td>
+<td style="text-align: right;">24.4</td>
+<td style="text-align: right;">172.5 MB/s (1,380 Mbit/s)</td>
+</tr>
+</tbody>
+</table>
+</div>
+<ul>
+<li><strong>gzip adds 4 to 14 µs</strong> per envelope (more for bigger ones). BSON as a codec costs about the same as JSON text (0.2 to 5.7 µs more) but produces larger output, so there is nothing to recover.</li>
+<li>The platform's transport currently passes JSON text between the proxy and the wire, so a BSON call there also pays a text parse and print that a native BSON path would skip. That extra cost is <strong>not</strong> in this table.</li>
+<li>gzip is the plain <code>GZIPOutputStream</code> per call (a new compressor each time, default level, no dictionary). Reusing compressors, or a dictionary trained on the envelopes, could make small messages compress better and cost less. Not tried.</li>
+</ul>
+<h2 id="where-compression-pays">Where compression pays<a class="headerlink" href="#where-compression-pays" title="Permanent link">&para;</a></h2>
+<p>Compression helps when sending the bytes it saves would take longer than compressing and decompressing them. The break-even column is <code>bytes saved ÷ extra CPU</code>, in MB/s: <strong>below that link speed gzip wins, above it
+JSON is faster</strong>. Read with the bytes columns above:</p>
+<table>
+<thead>
+<tr>
+<th>Envelope</th>
+<th>Break-even link speed</th>
+<th>What it means</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>about 130 bytes (1 line)</td>
+<td>0.5 MB/s (4 Mbit/s)</td>
+<td>only a very slow link; gzip saves 2%</td>
+</tr>
+<tr>
+<td>about 235 bytes (4 lines)</td>
+<td>18 MB/s (145 Mbit/s)</td>
+<td>slow or shared links only</td>
+</tr>
+<tr>
+<td>about 440 bytes (10 lines)</td>
+<td>53 MB/s (425 Mbit/s)</td>
+<td>helps below roughly 400 Mbit/s, not on gigabit</td>
+</tr>
+<tr>
+<td>about 1.5 KB (40 lines)</td>
+<td>169 MB/s (1.35 Gbit/s)</td>
+<td>helps on 1 GbE, loses on 10 GbE</td>
+</tr>
+<tr>
+<td>about 5 KB (150 lines)</td>
+<td>324 MB/s (2.6 Gbit/s)</td>
+<td>helps on 1 GbE, loses on 10 GbE</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>Small envelopes never justify compression for latency</strong> on a datacentre network. <strong>Large ones do on gigabit and slower links</strong>, and not on 10 GbE.</li>
+<li>This is the <em>latency</em> case, for calls made one after the other. Bytes also have a cost of their own (cross-zone or egress charges, shared links, TLS work per byte), which is not measured here and favours compression.</li>
+<li>BSON never saves bytes, so it has no break-even.</li>
+</ul>
+<h2 id="conclusions">Conclusions<a class="headerlink" href="#conclusions" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Default stays <code>json</code>.</strong> The normal order calls are about 150 to 200 bytes, where gzip saves about 12% and BSON costs 7% more.</li>
+<li><strong>If you enable compression, do it by size.</strong> Compress envelopes above roughly 1 KB, where it pays on gigabit links, and leave the small ones alone. A minimum-size threshold is not implemented yet (it is the obvious next step; the setting would be per client).</li>
+<li><strong>Do not use BSON for JSON-RPC envelopes of this shape.</strong> It is larger, slightly slower, and its advantages (binary values, exact typed numbers, partial reads) are not used here.</li>
+<li><strong>Measure on the real network.</strong> The case for compression depends on bandwidth, TLS, cost per byte and payload sizes that this one-machine demo does not have. The tooling to do it is <code>perf.sh --wire all</code>, with <code>--lines N</code> for larger orders.</li>
+</ol>
+<h2 id="method">Method<a class="headerlink" href="#method" title="Permanent link">&para;</a></h2>
+<ul>
+<li><code>perf.sh --modes loopback-http,groups,microservices --wire all --async events ...</code>, four clients, result cache and parallel quotes on. Events delivery so each run's follow-ups drain at once; the wire format is independent of that choice.</li>
+<li>Order sizes: the realistic mix (1 to 4 lines, 1,200 orders), <code>--lines 40</code> (500 orders) and <code>--lines 150</code> (250 orders). More lines mean more calls too (about 134 and 464 module calls per order).</li>
+<li>The CPU table: <code>WireCostBenchmark</code> (a test that only runs with <code>-Dwire.bench=true</code>).</li>
+<li>Raw reports: <a href="../reports/wire-small/">realistic orders</a>, <a href="../reports/wire-lines40/">40 lines</a>, <a href="../reports/wire-lines150/">150 lines</a>.</li>
+<li>Limits: loopback, no TLS, one run per configuration, JSON text between the proxy and the transport, a new compressor per call.</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../load/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Load and delivery speed">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Load and delivery speed
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../jvm-settings/" class="md-footer__link md-footer__link--next" aria-label="Next: JVM settings (heap, C2, GC)">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                JVM settings (heap, C2, GC)
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "navigation.footer", "content.code.copy", "content.tabs.link", "search.highlight", "toc.follow"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -16,7 +16,7 @@
         <link rel="prev" href="../switches/">
       
       
-        <link rel="next" href="../reports/">
+        <link rel="next" href="../wire-formats/">
       
       
         
@@ -1111,6 +1111,62 @@
   
   
   
+    <li class="md-nav__item">
+      <a href="../wire-formats/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Wire formats (gzip, BSON)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../jvm-settings/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    JVM settings (heap, C2, GC)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
     
     
     
@@ -1128,10 +1184,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7_6" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7_8" >
         
           
-          <label class="md-nav__link" for="__nav_7_6" id="__nav_7_6_label" tabindex="">
+          <label class="md-nav__link" for="__nav_7_8" id="__nav_7_8_label" tabindex="">
             
   
   
@@ -1149,8 +1205,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_7_6_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_7_6">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_7_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7_8">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -1315,6 +1371,146 @@
     
   
     16 clients
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reports/wire-small/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Wire formats, realistic orders
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reports/wire-lines40/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Wire formats, 40 lines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reports/wire-lines150/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Wire formats, 150 lines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reports/jvm-c1-2g/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    JVM 2 GB, C1 and serial GC
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reports/jvm-c2-parallel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    JVM 2 GB, C2 and parallel GC
   
 
     
@@ -1757,7 +1953,7 @@ for both rows (so tracing overhead does not distort the comparison), 3,000 measu
 <div class="admonition warning">
 <p class="admonition-title">Why the ceiling is where it is</p>
 <p>The demo JVMs are deliberately small (<code>-Xmx320m</code>, C1-only JIT, serial GC) so that eight fit on a laptop, and each order makes about 20 module calls,
-most of them a database query. Change them with <code>DEMO_JAVA_OPTS</code> before reading anything into the absolute number.</p>
+most of them a database query. Change them with <code>DEMO_JAVA_OPTS</code> before reading anything into the absolute number; <a href="../jvm-settings/">JVM settings</a> shows what a full JIT and the parallel GC do.</p>
 </div>
 <h2 id="delivery-of-follow-ups">Delivery of follow-ups<a class="headerlink" href="#delivery-of-follow-ups" title="Permanent link">&para;</a></h2>
 <p>The request path cannot show this, because follow-ups are delivered <em>after</em> the order returns. The test: place 978 orders flat out, then time how long until every
@@ -1853,13 +2049,13 @@ semantics, at the cost of an adapter and a retry policy to maintain; the outbox 
         
         
           
-          <a href="../reports/" class="md-footer__link md-footer__link--next" aria-label="Next: Overview">
+          <a href="../wire-formats/" class="md-footer__link md-footer__link--next" aria-label="Next: Wire formats (gzip, BSON)">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Overview
+                Wire formats (gzip, BSON)
               </div>
             </div>
             <div class="md-footer__button md-icon">

@@ -13,7 +13,7 @@
         <link rel="canonical" href="https://johnjoeallen.github.io/microlith/0.1/performance/reports/">
       
       
-        <link rel="prev" href="../load/">
+        <link rel="prev" href="../jvm-settings/">
       
       
         <link rel="next" href="modes-cache/">
@@ -1040,6 +1040,62 @@
                 
   
   
+  
+  
+    <li class="md-nav__item">
+      <a href="../wire-formats/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Wire formats (gzip, BSON)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../jvm-settings/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    JVM settings (heap, C2, GC)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
     
   
   
@@ -1061,10 +1117,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7_6" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7_8" checked>
         
           
-          <label class="md-nav__link" for="__nav_7_6" id="__nav_7_6_label" tabindex="">
+          <label class="md-nav__link" for="__nav_7_8" id="__nav_7_8_label" tabindex="">
             
   
   
@@ -1082,8 +1138,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_7_6_label" aria-expanded="true">
-          <label class="md-nav__title" for="__nav_7_6">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_7_8_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_7_8">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -1258,6 +1314,146 @@
     
   
     16 clients
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="wire-small/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Wire formats, realistic orders
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="wire-lines40/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Wire formats, 40 lines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="wire-lines150/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Wire formats, 150 lines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="jvm-c1-2g/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    JVM 2 GB, C1 and serial GC
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="jvm-c2-parallel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    JVM 2 GB, C2 and parallel GC
   
 
     
@@ -1608,7 +1804,7 @@
 
 <h1 id="raw-reports">Raw reports<a class="headerlink" href="#raw-reports" title="Permanent link">&para;</a></h1>
 <p>Every <code>scripts/perf.sh</code> run writes a timestamped markdown report with the modes side by side, followed by the detail of each run (round trip, every
-module-to-module call and its binding, cache hit rates). These are the five reports behind the pages in this section, unedited apart from local file paths.</p>
+module-to-module call and its binding, cache hit rates). These are the reports behind the pages in this section, unedited apart from local file paths.</p>
 <table>
 <thead>
 <tr>
@@ -1642,6 +1838,16 @@ module-to-module call and its binding, cache hit rates). These are the five repo
 <td><a href="load-16-clients/">16 clients, no tracing</a></td>
 <td>same with <code>--concurrency 16</code></td>
 <td><a href="../load/">load</a></td>
+</tr>
+<tr>
+<td><a href="jvm-c1-2g/">JVM 2 GB, C1 and serial GC</a></td>
+<td><code>--modes all --cache both --orders 1500 --warmup 200 --concurrency 16</code>, <code>DEMO_JAVA_OPTS="-Xmx2g -XX:+UseSerialGC -XX:TieredStopAtLevel=1"</code></td>
+<td><a href="../jvm-settings/">JVM settings</a></td>
+</tr>
+<tr>
+<td><a href="jvm-c2-parallel/">JVM 2 GB, C2 and parallel GC</a></td>
+<td>same with <code>DEMO_JAVA_OPTS="-Xmx2g -XX:+UseParallelGC"</code></td>
+<td><a href="../jvm-settings/">JVM settings</a></td>
 </tr>
 </tbody>
 </table>
@@ -1685,7 +1891,7 @@ module-to-module call and its binding, cache hit rates). These are the five repo
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../load/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Load and delivery speed">
+          <a href="../jvm-settings/" class="md-footer__link md-footer__link--prev" aria-label="Previous: JVM settings (heap, C2, GC)">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -1695,7 +1901,7 @@ module-to-module call and its binding, cache hit rates). These are the five repo
                 Previous
               </span>
               <div class="md-ellipsis">
-                Load and delivery speed
+                JVM settings (heap, C2, GC)
               </div>
             </div>
           </a>
