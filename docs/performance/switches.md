@@ -8,7 +8,9 @@ Same conditions as [the mode comparison](modes.md): four clients, 1,200 measured
 [`@Cached`](../features/cache.md) lets four read methods (`customers.getCustomer`, `customers.getPaymentMethod`, `catalog.getProduct`,
 `catalog.productExists`) reuse their result for 30 seconds. Every mode, cache off against on:
 
---8<-- "performance/_generated/cache-chart.md"
+--8<-- "performance/_generated/cache-chart-4.md"
+
+--8<-- "performance/_generated/cache-chart-16.md"
 
 --8<-- "performance/_generated/cache-table.md"
 

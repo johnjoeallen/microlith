@@ -28,7 +28,7 @@ is built. See [start small and let boundaries appear](principles.md#4-start-smal
 
 ### 2. Splitting early has an immediate, measured cost
 
-Same code, same tests, same workload, eight deployment shapes ([the measurements](performance/modes.md)). The chart and the table are the mean of 20 runs per mode with C2 JVMs and 16 clients ([headline numbers](performance/index.md#headline-numbers)); the call counts below are from the small-JVM, four-client comparison:
+Same code, same tests, same workload, eight deployment shapes ([the measurements](performance/modes.md)). The chart holds the JVM flags fixed (the demo's C1 + serial GC) and compares 4 with 16 clients; the table is the mean of 20 runs per mode with C2 JVMs and 16 clients ([headline numbers](performance/index.md#headline-numbers)); the call counts below are from the four-client comparison:
 
 --8<-- "performance/_generated/jvm-matrix-chart-both-throughput.md"
 
