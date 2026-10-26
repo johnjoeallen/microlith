@@ -36,25 +36,25 @@ Realistic workload, result cache on, parallel quotes on, 16 concurrent clients, 
 | Mode | Orders/s | Share of `modulith` | Median order (p50) | Small JVMs, 4 clients: orders/s, p50 |
 | --- | ---: | ---: | ---: | ---: |
 | `modulith` | 457 | 100% | 32.5 ms | 336, 11.6 ms |
-| `macro-modulith` | 462 | 101% | 32.4 ms | 331, 11.6 ms |
+| `macro-modulith` | 461 | 101% | 32.4 ms | 331, 11.6 ms |
 | `loopback-codec` | 444 | 97% | 33.3 ms | 314, 12.4 ms |
 | `loopback-http` | 325 | 71% | 45.8 ms | 238, 16.3 ms |
-| `groups` | 263 | 58% | 58.5 ms | 225, 17.4 ms |
+| `groups` | 263 | 58% | 58.4 ms | 225, 17.4 ms |
 | `split-dbs` | 266 | 58% | 57.5 ms | 230, 16.7 ms |
-| `microservices` | 172 | 38% | 90.4 ms | 166, 22.7 ms |
+| `microservices` | 171 | 37% | 90.4 ms | 166, 22.7 ms |
 | `microservices-macro` | 170 | 37% | 90.0 ms | 178, 21.5 ms |
 
 The median is higher than in the right-hand column because 16 clients queue behind each other; it is not the time one order takes alone. The last column is the
-[mode comparison](modes.md), run with the demo-sized JVMs (320 MB heap, C1-only JIT, serial GC) and four clients, which is the run the chart below, the per-call latencies and the call counts come from.
+[mode comparison](modes.md), run with the demo-sized JVMs (320 MB heap, C1-only JIT, serial GC) and four clients, which is the run the per-call latencies and the call counts come from.
 
---8<-- "performance/_generated/modes-throughput.md"
+--8<-- "performance/_generated/jvm-matrix-chart-throughput.md"
 
 ## How to read this, and what to take from it
 
 | Finding | Evidence |
 | --- | --- |
 | **Splitting costs roughly 1 ms per call between processes, on one machine.** With about 20 calls per order that is the whole difference between 11.6 ms and 22.7 ms (small JVMs, 4 clients). | [per-call latency](modes.md#where-the-time-goes) |
-| **Group the chatty parts.** `groups` keeps 40% of the calls that reach a module local and is about 53% faster than eight services (263 against 172 orders/s). | [modes](modes.md) |
+| **Group the chatty parts.** `groups` keeps 40% of the calls that reach a module local and is about 53% faster than eight services (263 against 171 orders/s). | [modes](modes.md) |
 | **Use the cache for reference data, and parallel reads where hops are real.** Both are off-switches, so they can be measured on your own workload. | [cache, parallel, delivery](switches.md) |
 | **The follow-up mechanism does not affect the request path, but it decides how fast background work drains.** Outbox and events perform alike on an order; the outbox delivered about 20 notifications a second, events delivered immediately. | [load and delivery](load.md#delivery-of-follow-ups) |
 | **The system saturates at about four concurrent orders on this machine.** More clients only queue. | [load](load.md#more-clients) |

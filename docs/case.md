@@ -3,7 +3,7 @@
 **Who wants their applications to go slower?**
 
 Every boundary between processes puts a network hop on every call that crosses it. In this project's measurements, splitting the same application into eight services made an
-order take about 2.8 times as long and cut the throughput by more than 60% (32.5 ms against 90 ms median, and 457 against 170 to 172 orders per second, 16 clients; with small JVMs and 4 clients it was twice as long and half the throughput). Nobody sets out to do that, yet it is what starting with microservices does
+order take about 2.8 times as long and cut the throughput by more than 60% (32.5 ms against 90 ms median, and 457 against 170 to 171 orders per second, 16 clients; with small JVMs and 4 clients it was twice as long and half the throughput). Nobody sets out to do that, yet it is what starting with microservices does
 by default, before any need for the split has been shown.
 
 !!! note "Evidence, and the extrapolation from it"
@@ -28,14 +28,14 @@ is built. See [start small and let boundaries appear](principles.md#4-start-smal
 
 ### 2. Splitting early has an immediate, measured cost
 
-Same code, same tests, same workload, eight deployment shapes ([the measurements](performance/modes.md)). The chart and the call counts are from the small-JVM, four-client comparison; the table below is the mean of 20 runs per mode with C2 JVMs and 16 clients ([headline numbers](performance/index.md#headline-numbers)):
+Same code, same tests, same workload, eight deployment shapes ([the measurements](performance/modes.md)). The chart and the table are the mean of 20 runs per mode with C2 JVMs and 16 clients ([headline numbers](performance/index.md#headline-numbers)); the call counts below are from the small-JVM, four-client comparison:
 
---8<-- "performance/_generated/modes-throughput.md"
+--8<-- "performance/_generated/jvm-matrix-chart-throughput.md"
 
 | | One unit (`modulith`) | Three groups | Eight services |
 | --- | --- | --- | --- |
-| Throughput | 457 orders/s | 263 (58%) | 170 to 172 (37 to 38%) |
-| Median order (16 clients) | 32.5 ms | 58.5 ms | 90.0 to 90.4 ms |
+| Throughput | 457 orders/s | 263 (58%) | 170 to 171 (37%) |
+| Median order (16 clients) | 32.5 ms | 58.4 ms | 90.0 to 90.4 ms |
 | Remote calls per order | 0 | 8.5 | 14.4 |
 | Version-skew pairs to keep compatible | 0 | 3 | 13 |
 | Processes to run, patch and be on call for | 1 | 3 | 8 |
@@ -71,7 +71,7 @@ Starting in the cheap-to-be-wrong shape and moving to services on evidence loses
 The usual objection to "start with a monolith" is that you then have to rewrite it. Here you do not. The same artifact, with different configuration, runs as one unit, as three groups, or as eight independent processes, each of which can be scaled, restarted
 and failed on its own:
 
-* `microservices-macro` runs the **single macro jar eight times**, one module enabled in each. It measured the same as the eight dedicated per-service jars (170 against 172 orders/s, within noise). So independent deployments need **no separate codebase and no
+* `microservices-macro` runs the **single macro jar eight times**, one module enabled in each. It measured the same as the eight dedicated per-service jars (170 against 171 orders/s, within noise). So independent deployments need **no separate codebase and no
   separate artifact**.
 * The identical scenarios pass in all eight modes with identical results and exception types, and a failure suite runs eight processes while connections are cut and processes restarted.
 * Different deployments can run different versions of the artifact (a service on 1.4 while the rest are on 1.5), as long as the `@RpcApi` changes stay additive. `japicmp` enforces that once you name a baseline release.

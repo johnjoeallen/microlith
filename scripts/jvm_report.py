@@ -13,7 +13,11 @@ orders/s is more than 2 scaled MADs (1.4826 x the median absolute deviation) and
 import argparse
 import json
 import statistics
+import sys
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from perf_site import hbar  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
 PERF = ROOT / ".demo" / "perf"
@@ -21,7 +25,11 @@ MODE_ORDER = ["modulith", "macro-modulith", "loopback-codec", "loopback-http", "
 
 
 def runs(stamp):
-    return [r for r in json.loads((PERF / stamp / "comparison.json").read_text()) if "roundTripMs" in r]
+    rs = [r for r in json.loads((PERF / stamp / "comparison.json").read_text()) if "roundTripMs" in r]
+    for r in rs:  # runs saved before the rename call this mode macro-monolith
+        if r["mode"] == "macro-monolith":
+            r["mode"] = "macro-modulith"
+    return rs
 
 
 def pick(rs, mode, cache):
@@ -73,6 +81,14 @@ def matrix(path, out):
             + ("| mode | config | repetition | orders/s |\n| --- | --- | ---: | ---: |\n"
                + "\n".join(f"| {m} | {c} | {r} | {v:.0f} |" for m, c, r, v in sorted(dropped)) + "\n" if dropped else "")),
     }
+    # one bar per mode: the mean of the heap x collector cells (heap and collector do not move throughput or the median)
+    overall = {m: {k: statistics.mean(cells[m, c][k] for c in cfgs) for k in ("ops", "p50", "p99")} for m in MODE_ORDER}
+    sub = f"{len(cfgs)} heap x collector configurations, {reps} runs each, 16 clients, C2, result cache on"
+    text["jvm-matrix-chart-throughput.md"] = hbar("Throughput by mode", f"orders per second, {sub}; longer is better",
+                                                  MODE_ORDER, [("orders/s", [overall[m]["ops"] for m in MODE_ORDER])], "orders/s")
+    text["jvm-matrix-chart-latency.md"] = hbar("Round-trip latency by mode", f"milliseconds per order, {sub}; shorter is better",
+                                               MODE_ORDER, [("p50", [overall[m]["p50"] for m in MODE_ORDER]),
+                                                            ("p99", [overall[m]["p99"] for m in MODE_ORDER])], "ms", lambda v: f"{v:.1f}")
     for name, body in text.items():
         Path(out, name).write_text(body)
 
