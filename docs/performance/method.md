@@ -5,7 +5,7 @@ How the numbers on these pages are produced, and how far to trust them.
 ## The machine
 
 Everything runs on **one machine**: 32 CPUs, Linux 6.12, JDK 25, PostgreSQL 17 in Docker, the load generator and all application processes together.
-Each JVM is limited to `-Xmx320m` with the serial GC, so that eight of them fit comfortably. [JVM settings](jvm-settings.md) repeats the comparison with larger JVMs.
+Each JVM runs with `-Xmx2g -XX:+UseParallelGC` (the default of `demo.sh`; override it with `DEMO_JAVA_OPTS`), which is up to 16 GB of heap for the eight-process modes. [JVM settings](jvm-settings.md) shows how that default was chosen.
 
 !!! warning "What a single machine means"
     A hop between processes here is a **loopback** TCP connection on one host, typically 1 to 3 ms. There is **no TLS or mTLS, no authentication on each call, no load balancer, gateway or
@@ -29,10 +29,10 @@ expected business outcome; they are counted and shown separately, and excluded f
 
 ## The load
 
-* **Closed loop:** each of *N* concurrent clients sends its next order as soon as the previous one returns. *N* is 4 unless stated otherwise.
+* **Closed loop:** each of *N* concurrent clients sends its next order as soon as the previous one returns. *N* is 16 for every run on these pages.
 * **Persistent connections**, so connection set-up is not part of the measured round trip.
-* **Warm-up:** 200 to 400 orders, not measured, so JIT compilation and connection pools are settled and the cache has seen its popular keys.
-* **Measured run:** 1,500 orders (4,000 for the load test).
+* **Warm-up:** 200 orders, not measured, so JIT compilation and connection pools are settled and the cache has seen its popular keys. After the warm-up (and a short settle for its asynchronous work) the driver runs `VACUUM ANALYZE` on every PostgreSQL instance in use, so the measured run starts with fresh planner statistics and no dead rows from the seed and the warm-up.
+* **Measured run:** 1,500 orders.
 * **Clean database every run:** `demo.sh start` wipes and re-initialises PostgreSQL, the driver bulk-loads the customers, products and stock, and
   every start is from the same state.
 
@@ -49,7 +49,7 @@ A call served by the [result cache](../features/cache.md) is recorded as its own
 ## What it does not tell you
 
 !!! note "Read the figures with these in mind"
-    * **One run per configuration.** Run-to-run noise on this machine is about 3 to 5% for throughput and p50. Differences smaller than that are
+    * **One run per configuration, except the headline table (5 runs per mode).** Run-to-run noise on this machine is about 3 to 5% for throughput and p50. Differences smaller than that are
       noise; p99 and max are noisier still (single outliers of 50 to 100 ms appear in otherwise identical runs).
     * **Call tracing has a cost.** Recording each call adds a little overhead to every configuration equally. `--no-trace` measures round trips only.
     * **It is a demo domain.** Calls are cheap (one primary-key query each), so the network and framework share of the time is larger than it would
@@ -59,10 +59,10 @@ A call served by the [result cache](../features/cache.md) is recorded as its own
 ## Reproducing it
 
 ```bash
-scripts/perf.sh --modes all --cache both --orders 1500 --warmup 200 --concurrency 4          # the mode comparison
+scripts/perf.sh --modes all --cache both --orders 1500 --warmup 200 --concurrency 16         # the mode comparison
 scripts/perf.sh --modes loopback-http,split-dbs,microservices-macro --parallel both ...      # parallel quotes
 scripts/perf.sh --modes modulith,groups,microservices --async both --parallel both ...       # delivery and parallel
-scripts/perf.sh --modes modulith,groups,microservices --orders 4000 --warmup 400 --concurrency 16   # more load
+scripts/perf.sh --modes all --cache on ...                                                   # repeated 5 times for the headline means
 ```
 
 Each run writes a timestamped markdown report with the modes side by side, plus the raw samples, to `.demo/perf/<timestamp>/`. The tables and charts

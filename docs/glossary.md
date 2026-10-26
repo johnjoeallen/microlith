@@ -37,7 +37,7 @@ Boundary (logical and physical)
 :   A *logical* boundary is a module boundary the build enforces (contracts, schema, one-way dependencies). A *physical* boundary is a process, database instance or pipeline. A macro service has logical boundaries everywhere and physical ones only where they are needed. See [principles](principles.md#3-separate-logically-first-physically-only-when-forced).
 
 Boundary cost
-:   The calls per order that would cross a proposed boundary, multiplied by the extra cost of one remote call (about 1.1 to 1.3 ms on loopback here). A floor for the network part. See [place modules by call weight](principles.md#6-place-modules-by-call-weight).
+:   The calls per order that would cross a proposed boundary, multiplied by the extra cost of one remote call (about 1.0 to 1.7 ms on loopback here). A floor for the network part. See [place modules by call weight](principles.md#6-place-modules-by-call-weight).
 
 Call (module-to-module)
 :   One invocation of an `@RpcApi` method by another module. An order makes about 20.

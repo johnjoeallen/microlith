@@ -2,7 +2,7 @@
 """Table for docs/performance/jvm-settings.md from two saved perf runs that differ only in the JVM flags (Python 3 standard library only).
 
   jvm_report.py --c1 <stamp> --c2 <stamp> [--rerun <stamp>] [--out docs/performance/_generated]
-  jvm_report.py --matrix <file written by jvm_matrix.sh> [--small <4-client stamp> --small16 <16-client stamp, same JVM flags>] [--out docs/performance/_generated]
+  jvm_report.py --matrix <file written by jvm_matrix.sh>  [--out docs/performance/_generated]
 
 --rerun replaces the C2 runs of the modes it contains with those of a later rerun of just those modes (marked with a dagger in the table).
 
@@ -43,7 +43,7 @@ def keep(values):
     return [i for i, v in enumerate(values) if abs(v - med) <= max(2 * mad, 0.05 * med)]
 
 
-def matrix(path, out, small=None, small16=None):
+def matrix(path, out):
     cfgs, data = [], {}
     for line in Path(path).read_text().split("\n"):
         if not line.strip():
@@ -81,33 +81,36 @@ def matrix(path, out, small=None, small16=None):
             + ("| mode | config | repetition | orders/s |\n| --- | --- | ---: | ---: |\n"
                + "\n".join(f"| {m} | {c} | {r} | {v:.0f} |" for m, c, r, v in sorted(dropped)) + "\n" if dropped else "")),
     }
-    # one bar per mode: the mean of the heap x collector cells (heap and collector do not move throughput or the median)
-    overall = {m: {k: statistics.mean(cells[m, c][k] for c in cfgs) for k in ("ops", "p50", "p99")} for m in MODE_ORDER}
-    sub = f"{len(cfgs)} heap x collector configurations, {reps} runs each, 16 clients, C2, result cache on"
-    text["jvm-matrix-chart-throughput.md"] = hbar("Throughput by mode", f"orders per second, {sub}; longer is better",
-                                                  MODE_ORDER, [("orders/s", [overall[m]["ops"] for m in MODE_ORDER])], "orders/s")
-    text["jvm-matrix-chart-latency.md"] = hbar("Round-trip latency by mode", f"milliseconds per order, {sub}; shorter is better",
-                                               MODE_ORDER, [("p50", [overall[m]["p50"] for m in MODE_ORDER]),
-                                                            ("p99", [overall[m]["p99"] for m in MODE_ORDER])], "ms", lambda v: f"{v:.1f}")
-    if small and small16:  # same JVM flags, 4 against 16 clients: the demo's C1 + serial GC (the 16-client run has a 2 GB heap)
-        four = {(r["mode"], r["cache"]): r for r in runs(small)}
-        sixteen = {(r["mode"], r["cache"]): r for r in runs(small16)}
-        both = "result cache on; demo JVM flags (C1, serial GC), 4 clients against 16 clients"
-        text["jvm-matrix-chart-both-throughput.md"] = hbar(
-            "Throughput by mode", f"orders per second, {both}; longer is better", MODE_ORDER,
-            [("4 clients", [four[m, "on"]["ordersPerSecond"] for m in MODE_ORDER]),
-             ("16 clients", [sixteen[m, "on"]["ordersPerSecond"] for m in MODE_ORDER])], "orders/s")
-        text["jvm-matrix-chart-both-latency.md"] = hbar(
-            "Median round trip by mode", f"milliseconds per order (p50), {both}; shorter is better", MODE_ORDER,
-            [("4 clients", [four[m, "on"]["roundTripMs"]["p50"] for m in MODE_ORDER]),
-             ("16 clients", [sixteen[m, "on"]["roundTripMs"]["p50"] for m in MODE_ORDER])], "ms", lambda v: f"{v:.1f}")
-        for label, data in (("4", four), ("16", sixteen)):
-            text[f"cache-chart-{label}.md"] = hbar(
-                f"Result cache: throughput, {label} clients", f"orders per second, {label} clients, demo JVM flags (C1, serial GC); longer is better", MODE_ORDER,
-                [("cache off", [data[m, "off"]["ordersPerSecond"] for m in MODE_ORDER]),
-                 ("cache on", [data[m, "on"]["ordersPerSecond"] for m in MODE_ORDER])], "orders/s")
     for name, body in text.items():
         Path(out, name).write_text(body)
+
+
+def headline(stamps, out):
+    """Mean over the repetitions of every mode (cache on), after dropping outliers: the headline table and charts of the performance pages."""
+    per = {}
+    for stamp in stamps:
+        for r in runs(stamp):
+            if r["cache"] == "on":
+                per.setdefault(r["mode"], []).append(r)
+    cells = {}
+    for mode in MODE_ORDER:
+        rs = per[mode]
+        kept = [rs[i] for i in keep([r["ordersPerSecond"] for r in rs])]
+        cells[mode] = {"n": len(rs), "kept": len(kept), "ops": statistics.mean(r["ordersPerSecond"] for r in kept),
+                       "p50": statistics.mean(r["roundTripMs"]["p50"] for r in kept), "p99": statistics.mean(r["roundTripMs"]["p99"] for r in kept)}
+    ref = cells["modulith"]["ops"]
+    n = max(c["n"] for c in cells.values())
+    dropped = sum(c["n"] - c["kept"] for c in cells.values())
+    lines = ["| Mode | Orders/s | Share of `modulith` | Median order (p50) | p99 |", "| --- | ---: | ---: | ---: | ---: |"]
+    lines += [f"| `{m}` | {c['ops']:.0f} | {c['ops'] / ref * 100:.0f}% | {c['p50']:.1f} ms | {c['p99']:.1f} ms |" for m, c in cells.items()]
+    sub = f"16 clients, result cache on, mean of {n} runs"
+    Path(out, "headline-table.md").write_text("\n".join(lines) + "\n")
+    Path(out, "headline-dropped.md").write_text(f"{dropped} of {n * len(cells)} mode runs were dropped as outliers.\n")
+    Path(out, "headline-chart-throughput.md").write_text(hbar("Throughput by mode", f"orders per second, {sub}; larger is better", MODE_ORDER,
+                                                              [("orders/s", [cells[m]["ops"] for m in MODE_ORDER])], "orders/s"))
+    Path(out, "headline-chart-latency.md").write_text(hbar("Round-trip latency by mode", f"milliseconds per order, {sub}; smaller is better", MODE_ORDER,
+                                                           [("p50", [cells[m]["p50"] for m in MODE_ORDER]), ("p99", [cells[m]["p99"] for m in MODE_ORDER])],
+                                                           "ms", lambda v: f"{v:.1f}"))
 
 
 def main():
@@ -115,13 +118,14 @@ def main():
     p.add_argument("--c1")
     p.add_argument("--c2")
     p.add_argument("--matrix")
-    p.add_argument("--small", help="stamp of the 4-client mode comparison with --cache both, for the combined charts (with --matrix)")
-    p.add_argument("--small16", help="stamp of the 16-client run with the same JVM flags and --cache both (with --small)")
+    p.add_argument("--reps", help="comma-separated stamps of repeated all-mode runs (cache on rows are used): writes the headline table and charts")
     p.add_argument("--rerun")
     p.add_argument("--out", default=str(ROOT / "docs" / "performance" / "_generated"))
     a = p.parse_args()
+    if a.reps:
+        return headline(a.reps.split(","), a.out)
     if a.matrix:
-        return matrix(a.matrix, a.out, a.small, a.small16)
+        return matrix(a.matrix, a.out)
     c1, c2 = runs(a.c1), runs(a.c2)
     redone = set()
     if a.rerun:

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Builds the tables and charts of the documentation's performance pages from saved perf runs (Python 3 standard library only).
 
-  perf_site.py --modes <stamp> --parallel <stamp> --switches <stamp> --load4 <stamp> --load16 <stamp> --drain <log> [--out ...]
+  perf_site.py --modes <stamp> --parallel <stamp> --switches <stamp> --drain <log> [--out ...]
 
 Each <stamp> is a directory under .demo/perf/ written by scripts/perf.sh. The pages include the generated files (pymdownx.snippets), so
 the numbers on the site are the numbers in the saved summaries, never retyped.
@@ -23,6 +23,8 @@ def load(stamp):
     runs = json.loads((PERF / stamp / "comparison.json").read_text())
     for r in runs:
         r.setdefault("async", "outbox")
+        if r.get("mode") == "macro-monolith":  # runs saved before the rename
+            r["mode"] = "macro-modulith"
     return [r for r in runs if "roundTripMs" in r]
 
 
@@ -124,7 +126,12 @@ def hbar(title, subtitle, categories, series, unit, fmt=lambda v: f"{v:,.0f}"):
 
 # ---------------------------------------------------------------------------------------------------------------- content
 
+def clients(runs):
+    return f"{runs[0]['concurrency']} clients"
+
+
 def modes_fragments(runs, out):
+    c = clients(runs)
     base = {m: pick(runs, mode=m, cache="on") for m in MODE_ORDER}
     base = {m: r for m, r in base.items() if r}
     rows = []
@@ -137,9 +144,9 @@ def modes_fragments(runs, out):
                      f"{rt['p99']:.1f}", f"{r['callsPerOrder']:.1f}", calls])
     (out / "modes-table.md").write_text(md_table(
         ["Mode", "Orders/s", "vs modulith", "p50 ms", "p95 ms", "p99 ms", "Calls/order", "Calls by binding (mean latency)"], rows, last_left=True))
-    (out / "modes-throughput.md").write_text(hbar("Throughput by mode", "orders per second, 4 clients, result cache on; longer is better",
+    (out / "modes-throughput.md").write_text(hbar("Throughput by mode", f"orders per second, {c}, result cache on; larger is better",
                                                   list(base), [("orders/s", [r["ordersPerSecond"] for r in base.values()])], "orders/s"))
-    (out / "modes-latency.md").write_text(hbar("Round-trip latency by mode", "milliseconds per order, 4 clients; shorter is better",
+    (out / "modes-latency.md").write_text(hbar("Round-trip latency by mode", f"milliseconds per order, {c}; smaller is better",
                                                list(base), [("p50", [r["roundTripMs"]["p50"] for r in base.values()]),
                                                             ("p99", [r["roundTripMs"]["p99"] for r in base.values()])], "ms", lambda v: f"{v:.1f}"))
     # where the time goes: mean ms per module-to-module call
@@ -164,7 +171,7 @@ def modes_fragments(runs, out):
         rows.append([f"{m}", nice(a["ordersPerSecond"]), nice(b["ordersPerSecond"]), change(a["ordersPerSecond"], b["ordersPerSecond"]),
                      f"{ra['p50']:.1f}", f"{rb['p50']:.1f}", change(ra["p50"], rb["p50"]), f"{ra['p99']:.1f}", f"{rb['p99']:.1f}", change(ra["p99"], rb["p99"])])
     (out / "cache-table.md").write_text(md_table(["Mode", "orders/s off", "on", "Δ", "p50 off", "on", "Δ", "p99 off", "on", "Δ"], rows))
-    (out / "cache-chart.md").write_text(hbar("Result cache: throughput", "orders per second, 4 clients; longer is better", cats,
+    (out / "cache-chart.md").write_text(hbar("Result cache: throughput", f"orders per second, {c}; larger is better", cats,
                                              [("cache off", off), ("cache on", on)], "orders/s"))
     methods = sorted({k for r in runs if r.get("cache") == "on" for k in r.get("cacheHitRate", {})})
     shown = [m for m in MODE_ORDER if pick(runs, mode=m, cache="on") and pick(runs, mode=m, cache="on").get("cacheHitRate")]
@@ -175,6 +182,7 @@ def modes_fragments(runs, out):
 
 
 def effect_fragments(parallel_runs, switch_runs, out):
+    c = clients(parallel_runs)
     """Parallel quotes (off to on) for every mode we have both for; async (outbox to events) from the switch run."""
     rows, cats, off, on = [], [], [], []
     pool = parallel_runs + switch_runs
@@ -190,7 +198,7 @@ def effect_fragments(parallel_runs, switch_runs, out):
         rows.append([f"{m}", nice(a["ordersPerSecond"]), nice(b["ordersPerSecond"]), change(a["ordersPerSecond"], b["ordersPerSecond"]),
                      f"{ra['p50']:.1f}", f"{rb['p50']:.1f}", change(ra["p50"], rb["p50"]), f"{ra['p99']:.1f}", f"{rb['p99']:.1f}", change(ra["p99"], rb["p99"])])
     (out / "parallel-table.md").write_text(md_table(["Mode", "orders/s off", "on", "Δ", "p50 off", "on", "Δ", "p99 off", "on", "Δ"], rows))
-    (out / "parallel-chart.md").write_text(hbar("Parallel quotes: throughput", "orders per second, 4 clients; longer is better", cats,
+    (out / "parallel-chart.md").write_text(hbar("Parallel quotes: throughput", f"orders per second, {c}; larger is better", cats,
                                                 [("sequential", off), ("parallel", on)], "orders/s"))
     rows, cats, ob, ev = [], [], [], []
     for m in MODE_ORDER:
@@ -205,25 +213,8 @@ def effect_fragments(parallel_runs, switch_runs, out):
         rows.append([f"{m}", nice(a["ordersPerSecond"]), nice(b["ordersPerSecond"]), change(a["ordersPerSecond"], b["ordersPerSecond"]),
                      f"{ra['p50']:.1f}", f"{rb['p50']:.1f}", change(ra["p50"], rb["p50"]), f"{ra['p99']:.1f}", f"{rb['p99']:.1f}", change(ra["p99"], rb["p99"])])
     (out / "async-table.md").write_text(md_table(["Mode", "orders/s outbox", "events", "Δ", "p50 outbox", "events", "Δ", "p99 outbox", "events", "Δ"], rows))
-    (out / "async-chart.md").write_text(hbar("Follow-up delivery: throughput", "orders per second, 4 clients; longer is better", cats,
+    (out / "async-chart.md").write_text(hbar("Follow-up delivery: throughput", f"orders per second, {clients(switch_runs)}; larger is better", cats,
                                              [("outbox", ob), ("events", ev)], "orders/s"))
-
-
-def load_fragments(runs4, runs16, out):
-    cats, four, sixteen, rows = [], [], [], []
-    for m in ("modulith", "groups", "microservices"):
-        a, b = pick(runs4, mode=m), pick(runs16, mode=m)
-        if not (a and b):
-            continue
-        cats.append(m)
-        four.append(a["ordersPerSecond"])
-        sixteen.append(b["ordersPerSecond"])
-        rows.append([f"{m}", nice(a["ordersPerSecond"]), f"{a['roundTripMs']['p50']:.1f}", f"{a['roundTripMs']['p99']:.1f}",
-                     nice(b["ordersPerSecond"]), f"{b['roundTripMs']['p50']:.1f}", f"{b['roundTripMs']['p99']:.1f}",
-                     change(a["ordersPerSecond"], b["ordersPerSecond"])])
-    (out / "load-table.md").write_text(md_table(["Mode", "4 clients: orders/s", "p50 ms", "p99 ms", "16 clients: orders/s", "p50 ms", "p99 ms", "throughput change"], rows))
-    (out / "load-chart.md").write_text(hbar("Throughput under more load", "orders per second, no call tracing; longer is better", cats,
-                                            [("4 clients", four), ("16 clients", sixteen)], "orders/s"))
 
 
 def drain_fragments(log, out):
@@ -240,14 +231,14 @@ def drain_fragments(log, out):
     rows = [[f"{k}", v["orders"], f"{v['placed']:.1f} s", f"{v['delivered']} of {v['orders']}", f"{v['lag']:.1f} s"] for k, v in found.items()]
     (out / "drain-table.md").write_text(md_table(["Delivery", "Orders placed", "Time to place them", "Notifications delivered", "Last one arrived after"], rows))
     if found:
-        (out / "drain-chart.md").write_text(hbar("Time until every notification is delivered", "seconds after the last order was placed; shorter is better",
+        (out / "drain-chart.md").write_text(hbar("Time until every notification is delivered", "seconds after the last order was placed; smaller is better",
                                                  list(found), [("lag", [v["lag"] for v in found.values()])], "s", lambda v: f"{v:.1f}"))
     return found
 
 
 def main():
     p = argparse.ArgumentParser()
-    for k in ("modes", "parallel", "switches", "load4", "load16"):
+    for k in ("modes", "parallel", "switches"):
         p.add_argument(f"--{k}", required=True)
     p.add_argument("--drain", required=True)
     p.add_argument("--out", default=str(ROOT / "docs" / "performance" / "_generated"))
@@ -256,7 +247,6 @@ def main():
     out.mkdir(parents=True, exist_ok=True)
     base = modes_fragments(load(a.modes), out)
     effect_fragments(load(a.parallel), load(a.switches), out)
-    load_fragments(load(a.load4), load(a.load16), out)
     drain_fragments(a.drain, out)
     print("wrote", len(list(out.glob("*.md"))), "fragments to", out)
 

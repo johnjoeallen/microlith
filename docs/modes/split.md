@@ -78,7 +78,7 @@ graph LR
   match `microservices`, which shows the single artifact costs nothing extra at runtime.
 
 !!! warning "Resource use"
-    The eight-process modes start eight JVMs (about 320 MB of heap each by default). On a laptop, `microservices` and `microservices-macro`
-    are the heavy ones; `DEMO_JAVA_OPTS` overrides the JVM options.
+    The eight-process modes start eight JVMs with `-Xmx2g` each by default, so up to 16 GB of heap. On a laptop, `microservices` and `microservices-macro`
+    are the heavy ones; set `DEMO_JAVA_OPTS` (for example `-Xmx320m`) to shrink them.
 
 How the split shapes compare under load is in [the measurements](../performance/modes.md).

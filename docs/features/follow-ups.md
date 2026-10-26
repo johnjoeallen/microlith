@@ -50,7 +50,14 @@ The full list, with the reasoning, is in the [spike write-up](../design/spring-m
 ## Which is better?
 
 On the request path they are indistinguishable. The difference is how fast the follow-ups drain under load, which is
-[measured here](../performance/load.md#delivery-of-follow-ups): events deliver immediately, the outbox at the speed of its relay. That speed is a tuning limit
+[measured here](../performance/load.md): events deliver immediately, the outbox at the speed of its relay. That speed is a tuning limit
 of this relay (a larger batch would close most of the gap), not a limit of the pattern.
+
+Beyond speed, the two behave differently under load:
+
+* **The outbox can be tuned and copes well with bursts.** Follow-ups wait in a table and the relay drains them at its own pace (batch size, poll interval), so a burst of orders is
+  absorbed and delivered afterwards, and the work is spread over time instead of competing with the requests.
+* **Events run entirely inside the JVM.** Delivery happens on the application's own executor, so the follow-up work grows with the order rate and loads the same JVM that is serving
+  the orders. They deliver immediately when there is headroom, but they give no way to smooth a burst other than sizing the process.
 
 Where it lives: the outbox is on `main`; the events variant is on `spike/spring-modulith-events`; the switch is on `spike/switchable-async`.

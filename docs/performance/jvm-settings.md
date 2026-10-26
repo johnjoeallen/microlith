@@ -1,7 +1,8 @@
 # JVM settings: bigger heaps, C2 and parallel GC
 
-Every other page runs the demo's JVMs deliberately small (`-Xmx320m`, C1-only JIT, serial GC) so that eight of them fit on a laptop. This page repeats the
-[mode comparison](modes.md) on the 128 GB, 32-CPU test machine with 16 concurrent clients, to see how much of the result is the JVM settings rather than the architecture.
+The demo's default JVM is now `-Xmx2g -XX:+UseParallelGC` with the full JIT; this page shows how that default was chosen. It repeats the
+[mode comparison](modes.md) on the 128 GB, 32-CPU test machine with 16 concurrent clients, with the earlier small JVMs (`-Xmx320m`, C1-only JIT, serial GC) and with larger ones, to see how much of the result is the JVM settings rather than the architecture.
+These runs were made before the `VACUUM ANALYZE` step was added to the measurements, so their absolute numbers are a few percent different from the [headline numbers](index.md#headline-numbers).
 
 **Short answer.** Giving each JVM more memory changes nothing measurable (1 GB and 2 GB agree, over five repetitions each); letting the JIT use C2 does most of the work, and the parallel collector adds a little throughput and a clearly better 99th percentile. Together they make the **in-process shapes 37 to 59% faster**,
 They leave the shapes that cross a process boundary almost where they were. The ordering of the shapes is unchanged, but the gap between the monolith and eight services widens from about 2.0x to 2.8x.
@@ -12,7 +13,7 @@ Both runs: `scripts/perf.sh --modes all --cache both --orders 1500 --warmup 200 
 
 | Run | JVM flags per process | Report |
 | --- | --- | --- |
-| **C1** | `-Xmx2g -XX:+UseSerialGC -XX:TieredStopAtLevel=1` (the demo defaults, with 2 GB) | [report](reports/jvm-c1-2g.md) |
+| **C1** | `-Xmx2g -XX:+UseSerialGC -XX:TieredStopAtLevel=1` (the former demo defaults, with 2 GB) | [report](reports/jvm-c1-2g.md) |
 | **C2** | `-Xmx2g -XX:+UseParallelGC` (full tiered JIT) | [report](reports/jvm-c2-parallel.md), [`split-dbs` rerun](reports/jvm-c2-parallel-rerun-split-dbs.md) |
 
 ## Results
@@ -57,12 +58,10 @@ Mean 99th percentile round trip, ms:
 * **Process boundaries dominate once the JVM is fast.** `microservices` and `microservices-macro` stay at about 140 (cache off) and 165 to 175 orders/s (cache on) under both settings: each order still pays about 20 calls
   over HTTP, and the code on either side of them was not the bottleneck.
 * **The cost of splitting looks larger, not smaller.** With C1, `microservices` ran at 50% of `modulith`; with C2 it runs at 36%. A faster JVM speeds up the work between the calls, so the calls become a bigger share.
-* **The 16-client ceiling is higher than the 4-client one.** The [load page](load.md) found saturation at about four clients with the small JVMs; with these settings 16 clients reach 465 orders/s
-  on `modulith`, against 336 for four clients on the small JVMs. The two runs differ in both settings, so this does not separate the effect of clients from that of the JVM.
 
 ## Limits
 
 * One run per configuration, so differences below about 5 to 8% are noise.
 * The first comparison changes the JIT and the collector together; the [repeated matrix](#heap-size-and-collector-repeated) varies only heap and collector, and C2 is inferred as the remainder.
 * Still one machine, loopback only, and a shared PostgreSQL server; see [the method page](method.md).
-* The other pages keep their small-JVM numbers, so that their comparisons stay like for like.
+* The other pages use the 2 GB parallel-GC default and the `VACUUM ANALYZE` step, so their absolute numbers differ slightly from the C2 figures here.

@@ -1,10 +1,10 @@
 | Mode | Orders/s | vs modulith | p50 ms | p95 ms | p99 ms | Calls/order | Calls by binding (mean latency) |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |
-| modulith | 336 | 100% | 11.6 | 16.4 | 18.3 | 20.0 | cache 7,050 (0.03 ms), local 16,965 (0.69 ms) |
-| macro-modulith | 331 | 98% | 11.6 | 16.3 | 18.8 | 20.0 | cache 7,050 (0.03 ms), local 16,965 (0.71 ms) |
-| loopback-codec | 314 | 93% | 12.4 | 17.3 | 20.2 | 20.0 | cache 7,050 (0.00 ms), loopback-codec 16,965 (0.77 ms) |
-| loopback-http | 238 | 71% | 16.3 | 24.3 | 27.9 | 20.0 | cache 7,059 (0.00 ms), loopback-http 16,956 (1.31 ms) |
-| groups | 225 | 67% | 17.4 | 24.9 | 28.7 | 20.0 | cache 7,073 (0.02 ms), local 6,788 (0.54 ms), remote 10,154 (1.66 ms) |
-| split-dbs | 230 | 68% | 16.7 | 25.0 | 28.0 | 20.0 | cache 7,075 (0.02 ms), local 6,788 (0.54 ms), remote 10,152 (1.63 ms) |
-| microservices | 166 | 49% | 22.7 | 34.9 | 77.0 | 20.0 | cache 6,722 (0.01 ms), remote 17,293 (1.98 ms) |
-| microservices-macro | 178 | 53% | 21.5 | 33.7 | 44.7 | 20.0 | cache 6,726 (0.01 ms), remote 17,289 (1.88 ms) |
+| modulith | 444 | 100% | 33.9 | 48.5 | 82.6 | 19.9 | cache 8,994 (0.01 ms), local 20,925 (0.49 ms) |
+| macro-modulith | 446 | 100% | 34.0 | 48.8 | 53.3 | 19.9 | cache 8,991 (0.01 ms), local 20,928 (0.49 ms) |
+| loopback-codec | 444 | 100% | 34.6 | 45.6 | 50.2 | 19.9 | cache 8,994 (0.00 ms), loopback-codec 20,925 (0.51 ms) |
+| loopback-http | 315 | 71% | 47.6 | 70.3 | 77.6 | 19.9 | cache 9,008 (0.00 ms), loopback-http 20,911 (0.91 ms) |
+| groups | 248 | 56% | 62.1 | 90.1 | 100.1 | 19.9 | cache 9,011 (0.01 ms), local 8,261 (0.43 ms), remote 12,647 (1.48 ms) |
+| split-dbs | 255 | 57% | 60.2 | 86.3 | 93.5 | 19.9 | cache 9,021 (0.01 ms), local 8,261 (0.43 ms), remote 12,637 (1.45 ms) |
+| microservices | 160 | 36% | 96.1 | 138.7 | 180.9 | 19.9 | cache 8,635 (0.01 ms), remote 21,284 (2.19 ms) |
+| microservices-macro | 160 | 36% | 97.5 | 137.4 | 176.1 | 19.9 | cache 8,638 (0.01 ms), remote 21,281 (2.17 ms) |

@@ -36,7 +36,7 @@ Per order, from the counters of every process. "JSON bytes/call" is the average 
 
 ## Throughput and latency
 
-Median order (p50) and throughput against plain JSON, four clients. Loopback, so no bandwidth to save:
+Median order (p50) and throughput against plain JSON, four clients. These wire-format runs were made earlier, with the former small demo JVMs and without the `VACUUM ANALYZE` step, and were not repeated at 16 clients; compare the formats with each other, not with the other pages. Loopback, so no bandwidth to save:
 
 --8<-- "performance/_generated/wire-throughput.md"
 

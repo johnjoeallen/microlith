@@ -70,13 +70,13 @@ Logical separation gives most of what a small team needs, at nearly no cost, and
 | ownership, contracts, data ownership, dependency direction, independent tests, change locality, partitioned cognitive load | independent release cadence, independent scaling, failure and resource isolation, a security or network zone, a different runtime, a vendor or other team owning the lifecycle |
 
 What one deployable costs you, measured on this domain: version-skew pairs 0 (against 3 for three groups and 13 for eight services), one image and pipeline, one database instance, and
-`macro-modulith` at the same throughput as `modulith` (461 against 457 orders/s).
+`macro-modulith` at the same throughput as `modulith` (442 against 445 orders/s).
 
 What it does **not** give you: no CPU or memory isolation between modules (one leaky module affects all), one classpath, and one release unit, so a bad commit reaches everything. The controls are
 per-module bulkheads and connection pools, timeouts, asynchronous follow-ups, the runtime switches, and canarying the whole unit. If a requirement needs real isolation, that is a physical
 force, and you act on that module or group alone.
 
-**Split-readiness is a test, not a claim.** `loopback-codec` in CI (97% of the throughput) passes only if no module relies on shared objects or a shared transaction, `loopback-http` adds a real HTTP hop, and
+**Split-readiness is a test, not a claim.** `loopback-codec` in CI (98% of the throughput) passes only if no module relies on shared objects or a shared transaction, `loopback-http` adds a real HTTP hop, and
 a periodic `microservices-macro` run in staging proves the full split from the same artifact and shows its cost.
 
 ## 4. Start small and let boundaries appear
@@ -160,10 +160,10 @@ it is one.
       A2[a] ==>|"network"| B2
     ```
 
-The measurements show it. Keeping the chatty chains inside one process in `groups` cut the remote calls per order from 14.4 (eight services) to 8.5, and recovered 53% of the throughput (263 against 171 orders/s, C2 JVMs, 16 clients).
+The measurements show it. Keeping the chatty chains inside one process in `groups` cut the remote calls per order from 14.2 (eight services) to 8.4, and recovered 55% of the throughput (247 against 159 orders/s, 16 clients).
 
-**Cost of a boundary.** Calls per order that would cross a boundary around each candidate, from the module call counts of one run. Each crossing call costs about 1.1 to 1.3 ms extra here (remote 1.7 to 2.0 ms against local 0.5 to 0.7 ms), **on loopback, with no TLS, authentication or proxies, so a floor**, against a
-median of 11.6 ms for the whole order in one process (small JVMs, four clients; the per-call figures come from that run).
+**Cost of a boundary.** Calls per order that would cross a boundary around each candidate, from the module call counts of one run. Each crossing call costs about 1.0 to 1.7 ms extra here (remote 1.5 to 2.2 ms against local about 0.5 ms; the table below uses 1.2 ms), **on loopback, with no TLS, authentication or proxies, so a floor**, against the
+about 20 calls of every order, which cost about 0.5 ms each in one process.
 
 | If you split out... | Crossing calls/order | About +ms per order | Notes |
 | --- | --- | --- | --- |
@@ -192,7 +192,7 @@ Reading it:
 * **The cache changes the answer.** After caching, `catalog` is nearly free to separate, because most of its calls never leave the caller. Recompute the best grouping after tuning caches.
 * A minimum cut is one input. It ignores ownership, compliance, scaling and balance, so add those as constraints (for example, `payments` must be separate, `shipping` and `inventory` must stay together).
 * The weights depend on the order mix.
-* A prediction, **not measured**: a `groups`-style profile built on the computed cut should keep much more of the single-process throughput than the domain-based `groups` (67%).
+* A prediction, **not measured**: a `groups`-style profile built on the computed cut should keep much more of the single-process throughput than the domain-based `groups` (56%).
 
 ??? note "How the numbers were computed"
 

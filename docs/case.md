@@ -3,7 +3,7 @@
 **Who wants their applications to go slower?**
 
 Every boundary between processes puts a network hop on every call that crosses it. In this project's measurements, splitting the same application into eight services made an
-order take about 2.8 times as long and cut the throughput by more than 60% (32.5 ms against 90 ms median, and 457 against 170 to 171 orders per second, 16 clients; with small JVMs and 4 clients it was twice as long and half the throughput). Nobody sets out to do that, yet it is what starting with microservices does
+order take about 2.8 times as long and cut the throughput by about two thirds (34.2 ms against 96.9 to 98.4 ms median, and 445 against 156 to 159 orders per second, 16 clients). Nobody sets out to do that, yet it is what starting with microservices does
 by default, before any need for the split has been shown.
 
 !!! note "Evidence, and the extrapolation from it"
@@ -23,24 +23,24 @@ This page argues that from the measurements and the design in this project. It i
 
 At the beginning of a product the boundaries, the volumes and the change patterns are guesses. Teams that begin with "how many services do we need?" commit to the decomposition at the point of
 maximum ignorance, and the usual first answer, `n` layers with `m` services per layer, is the worst one: a technical cut makes every feature a coordinated change across services.
-As an extrapolation from the measured cost per hop (a lower bound on one machine), the demo's 20 calls per order, each routed through two extra layer services, would be about 60 hops, roughly **+70 ms**, against **+11 ms** measured for the business-aligned split. Good boundaries come from journeys, invariants and change patterns, and those appear as the product
+As an extrapolation from the measured cost per hop (a lower bound on one machine), the demo's 20 calls per order, each routed through two extra layer services, would be about 60 hops, roughly **+70 ms**, against about **+10 ms** for the business-aligned split. Good boundaries come from journeys, invariants and change patterns, and those appear as the product
 is built. See [start small and let boundaries appear](principles.md#4-start-small-and-let-boundaries-appear).
 
 ### 2. Splitting early has an immediate, measured cost
 
-Same code, same tests, same workload, eight deployment shapes ([the measurements](performance/modes.md)). The chart holds the JVM flags fixed (the demo's C1 + serial GC) and compares 4 with 16 clients; the table is the mean of 20 runs per mode with C2 JVMs and 16 clients ([headline numbers](performance/index.md#headline-numbers)); the call counts below are from the four-client comparison:
+Same code, same tests, same workload, eight deployment shapes ([the measurements](performance/modes.md)). The chart and the table are means over 5 runs per mode with 16 clients ([headline numbers](performance/index.md#headline-numbers)); the call counts are from one of those runs:
 
---8<-- "performance/_generated/jvm-matrix-chart-both-throughput.md"
+--8<-- "performance/_generated/headline-chart-throughput.md"
 
 | | One unit (`modulith`) | Three groups | Eight services |
 | --- | --- | --- | --- |
-| Throughput | 457 orders/s | 263 (58%) | 170 to 171 (37%) |
-| Median order (16 clients) | 32.5 ms | 58.4 ms | 90.0 to 90.4 ms |
-| Remote calls per order | 0 | 8.5 | 14.4 |
+| Throughput | 445 orders/s | 247 (56%) | 156 to 159 (35 to 36%) |
+| Median order (16 clients) | 34.2 ms | 62.2 ms | 96.9 to 98.4 ms |
+| Remote calls per order | 0 | 8.4 | 14.2 |
 | Version-skew pairs to keep compatible | 0 | 3 | 13 |
 | Processes to run, patch and be on call for | 1 | 3 | 8 |
 
-Each call between processes costs about 1.1 to 1.3 ms more than a local one (0.5 to 0.7 ms), and an order makes about 20 calls. Cache and parallel reads win part of it back (+13 to 26% and +9 to 18% in the split modes), but those are mitigations
+Each call between processes costs about 1.0 to 1.7 ms more than a local one (about 0.5 ms), and an order makes about 20 calls. Cache and parallel reads win part of it back (+6 to 19% and +8 to 17% in the split modes), but those are mitigations
 of a cost the team chose to take on. All three columns used the same single PostgreSQL instance (see [where the evidence stops](#where-the-evidence-stops)). For a single team that coordinates perfectly well, the benefit side of that bargain is mostly options it does not yet need.
 
 ### 3. Microservices mainly buy team independence; one team has no use for it yet
@@ -71,12 +71,12 @@ Starting in the cheap-to-be-wrong shape and moving to services on evidence loses
 The usual objection to "start with a monolith" is that you then have to rewrite it. Here you do not. The same artifact, with different configuration, runs as one unit, as three groups, or as eight independent processes, each of which can be scaled, restarted
 and failed on its own:
 
-* `microservices-macro` runs the **single macro jar eight times**, one module enabled in each. It measured the same as the eight dedicated per-service jars (170 against 171 orders/s, within noise). So independent deployments need **no separate codebase and no
+* `microservices-macro` runs the **single macro jar eight times**, one module enabled in each. It measured the same as the eight dedicated per-service jars (156 against 159 orders/s, within noise). So independent deployments need **no separate codebase and no
   separate artifact**.
 * The identical scenarios pass in all eight modes with identical results and exception types, and a failure suite runs eight processes while connections are cut and processes restarted.
 * Different deployments can run different versions of the artifact (a service on 1.4 while the rest are on 1.5), as long as the `@RpcApi` changes stay additive. `japicmp` enforces that once you name a baseline release.
 * Identical pods behind a router give per-API scaling and canarying with no network hop between modules, [see routing](principles.md#2-boundaries-placement-replication-routing-and-data-are-separate-choices).
-* Whether it still holds is a test, not a claim: the contract tests run the same scenarios through every binding, including `loopback-codec` (97% of the single-process throughput), on every build, and they pass only if no module relies on shared objects or a shared transaction.
+* Whether it still holds is a test, not a claim: the contract tests run the same scenarios through every binding, including `loopback-codec` (98% of the single-process throughput), on every build, and they pass only if no module relies on shared objects or a shared transaction.
 
 What it does not give is real isolation between modules *in one process*, or a different runtime per module. Those are physical forces, handled by splitting that module or group when the evidence shows up.
 
@@ -139,7 +139,7 @@ Review:       every <n> sprints, with the boundary metrics
   the measured cost of splitting a **floor** for its network and security part, and the extra hops, handshakes and proxies come on top of every boundary you add.
 * **One shared database server.** Every mode except `split-dbs` used a single PostgreSQL instance with a schema per module, so even the eight services shared one database server. That isolates the cost of the
   *process* boundary, which is the point of the comparison, but it does not charge the services for what real microservices usually add: a database instance per service to provision, secure, back up, monitor and size.
-  Three instances in `split-dbs` cost nothing measurable here (266 against 263 orders/s), though that is on one machine. So again the cost measured for the split shapes is a floor.
+  Three instances in `split-dbs` cost nothing measurable here (250 against 247 orders/s), though that is on one machine. So again the cost measured for the split shapes is a floor.
 * **Cheap calls.** The demo's calls are one primary-key query each, so the network share of an order is larger than in services that do real work per call. This pushes the other way, and is why the relative cost measured here may overstate
   what a heavy-calls domain would see. The two effects are real and run in opposite directions; measure your own journeys.
 * **One domain and one workload.** The demo's order flow and its order mix; a different domain or mix gives different call counts and different weights.

@@ -93,7 +93,7 @@ nav:
       - Method: performance/method.md
       - The eight modes: performance/modes.md
       - Cache, parallel quotes and delivery: performance/switches.md
-      - Load and delivery speed: performance/load.md
+      - Follow-up delivery speed: performance/load.md
       - Wire formats (gzip, BSON): performance/wire-formats.md
       - JVM settings (heap, C2, GC): performance/jvm-settings.md
       - Raw reports:
@@ -101,8 +101,6 @@ nav:
           - Modes, cache off and on: performance/reports/modes-cache.md
           - Parallel quotes: performance/reports/parallel.md
           - Outbox and events: performance/reports/async-parallel.md
-          - 4 clients: performance/reports/load-4-clients.md
-          - 16 clients: performance/reports/load-16-clients.md
           - Wire formats, realistic orders: performance/reports/wire-small.md
           - Wire formats, 40 lines: performance/reports/wire-lines40.md
           - Wire formats, 150 lines: performance/reports/wire-lines150.md

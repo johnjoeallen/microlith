@@ -107,6 +107,13 @@ def psql(instance, sql):
         sys.exit(f"could not load the perf data into {instance} (use --no-seed to skip): " + result.stderr.strip())
 
 
+def vacuum_analyze(mode):
+    """VACUUM ANALYZE of the whole database on every PostgreSQL instance the mode uses, so that the measured run starts with fresh planner
+    statistics and no dead rows from the seed and the warmup."""
+    for instance in (("pg-a", "pg-b", "pg-c") if mode == "split-dbs" else ("pg-a",)):
+        psql(instance, "vacuum analyze;")
+
+
 def seed_data(mode, workload, planned_orders):
     """Loads the customers, products and stock the workload needs (the demo seeds only 3 customers and 4 SKUs).
     A start of any mode begins on a wiped database, so this runs once per measured mode; it is also safe to repeat."""
@@ -318,7 +325,7 @@ def write_report(directory, args, summaries):
          f"- Commit: {git_state()}",
          f"- Host: {os.cpu_count()} CPUs, {os.uname().sysname} {os.uname().release}, Python {sys.version.split()[0]}",
          "- Load: " + (f"{args.duration:g} s" if args.duration else f"{args.orders} orders") + f", {args.concurrency} concurrent clients "
-         f"(closed loop, persistent connections), {args.warmup_orders} warmup orders not measured",
+         f"(closed loop, persistent connections), {args.warmup_orders} warmup orders not measured" + (", then VACUUM ANALYZE of every PostgreSQL instance in use" if args.warmup_orders else ""),
          f"- Workload: {summaries[0].get('workload', args.profile)}",
          f"- Call tracing: {'off (round trips only)' if args.no_trace else f'on, settle {args.settle:g} s, drain {args.drain:g} s'}",
          f"- Command line: `{' '.join(sys.argv[1:]) or '(defaults)'}`", ""]
@@ -565,6 +572,7 @@ def measure(args, out_dir):
                                   workload=args.workload)
         run_load(client, warm, run_id)
         time.sleep(args.settle)                      # let the warmup's async work finish so it does not bleed into the run
+        vacuum_analyze(mode)
 
     collector = None if args.no_trace else TraceCollector(args.settle)
     wire_before = collect_wire()

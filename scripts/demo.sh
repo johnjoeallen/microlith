@@ -22,7 +22,7 @@ mode="${1:-}"; action="${2:-}"
 opt_async=""; opt_cache=""; opt_parallel=""; opt_wire=""
 modules=(orders catalog pricing inventory customers payments shipping notifications)
 declare -A port=([orders]=9181 [catalog]=9182 [pricing]=9183 [inventory]=9184 [customers]=9185 [payments]=9186 [shipping]=9187 [notifications]=9188)
-java_opts="${DEMO_JAVA_OPTS:--Xmx320m -XX:+UseSerialGC -XX:TieredStopAtLevel=1}"
+java_opts="${DEMO_JAVA_OPTS:--Xmx2g -XX:+UseParallelGC}"
 
 usage() {
   echo "usage: $0 <modulith|macro-modulith|groups|microservices|microservices-macro|loopback-codec|loopback-http|split-dbs> start [options] | stop | status" >&2
