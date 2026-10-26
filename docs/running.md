@@ -7,7 +7,7 @@ JDK 25, Docker (PostgreSQL runs in containers), `curl` and `python3`. Maven come
 ## Start a mode
 
 ```bash
-scripts/demo.sh modulith start        # any mode: modulith macro-monolith groups split-dbs microservices microservices-macro loopback-codec loopback-http
+scripts/demo.sh modulith start        # any mode: modulith macro-modulith groups split-dbs microservices microservices-macro loopback-codec loopback-http
 scripts/demo.sh modulith status
 scripts/demo.sh modulith stop         # stops the processes, then PostgreSQL
 ```

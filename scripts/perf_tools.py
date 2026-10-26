@@ -44,7 +44,7 @@ GOLD_PERCENT, DECLINED_PERCENT = 8, 2        # share of seeded customers: gold t
 DECLINED = "declined"                        # a customer whose payment is always declined: an expected business outcome, not a failure
 STARTED = datetime.now(timezone.utc)
 STAMP = STARTED.strftime("%Y%m%dT%H%M%SZ")
-ALL_MODES = ["modulith", "macro-monolith", "groups", "microservices", "microservices-macro", "loopback-codec", "loopback-http", "split-dbs"]
+ALL_MODES = ["modulith", "macro-modulith", "groups", "microservices", "microservices-macro", "loopback-codec", "loopback-http", "split-dbs"]
 
 
 def percentile(sorted_values, p):

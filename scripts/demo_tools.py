@@ -55,7 +55,7 @@ def tree(records):
 
 
 def expected_binding(mode, caller, callee):
-    if mode in ("modulith", "macro-monolith"):
+    if mode in ("modulith", "macro-modulith"):
         return "local"
     if mode in ("loopback-codec", "loopback-http"):
         return mode

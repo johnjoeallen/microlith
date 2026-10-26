@@ -527,7 +527,7 @@ The grouping graph is `front` -> `fulfilment` -> `accounts` and `front` -> `acco
 
 | Item | Port | Notes |
 | --- | --- | --- |
-| All-in-one app | 9181 | `modulith`, `macro-monolith` and the loopback modes |
+| All-in-one app | 9181 | `modulith`, `macro-modulith` and the loopback modes |
 | Group processes | 9181 `front`, 9182 `fulfilment`, 9183 `accounts` | `groups` and `split-dbs` modes |
 | One process per module | 9181 `orders`, 9182 `catalog`, 9183 `pricing`, 9184 `inventory`, 9185 `customers`, 9186 `payments`, 9187 `shipping`, 9188 `notifications` | `microservices` and `microservices-macro` modes |
 | PostgreSQL A | 5432 | shared instance, one schema per module |
@@ -538,7 +538,7 @@ The grouping graph is `front` -> `fulfilment` -> `accounts` and `front` -> `acco
 | Mode | Artifact(s) run | Processes | Cross-module path | Databases |
 | --- | --- | --- | --- | --- |
 | `modulith` | `app-modulith` | 1 | all `local` | A, eight schemas |
-| `macro-monolith` | `app-macro`, profile `monolith` | 1 | all `local` | A |
+| `macro-modulith` | `app-macro`, profile `monolith` | 1 | all `local` | A |
 | `groups` | `app-macro` three times, profiles `front`, `fulfilment`, `accounts` | 3 | mixed: `local` inside a group, `remote` across groups (table in 16.2) | A |
 | `microservices` | eight per-service apps (`app-<module>-service`) | 8 | all `remote` | A |
 | `microservices-macro` | `app-macro` eight times, one module enabled each | 8 | all `remote` | A |

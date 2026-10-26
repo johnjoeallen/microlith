@@ -16,8 +16,8 @@ Client side, ms. Declined orders (expected) are excluded from the latencies.
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
 | modulith cache off | 438 | 1473 | 27 | 16.4 | 36.4 | 34.9 | 43.2 | 47.8 | 61.1 | 73.9 | 19.9 | PASS |
 | modulith cache on | 465 | 1473 | 27 | 12.6 | 34.2 | 32.7 | 41.7 | 47.5 | 53.9 | 58.1 | 19.9 | PASS |
-| macro-monolith cache off | 440 | 1473 | 27 | 13.8 | 36.2 | 34.7 | 43.6 | 46.9 | 55.1 | 62.2 | 19.9 | PASS |
-| macro-monolith cache on | 466 | 1473 | 27 | 12.8 | 34.2 | 32.6 | 43.2 | 47.2 | 54.6 | 59.1 | 19.9 | PASS |
+| macro-modulith cache off | 440 | 1473 | 27 | 13.8 | 36.2 | 34.7 | 43.6 | 46.9 | 55.1 | 62.2 | 19.9 | PASS |
+| macro-modulith cache on | 466 | 1473 | 27 | 12.8 | 34.2 | 32.6 | 43.2 | 47.2 | 54.6 | 59.1 | 19.9 | PASS |
 | groups cache off | 239 | 1473 | 27 | 26.5 | 66.8 | 63.6 | 91.5 | 96.7 | 107.3 | 122.7 | 19.9 | PASS |
 | groups cache on | 251 | 1473 | 27 | 20.2 | 63.4 | 61.8 | 81.5 | 87.2 | 100.3 | 108.2 | 19.9 | PASS |
 | microservices cache off | 141 | 1473 | 27 | 41.2 | 113.1 | 107.4 | 152.1 | 170.5 | 199.9 | 224.7 | 19.9 | PASS |
@@ -38,7 +38,7 @@ Higher orders/s and lower latencies are better.
 | mode | orders/s off | on | change | p50 off | on | change | p95 off | on | change | p99 off | on | change |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
 | modulith | 438 | 465 | +6% | 34.9 | 32.7 | -6% | 47.8 | 47.5 | -1% | 61.1 | 53.9 | -12% |
-| macro-monolith | 440 | 466 | +6% | 34.7 | 32.6 | -6% | 46.9 | 47.2 | +1% | 55.1 | 54.6 | -1% |
+| macro-modulith | 440 | 466 | +6% | 34.7 | 32.6 | -6% | 46.9 | 47.2 | +1% | 55.1 | 54.6 | -1% |
 | groups | 239 | 251 | +5% | 63.6 | 61.8 | -3% | 96.7 | 87.2 | -10% | 107.3 | 100.3 | -6% |
 | microservices | 141 | 167 | +19% | 107.4 | 93.6 | -13% | 170.5 | 134.8 | -21% | 199.9 | 175.0 | -12% |
 | microservices-macro | 141 | 173 | +23% | 109.3 | 89.6 | -18% | 164.4 | 132.2 | -20% | 197.1 | 168.5 | -15% |
@@ -67,7 +67,7 @@ HTTP calls only (calls inside one process are not counted). Raw is the JSON-RPC 
 
 Recorded on the caller's side, over every binding the call used (a cache hit counts as a call). Ordered by total time spent.
 
-| call | modulith cache off | modulith cache on | macro-monolith cache off | macro-monolith cache on | groups cache off | groups cache on | microservices cache off | microservices cache on | microservices-macro cache off | microservices-macro cache on | loopback-codec cache off | loopback-codec cache on | loopback-http cache off | loopback-http cache on | split-dbs cache off | split-dbs cache on |
+| call | modulith cache off | modulith cache on | macro-modulith cache off | macro-modulith cache on | groups cache off | groups cache on | microservices cache off | microservices cache on | microservices-macro cache off | microservices-macro cache on | loopback-codec cache off | loopback-codec cache on | loopback-http cache off | loopback-http cache on | split-dbs cache off | split-dbs cache on |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
 | orders -> shipping.quote | 1.0 | 0.7 | 1.0 | 0.7 | 2.3 | 1.9 | 6.3 | 4.5 | 6.1 | 4.2 | 1.0 | 0.7 | 2.5 | 1.7 | 1.9 | 1.7 |
 | orders -> shipping.createShipment | 1.3 | 1.2 | 1.3 | 1.1 | 2.6 | 2.0 | 4.4 | 3.4 | 4.4 | 3.3 | 1.3 | 1.2 | 2.1 | 1.7 | 4.9 | 1.8 |
@@ -92,7 +92,7 @@ Recorded on the caller's side, over every binding the call used (a cache hit cou
 
 Recorded on the caller's side, over every binding the call used (a cache hit counts as a call). Ordered by total time spent.
 
-| call | modulith cache off | modulith cache on | macro-monolith cache off | macro-monolith cache on | groups cache off | groups cache on | microservices cache off | microservices cache on | microservices-macro cache off | microservices-macro cache on | loopback-codec cache off | loopback-codec cache on | loopback-http cache off | loopback-http cache on | split-dbs cache off | split-dbs cache on |
+| call | modulith cache off | modulith cache on | macro-modulith cache off | macro-modulith cache on | groups cache off | groups cache on | microservices cache off | microservices cache on | microservices-macro cache off | microservices-macro cache on | loopback-codec cache off | loopback-codec cache on | loopback-http cache off | loopback-http cache on | split-dbs cache off | split-dbs cache on |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
 | orders -> shipping.quote | 1.7 | 1.3 | 1.7 | 1.3 | 4.0 | 3.7 | 12.0 | 9.5 | 11.4 | 8.8 | 1.7 | 1.3 | 4.5 | 3.5 | 3.1 | 3.3 |
 | orders -> shipping.createShipment | 1.8 | 1.6 | 1.7 | 1.6 | 4.1 | 2.9 | 6.8 | 5.2 | 6.5 | 4.9 | 1.8 | 1.6 | 3.0 | 2.4 | 8.7 | 2.9 |
@@ -117,7 +117,7 @@ Recorded on the caller's side, over every binding the call used (a cache hit cou
 
 Share of calls to each `@Cached` method answered from the cache.
 
-| method | modulith cache off | modulith cache on | macro-monolith cache off | macro-monolith cache on | groups cache off | groups cache on | microservices cache off | microservices cache on | microservices-macro cache off | microservices-macro cache on | loopback-codec cache off | loopback-codec cache on | loopback-http cache off | loopback-http cache on | split-dbs cache off | split-dbs cache on |
+| method | modulith cache off | modulith cache on | macro-modulith cache off | macro-modulith cache on | groups cache off | groups cache on | microservices cache off | microservices cache on | microservices-macro cache off | microservices-macro cache on | loopback-codec cache off | loopback-codec cache on | loopback-http cache off | loopback-http cache on | split-dbs cache off | split-dbs cache on |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
 | catalog.getProduct | - | 78.0% | - | 78.0% | - | 78.0% | - | 77.7% | - | 77.7% | - | 78.0% | - | 78.0% | - | 78.0% |
 | catalog.productExists | - | 78.0% | - | 78.0% | - | 78.0% | - | 77.7% | - | 77.7% | - | 78.0% | - | 78.0% | - | 78.0% |
@@ -132,8 +132,8 @@ Count and mean latency of the module-to-module calls, by how each was served.
 | --- | ---: | ---: | ---: | ---: | ---: |
 | modulith cache off | - | 29919 calls, 0.42 ms | - | - | - |
 | modulith cache on | 8992 calls, 0.01 ms | 20927 calls, 0.47 ms | - | - | - |
-| macro-monolith cache off | - | 29919 calls, 0.42 ms | - | - | - |
-| macro-monolith cache on | 8993 calls, 0.01 ms | 20926 calls, 0.47 ms | - | - | - |
+| macro-modulith cache off | - | 29919 calls, 0.42 ms | - | - | - |
+| macro-modulith cache on | 8993 calls, 0.01 ms | 20926 calls, 0.47 ms | - | - | - |
 | groups cache off | - | 13500 calls, 0.39 ms | - | - | 16419 calls, 1.35 ms |
 | groups cache on | 9012 calls, 0.01 ms | 8261 calls, 0.43 ms | - | - | 12646 calls, 1.46 ms |
 | microservices cache off | - | - | - | - | 29919 calls, 2.05 ms |
@@ -245,7 +245,7 @@ By binding: cache 8992 calls, mean 0.01 ms, local 20927 calls, mean 0.47 ms. 19.
 
 Raw samples: `.demo/perf/20261025T235140Z/modulith-cache-on` (`orders.csv`, `calls.csv`, `summary.json`).
 
-### macro-monolith (cache off, parallel quotes on, async outbox)
+### macro-modulith (cache off, parallel quotes on, async outbox)
 
 1500 orders in 3.4 s = 440.3 orders/s; 1473 ok, 27 declined (expected), 0 failed.
 
@@ -282,9 +282,9 @@ Recorded on the caller's side, ordered by total time spent. Binding `cache` is a
 
 By binding: local 29919 calls, mean 0.42 ms. 19.9 module-to-module calls per order.
 
-Raw samples: `.demo/perf/20261025T235140Z/macro-monolith-cache-off` (`orders.csv`, `calls.csv`, `summary.json`).
+Raw samples: `.demo/perf/20261025T235140Z/macro-modulith-cache-off` (`orders.csv`, `calls.csv`, `summary.json`).
 
-### macro-monolith (cache on, parallel quotes on, async outbox)
+### macro-modulith (cache on, parallel quotes on, async outbox)
 
 1500 orders in 3.2 s = 465.7 orders/s; 1473 ok, 27 declined (expected), 0 failed.
 
@@ -337,7 +337,7 @@ Recorded on the caller's side, ordered by total time spent. Binding `cache` is a
 
 By binding: cache 8993 calls, mean 0.01 ms, local 20926 calls, mean 0.47 ms. 19.9 module-to-module calls per order.
 
-Raw samples: `.demo/perf/20261025T235140Z/macro-monolith-cache-on` (`orders.csv`, `calls.csv`, `summary.json`).
+Raw samples: `.demo/perf/20261025T235140Z/macro-modulith-cache-on` (`orders.csv`, `calls.csv`, `summary.json`).
 
 ### groups (cache off, parallel quotes on, async outbox)
 

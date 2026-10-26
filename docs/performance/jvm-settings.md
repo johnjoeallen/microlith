@@ -52,7 +52,7 @@ Mean 99th percentile round trip, ms:
 
 ## What to take from it
 
-* **In-process shapes gain the most.** `modulith`, `macro-monolith` and `loopback-codec` rise from about 305 to 440 orders/s (cache off) and from about 330 to 465 (cache on). Their p99 also
+* **In-process shapes gain the most.** `modulith`, `macro-modulith` and `loopback-codec` rise from about 305 to 440 orders/s (cache off) and from about 330 to 465 (cache on). Their p99 also
   tightens, from about 160 ms to about 55 ms in most cases, which suggests the C1 runs' tails were compilation and collection pauses.
 * **Process boundaries dominate once the JVM is fast.** `microservices` and `microservices-macro` stay at about 140 (cache off) and 165 to 175 orders/s (cache on) under both settings: each order still pays about 20 calls
   over HTTP, and the code on either side of them was not the bottleneck.

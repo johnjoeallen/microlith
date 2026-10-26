@@ -11,7 +11,7 @@ scripts/demo.sh <mode> status     # which processes are up
 scripts/demo.sh <mode> stop       # stop the processes, then PostgreSQL
 ```
 
-Modes: `modulith`, `macro-monolith`, `groups`, `microservices`, `microservices-macro`, `loopback-codec`, `loopback-http`, `split-dbs`.
+Modes: `modulith`, `macro-modulith`, `groups`, `microservices`, `microservices-macro`, `loopback-codec`, `loopback-http`, `split-dbs`.
 Only one mode runs at a time; `start` refuses while another is running. Logs and PID files are under `.demo/`.
 
 The orders entry point and the shop are on **9181** in every mode:
@@ -205,7 +205,7 @@ Needs a JDK, Docker, `curl` and `python3`. The jars are built on first use (`./m
 
 ```bash
 scripts/db.sh up                       # three PostgreSQL instances (A 5432, B 5433, C 5434), schemas and roles bootstrapped
-scripts/demo.sh groups start             # any mode: modulith macro-monolith groups microservices microservices-macro loopback-codec loopback-http split-dbs
+scripts/demo.sh groups start             # any mode: modulith macro-modulith groups microservices microservices-macro loopback-codec loopback-http split-dbs
 scripts/smoke.sh                       # the scenarios of section 16.5 + the expected binding on every edge + the merged call tree
 scripts/trace.sh <correlationId>       # the merged call tree of one order, across every running process
 scripts/demo.sh groups status
@@ -217,7 +217,7 @@ scripts/demo-all.sh                    # every mode on a clean database, with a 
 | Mode | Processes | Cross-module path |
 | --- | --- | --- |
 | `modulith` | `app-modulith` on 9181 | all local |
-| `macro-monolith` | `app-macro` (`monolith`) on 9181 | all local |
+| `macro-modulith` | `app-macro` (`monolith`) on 9181 | all local |
 | `groups` | `app-macro` as `front` 9181, `fulfilment` 9182, `accounts` 9183 | local inside a group, remote across |
 | `microservices` | the eight `app-<module>-service` apps on 9181-9188 | all remote |
 | `microservices-macro` | `app-macro` eight times, one module enabled each (profile = module name) | all remote |
@@ -253,7 +253,7 @@ OpenAPI 3.1 and OpenRPC documents are generated at runtime from the `@RpcApi` in
 | `/swagger-ui` | Swagger UI, **dev profile only** (so also in `demo`) |
 
 ```bash
-scripts/db.sh up && scripts/demo.sh macro-monolith start
+scripts/db.sh up && scripts/demo.sh macro-modulith start
 open http://127.0.0.1:9181/swagger-ui        # pick "inventory", try inventory.getStock
 curl -s localhost:9181/rpc/inventory/openapi.json | jq '.paths | keys'
 ```

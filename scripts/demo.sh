@@ -10,7 +10,7 @@
 #   --parallel on|off       orders runs the customer check and the two quotes in parallel, default on               (MODULES_ORDERS_PARALLEL_QUOTES)
 #   --wire json|gzip|bson|bson-gzip   how HTTP calls between processes encode the JSON-RPC envelope, default json (RPC_CLIENT_WIRE); HTTP bindings only
 #
-# modes: modulith  macro-monolith  groups  microservices  microservices-macro  loopback-codec  loopback-http  split-dbs
+# modes: modulith  macro-modulith  groups  microservices  microservices-macro  loopback-codec  loopback-http  split-dbs
 #
 # 'start' wipes and re-creates PostgreSQL (schemas and roles from docs/db/bootstrap.sql; the app migrates and seeds on boot),
 # so every run begins clean. 'stop' stops the processes and then PostgreSQL.
@@ -25,7 +25,7 @@ declare -A port=([orders]=9181 [catalog]=9182 [pricing]=9183 [inventory]=9184 [c
 java_opts="${DEMO_JAVA_OPTS:--Xmx320m -XX:+UseSerialGC -XX:TieredStopAtLevel=1}"
 
 usage() {
-  echo "usage: $0 <modulith|macro-monolith|groups|microservices|microservices-macro|loopback-codec|loopback-http|split-dbs> start [options] | stop | status" >&2
+  echo "usage: $0 <modulith|macro-modulith|groups|microservices|microservices-macro|loopback-codec|loopback-http|split-dbs> start [options] | stop | status" >&2
   echo "options (start only): --async outbox|events   --cache on|off   --parallel on|off   --wire json|gzip|bson|bson-gzip" >&2
   exit 2
 }
@@ -62,7 +62,7 @@ plan() {
   local m g
   case "$mode" in
     modulith)       echo "modulith app-modulith 9181 demo" ;;
-    macro-monolith) echo "macro app-macro 9181 monolith,demo" ;;
+    macro-modulith) echo "macro app-macro 9181 monolith,demo" ;;
     loopback-codec) echo "macro app-macro 9181 loopback-codec,demo" ;;
     loopback-http)  echo "macro app-macro 9181 loopback-http,demo" ;;
     groups)         echo "front app-macro 9181 front,demo"; echo "fulfilment app-macro 9182 fulfilment,demo"; echo "accounts app-macro 9183 accounts,demo" ;;

@@ -16,7 +16,7 @@ Same conditions as [the mode comparison](modes.md): four clients, 1,200 measured
 
 * The more a call costs, the more a hit saves. In the split modes the cache adds **13 to 26%** throughput and takes **6 to 21%** off the median order.
   In a single process the same cache adds 1 to 10%.
-* Read differences of about 5% as noise: `modulith` and `macro-monolith` are the same code and show +1% and +8%.
+* Read differences of about 5% as noise: `modulith` and `macro-modulith` are the same code and show +1% and +8%.
 * About 29% of all calls in a run were answered by the cache (7,050 of 24,015 in `modulith`). A hit costs 0.00 to 0.03 ms.
 
 **Hit rates** (share of calls to each method answered from the cache, whole run):

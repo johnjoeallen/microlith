@@ -18,7 +18,7 @@ a call between modules in the same process is `local`; the other bindings are de
 
 ### In one process, the module boundary is almost free
 
-* `modulith` and `macro-monolith` are the same thing built two ways, and they measure the same (336 and 331 orders/s).
+* `modulith` and `macro-modulith` are the same thing built two ways, and they measure the same (336 and 331 orders/s).
 * `loopback-codec` forces every call through JSON encoding and decoding, in memory: 93% of the throughput, median 12.4 ms against 11.6 ms. Serialisation is a
   small tax, and it is the price of proving that no object identity or shared transaction crosses a boundary.
 * `loopback-http` makes every call a real HTTP request to the same process: 71% of the throughput and a median of 16.3 ms. The cost of the *protocol*,
@@ -51,7 +51,7 @@ that do the most work.
 
 | If you value... | Pick |
 | --- | --- |
-| The best latency and throughput | `modulith` (or `macro-monolith`, equal) |
+| The best latency and throughput | `modulith` (or `macro-modulith`, equal) |
 | A boundary that is proven to hold, at 7% cost | `loopback-codec` as a test configuration |
 | A few deployable units with most of the speed | `groups`: two thirds of the monolith's throughput with three processes instead of eight |
 | Independent deployment and scaling of every module | `microservices` or `microservices-macro`, at about half the throughput on this machine |

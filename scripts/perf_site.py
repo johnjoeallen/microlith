@@ -15,7 +15,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 PERF = ROOT / ".demo" / "perf"
-MODE_ORDER = ["modulith", "macro-monolith", "loopback-codec", "loopback-http", "groups", "split-dbs", "microservices", "microservices-macro"]
+MODE_ORDER = ["modulith", "macro-modulith", "loopback-codec", "loopback-http", "groups", "split-dbs", "microservices", "microservices-macro"]
 
 
 def load(stamp):

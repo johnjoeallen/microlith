@@ -14,7 +14,7 @@ three optional features win back. Everything is measured on one machine with a d
 
 -   **One artifact, no penalty.**
 
-    The configurable macro jar performs like the dedicated assemblies: `macro-monolith` is within 2% of `modulith`, `microservices-macro`
+    The configurable macro jar performs like the dedicated assemblies: `macro-modulith` is within 2% of `modulith`, `microservices-macro`
     within noise of `microservices`, and `split-dbs` equals `groups`.
 
 -   **Cost is per call.**
@@ -37,7 +37,7 @@ Four concurrent clients, realistic workload, result cache on, parallel quotes on
 | Mode | Orders/s | Share of `modulith` | Median order (p50) |
 | --- | ---: | ---: | ---: |
 | `modulith` | 336 | 100% | 11.6 ms |
-| `macro-monolith` | 331 | 98% | 11.6 ms |
+| `macro-modulith` | 331 | 98% | 11.6 ms |
 | `loopback-codec` | 314 | 93% | 12.4 ms |
 | `loopback-http` | 238 | 71% | 16.3 ms |
 | `groups` | 225 | 67% | 17.4 ms |

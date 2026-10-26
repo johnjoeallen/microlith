@@ -26,10 +26,11 @@ graph LR
 * **Databases:** eight schemas on one PostgreSQL instance, each with its own roles and its own connection pool.
 * **Use it for:** the lowest-cost baseline, and day-to-day development.
 
-## macro-monolith
+## macro-modulith
 
-* **Run:** `scripts/demo.sh macro-monolith start`
+* **Run:** `scripts/demo.sh macro-modulith start`
 * **What it is:** the *configurable* jar (`app-macro`) with the `monolith` profile, which enables every module as `local`.
+  Every mode of this app is built from modules, so there is no genuine monolith here: this mode is a modulith (every deployment has all modules enabled) built from the configurable jar. The profile is still called `monolith`.
 * **Why it exists:** it proves that the macro jar, which can become any other shape, behaves the same as the fixed assembly when it is configured as a monolith.
   Its numbers should match `modulith`; they do (see [the measurements](../performance/modes.md)).
 

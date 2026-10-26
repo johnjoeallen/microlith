@@ -70,7 +70,7 @@ Logical separation gives most of what a small team needs, at nearly no cost, and
 | ownership, contracts, data ownership, dependency direction, independent tests, change locality, partitioned cognitive load | independent release cadence, independent scaling, failure and resource isolation, a security or network zone, a different runtime, a vendor or other team owning the lifecycle |
 
 What one deployable costs you, measured on this domain: version-skew pairs 0 (against 3 for three groups and 13 for eight services), one image and pipeline, one database instance, and
-`macro-monolith` at 98% of the throughput of `modulith`.
+`macro-modulith` at 98% of the throughput of `modulith`.
 
 What it does **not** give you: no CPU or memory isolation between modules (one leaky module affects all), one classpath, and one release unit, so a bad commit reaches everything. The controls are
 per-module bulkheads and connection pools, timeouts, asynchronous follow-ups, the runtime switches, and canarying the whole unit. If a requirement needs real isolation, that is a physical

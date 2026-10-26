@@ -1,7 +1,7 @@
 | mode | 1g-Serial | 1g-Parallel | 2g-Serial | 2g-Parallel |
 | --- | ---: | ---: | ---: | ---: |
 | modulith | 32.9 | 32.3 | 32.2 | 32.4 |
-| macro-monolith | 32.7 | 32.3 | 32.4 | 32.0 |
+| macro-modulith | 32.7 | 32.3 | 32.4 | 32.0 |
 | loopback-codec | 33.5 | 33.4 | 33.2 | 33.2 |
 | loopback-http | 46.7 | 45.4 | 45.8 | 45.4 |
 | groups | 58.9 | 58.0 | 58.1 | 58.8 |

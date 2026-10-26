@@ -93,5 +93,5 @@ code. Measured with `scripts/perf.sh --modes modulith,groups,microservices --par
 ## Suggested spike
 
 On this branch: switch only the notification hand-off to an `@ApplicationModuleListener` with the JDBC registry in `modulith` and
-`macro-monolith` modes, behind a property, keep `OutboxRelay` for the split modes, and compare with `scripts/perf.sh --modes`
+`macro-modulith` modes, behind a property, keep `OutboxRelay` for the split modes, and compare with `scripts/perf.sh --modes`
 (including the failure behaviour when notifications is down). Separately, prototype D on `pricing.quote` + `shipping.quote` and measure.

@@ -22,7 +22,7 @@ scripts/demo-all.sh                     # every mode on a clean database, summar
 | Shape | `<mode>` | Processes | Cross-module calls |
 | --- | --- | --- | --- |
 | Modulith (one jar, only the modules' `-impl`) | `modulith` | `app-modulith` :9181 | all local, direct |
-| Macro service as a monolith | `macro-monolith` | `app-macro` profile `monolith` :9181 | all local |
+| Macro service as a monolith | `macro-modulith` | `app-macro` profile `monolith` :9181 | all local |
 | Macro service in groups | `groups` | `app-macro` profiles `front` :9181, `fulfilment` :9182, `accounts` :9183 | local inside a group, JSON-RPC across |
 | Microservices (eight jars) | `microservices` | the eight `app-<module>-service` :9181-9188 | all JSON-RPC |
 | Microservices from the macro jar | `microservices-macro` | `app-macro` eight times, profile = module name | all JSON-RPC |

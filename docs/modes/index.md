@@ -6,7 +6,7 @@ The same modules, the same API interfaces and the same tests run in eight shapes
 | Mode | Processes | Artifact | Cross-module calls | Databases |
 | --- | --- | --- | --- | --- |
 | [`modulith`](single-process.md#modulith) | 1 | `app-modulith` | all `local` | one instance, eight schemas |
-| [`macro-monolith`](single-process.md#macro-monolith) | 1 | `app-macro`, profile `monolith` | all `local` | one instance, eight schemas |
+| [`macro-modulith`](single-process.md#macro-modulith) | 1 | `app-macro`, profile `monolith` | all `local` | one instance, eight schemas |
 | [`loopback-codec`](single-process.md#loopback-codec) | 1 | `app-macro`, profile `loopback-codec` | all through the JSON codec, in memory | one instance, eight schemas |
 | [`loopback-http`](single-process.md#loopback-http) | 1 | `app-macro`, profile `loopback-http` | all over HTTP to itself | one instance, eight schemas |
 | [`groups`](split.md#groups) | 3 | `app-macro`, profiles `front`, `fulfilment`, `accounts` | `local` inside a group, `remote` between groups | one instance, eight schemas |

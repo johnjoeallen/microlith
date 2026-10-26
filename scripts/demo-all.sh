@@ -4,7 +4,7 @@
 set -uo pipefail
 source "$(dirname "$0")/_common.sh"
 
-modes=("$@"); [ ${#modes[@]} -gt 0 ] || modes=(modulith macro-monolith groups microservices microservices-macro loopback-codec loopback-http split-dbs)
+modes=("$@"); [ ${#modes[@]} -gt 0 ] || modes=(modulith macro-modulith groups microservices microservices-macro loopback-codec loopback-http split-dbs)
 ensure_built
 mkdir -p "$demo_dir"
 rows=(); failed=0
