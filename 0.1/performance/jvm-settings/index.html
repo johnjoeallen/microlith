@@ -1153,6 +1153,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#heap-size-and-collector-repeated" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Heap size and collector, repeated
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#what-to-take-from-it" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1892,6 +1903,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#heap-size-and-collector-repeated" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Heap size and collector, repeated
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#what-to-take-from-it" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1936,8 +1958,8 @@
 <h1 id="jvm-settings-bigger-heaps-c2-and-parallel-gc">JVM settings: bigger heaps, C2 and parallel GC<a class="headerlink" href="#jvm-settings-bigger-heaps-c2-and-parallel-gc" title="Permanent link">&para;</a></h1>
 <p>Every other page runs the demo's JVMs deliberately small (<code>-Xmx320m</code>, C1-only JIT, serial GC) so that eight of them fit on a laptop. This page repeats the
 <a href="../modes/">mode comparison</a> on the 128 GB, 32-CPU test machine with 16 concurrent clients, to see how much of the result is the JVM settings rather than the architecture.</p>
-<p><strong>Short answer.</strong> Giving each JVM more memory changes little; letting the JIT use C2 and switching to the parallel collector makes the <strong>in-process shapes 37 to 59% faster</strong>,
-and leaves the shapes that cross a process boundary almost where they were. The ordering of the shapes is unchanged, but the gap between the monolith and eight services widens from about 2.0x to 2.8x.</p>
+<p><strong>Short answer.</strong> Giving each JVM more memory changes nothing measurable (1 GB and 2 GB agree, over five repetitions each); letting the JIT use C2 does most of the work, and the parallel collector adds a little throughput and a clearly better 99th percentile. Together they make the <strong>in-process shapes 37 to 59% faster</strong>,
+They leave the shapes that cross a process boundary almost where they were. The ordering of the shapes is unchanged, but the gap between the monolith and eight services widens from about 2.0x to 2.8x.</p>
 <h2 id="what-was-run">What was run<a class="headerlink" href="#what-was-run" title="Permanent link">&para;</a></h2>
 <p>Both runs: <code>scripts/perf.sh --modes all --cache both --orders 1500 --warmup 200 --concurrency 16</code>, one run per configuration, differing only in <code>DEMO_JAVA_OPTS</code>.</p>
 <table>
@@ -2158,6 +2180,259 @@ and leaves the shapes that cross a process boundary almost where they were. The 
 </tbody>
 </table>
 </div>
+<h2 id="heap-size-and-collector-repeated">Heap size and collector, repeated<a class="headerlink" href="#heap-size-and-collector-repeated" title="Permanent link">&para;</a></h2>
+<p>The comparison above changes the JIT and the collector together. To separate heap size and collector, <code>scripts/jvm_matrix.sh</code> ran every combination of <strong>1 GB or 2 GB</strong> and <strong>serial or parallel GC</strong>, all with the full C2 JIT,
+<strong>five times each</strong>, interleaved (repetition 1 of all four, then repetition 2, and so on) so that drift on the machine hits every configuration alike. Each run is <code>--modes all --cache on --orders 1500 --warmup 200 --concurrency 16</code>,
+20 runs in all. The tables are means over the repetitions, after dropping outliers: a run is dropped for a mode if its orders/s is more than two scaled MADs <em>and</em> more than 5% from the median of that mode's repetitions.</p>
+<p>Mean orders per second:</p>
+<table>
+<thead>
+<tr>
+<th>mode</th>
+<th style="text-align: right;">1g-Serial</th>
+<th style="text-align: right;">1g-Parallel</th>
+<th style="text-align: right;">2g-Serial</th>
+<th style="text-align: right;">2g-Parallel</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>modulith</td>
+<td style="text-align: right;">437</td>
+<td style="text-align: right;">470</td>
+<td style="text-align: right;">457</td>
+<td style="text-align: right;">464</td>
+</tr>
+<tr>
+<td>macro-monolith</td>
+<td style="text-align: right;">451</td>
+<td style="text-align: right;">467</td>
+<td style="text-align: right;">457</td>
+<td style="text-align: right;">471</td>
+</tr>
+<tr>
+<td>loopback-codec</td>
+<td style="text-align: right;">438</td>
+<td style="text-align: right;">451</td>
+<td style="text-align: right;">436</td>
+<td style="text-align: right;">450</td>
+</tr>
+<tr>
+<td>loopback-http</td>
+<td style="text-align: right;">319</td>
+<td style="text-align: right;">329</td>
+<td style="text-align: right;">323</td>
+<td style="text-align: right;">329</td>
+</tr>
+<tr>
+<td>groups</td>
+<td style="text-align: right;">261</td>
+<td style="text-align: right;">265</td>
+<td style="text-align: right;">264</td>
+<td style="text-align: right;">263</td>
+</tr>
+<tr>
+<td>split-dbs</td>
+<td style="text-align: right;">264</td>
+<td style="text-align: right;">267</td>
+<td style="text-align: right;">263</td>
+<td style="text-align: right;">268</td>
+</tr>
+<tr>
+<td>microservices</td>
+<td style="text-align: right;">168</td>
+<td style="text-align: right;">174</td>
+<td style="text-align: right;">172</td>
+<td style="text-align: right;">172</td>
+</tr>
+<tr>
+<td>microservices-macro</td>
+<td style="text-align: right;">165</td>
+<td style="text-align: right;">172</td>
+<td style="text-align: right;">173</td>
+<td style="text-align: right;">172</td>
+</tr>
+</tbody>
+</table>
+<p>Mean median (p50) round trip, ms:</p>
+<table>
+<thead>
+<tr>
+<th>mode</th>
+<th style="text-align: right;">1g-Serial</th>
+<th style="text-align: right;">1g-Parallel</th>
+<th style="text-align: right;">2g-Serial</th>
+<th style="text-align: right;">2g-Parallel</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>modulith</td>
+<td style="text-align: right;">32.9</td>
+<td style="text-align: right;">32.3</td>
+<td style="text-align: right;">32.2</td>
+<td style="text-align: right;">32.4</td>
+</tr>
+<tr>
+<td>macro-monolith</td>
+<td style="text-align: right;">32.7</td>
+<td style="text-align: right;">32.3</td>
+<td style="text-align: right;">32.4</td>
+<td style="text-align: right;">32.0</td>
+</tr>
+<tr>
+<td>loopback-codec</td>
+<td style="text-align: right;">33.5</td>
+<td style="text-align: right;">33.4</td>
+<td style="text-align: right;">33.2</td>
+<td style="text-align: right;">33.2</td>
+</tr>
+<tr>
+<td>loopback-http</td>
+<td style="text-align: right;">46.7</td>
+<td style="text-align: right;">45.4</td>
+<td style="text-align: right;">45.8</td>
+<td style="text-align: right;">45.4</td>
+</tr>
+<tr>
+<td>groups</td>
+<td style="text-align: right;">58.9</td>
+<td style="text-align: right;">58.0</td>
+<td style="text-align: right;">58.1</td>
+<td style="text-align: right;">58.8</td>
+</tr>
+<tr>
+<td>split-dbs</td>
+<td style="text-align: right;">57.4</td>
+<td style="text-align: right;">57.3</td>
+<td style="text-align: right;">58.3</td>
+<td style="text-align: right;">57.0</td>
+</tr>
+<tr>
+<td>microservices</td>
+<td style="text-align: right;">91.5</td>
+<td style="text-align: right;">89.6</td>
+<td style="text-align: right;">90.3</td>
+<td style="text-align: right;">90.1</td>
+</tr>
+<tr>
+<td>microservices-macro</td>
+<td style="text-align: right;">93.0</td>
+<td style="text-align: right;">89.8</td>
+<td style="text-align: right;">88.3</td>
+<td style="text-align: right;">88.8</td>
+</tr>
+</tbody>
+</table>
+<p>Mean 99th percentile round trip, ms:</p>
+<table>
+<thead>
+<tr>
+<th>mode</th>
+<th style="text-align: right;">1g-Serial</th>
+<th style="text-align: right;">1g-Parallel</th>
+<th style="text-align: right;">2g-Serial</th>
+<th style="text-align: right;">2g-Parallel</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>modulith</td>
+<td style="text-align: right;">143.8</td>
+<td style="text-align: right;">52.3</td>
+<td style="text-align: right;">103.5</td>
+<td style="text-align: right;">68.7</td>
+</tr>
+<tr>
+<td>macro-monolith</td>
+<td style="text-align: right;">93.7</td>
+<td style="text-align: right;">54.1</td>
+<td style="text-align: right;">85.0</td>
+<td style="text-align: right;">54.5</td>
+</tr>
+<tr>
+<td>loopback-codec</td>
+<td style="text-align: right;">109.8</td>
+<td style="text-align: right;">66.8</td>
+<td style="text-align: right;">143.9</td>
+<td style="text-align: right;">74.1</td>
+</tr>
+<tr>
+<td>loopback-http</td>
+<td style="text-align: right;">84.8</td>
+<td style="text-align: right;">78.9</td>
+<td style="text-align: right;">84.1</td>
+<td style="text-align: right;">81.8</td>
+</tr>
+<tr>
+<td>groups</td>
+<td style="text-align: right;">103.8</td>
+<td style="text-align: right;">95.2</td>
+<td style="text-align: right;">95.7</td>
+<td style="text-align: right;">97.3</td>
+</tr>
+<tr>
+<td>split-dbs</td>
+<td style="text-align: right;">106.5</td>
+<td style="text-align: right;">97.4</td>
+<td style="text-align: right;">98.3</td>
+<td style="text-align: right;">96.0</td>
+</tr>
+<tr>
+<td>microservices</td>
+<td style="text-align: right;">202.4</td>
+<td style="text-align: right;">167.8</td>
+<td style="text-align: right;">197.9</td>
+<td style="text-align: right;">167.1</td>
+</tr>
+<tr>
+<td>microservices-macro</td>
+<td style="text-align: right;">199.1</td>
+<td style="text-align: right;">164.7</td>
+<td style="text-align: right;">198.1</td>
+<td style="text-align: right;">166.5</td>
+</tr>
+</tbody>
+</table>
+<p>3 of 160 mode runs were dropped as outliers.</p>
+<table>
+<thead>
+<tr>
+<th>mode</th>
+<th>config</th>
+<th style="text-align: right;">repetition</th>
+<th style="text-align: right;">orders/s</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>microservices-macro</td>
+<td>1g-Serial</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">173</td>
+</tr>
+<tr>
+<td>microservices-macro</td>
+<td>2g-Serial</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">163</td>
+</tr>
+<tr>
+<td>modulith</td>
+<td>1g-Serial</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">467</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>Heap size makes no measurable difference.</strong> 1 GB and 2 GB agree within the noise for every mode and collector, so 1 GB is enough for these JVMs at this load.</li>
+<li><strong>The collector barely moves throughput.</strong> Parallel is ahead of serial by 0 to 7%, most visibly on the in-process modes (<code>modulith</code> 437 against 470 at 1 GB). Medians are identical.</li>
+<li><strong>The collector shows in the tail.</strong> The 99th percentile is lower with the parallel collector in almost every row, for example 52 against 144 ms for <code>modulith</code> at 1 GB and 167 against 198 ms for <code>microservices</code> at 2 GB. The serial collector's
+  stop-the-world pauses are a likely cause, but pauses were not measured, and the means include a few slow runs, so treat the size of the gap as indicative.</li>
+<li><strong>So the earlier jump was the JIT.</strong> Most of the 37 to 59% gain in the first comparison therefore came from C2, not from the collector or the heap.</li>
+<li>The raw reports of the 20 runs are not published (about 800 lines each); the stamps are in <code>.demo/jvm-matrix.txt</code> of the run.</li>
+</ul>
 <h2 id="what-to-take-from-it">What to take from it<a class="headerlink" href="#what-to-take-from-it" title="Permanent link">&para;</a></h2>
 <ul>
 <li><strong>In-process shapes gain the most.</strong> <code>modulith</code>, <code>macro-monolith</code> and <code>loopback-codec</code> rise from about 305 to 440 orders/s (cache off) and from about 330 to 465 (cache on). Their p99 also
@@ -2173,7 +2448,7 @@ and leaves the shapes that cross a process boundary almost where they were. The 
 <h2 id="limits">Limits<a class="headerlink" href="#limits" title="Permanent link">&para;</a></h2>
 <ul>
 <li>One run per configuration, so differences below about 5 to 8% are noise.</li>
-<li>The two flag changes are not separated: the JIT and the collector changed together, so this does not say which of them mattered.</li>
+<li>The first comparison changes the JIT and the collector together; the <a href="#heap-size-and-collector-repeated">repeated matrix</a> varies only heap and collector, and C2 is inferred as the remainder.</li>
 <li>Still one machine, loopback only, and a shared PostgreSQL server; see <a href="../method/">the method page</a>.</li>
 <li>The other pages keep their small-JVM numbers, so that their comparisons stay like for like.</li>
 </ul>
