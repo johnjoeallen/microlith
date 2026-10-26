@@ -1135,7 +1135,7 @@
   <span class="md-ellipsis">
     
   
-    Load and delivery speed
+    Follow-up delivery speed
   
 
     
@@ -1359,62 +1359,6 @@
     
   
     Outbox and events
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../reports/load-4-clients/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    4 clients
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../reports/load-16-clients/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    16 clients
   
 
     
@@ -2009,7 +1953,7 @@
 <p>How the numbers on these pages are produced, and how far to trust them.</p>
 <h2 id="the-machine">The machine<a class="headerlink" href="#the-machine" title="Permanent link">&para;</a></h2>
 <p>Everything runs on <strong>one machine</strong>: 32 CPUs, Linux 6.12, JDK 25, PostgreSQL 17 in Docker, the load generator and all application processes together.
-Each JVM is limited to <code>-Xmx320m</code> with the serial GC, so that eight of them fit comfortably. <a href="../jvm-settings/">JVM settings</a> repeats the comparison with larger JVMs.</p>
+Each JVM runs with <code>-Xmx2g -XX:+UseParallelGC</code> (the default of <code>demo.sh</code>; override it with <code>DEMO_JAVA_OPTS</code>), which is up to 16 GB of heap for the eight-process modes. <a href="../jvm-settings/">JVM settings</a> shows how that default was chosen.</p>
 <div class="admonition warning">
 <p class="admonition-title">What a single machine means</p>
 <p>A hop between processes here is a <strong>loopback</strong> TCP connection on one host, typically 1 to 3 ms. There is <strong>no TLS or mTLS, no authentication on each call, no load balancer, gateway or
@@ -2052,10 +1996,10 @@ service mesh, no service discovery, no real network latency or loss, and no cros
 expected business outcome; they are counted and shown separately, and excluded from the latency figures.</p>
 <h2 id="the-load">The load<a class="headerlink" href="#the-load" title="Permanent link">&para;</a></h2>
 <ul>
-<li><strong>Closed loop:</strong> each of <em>N</em> concurrent clients sends its next order as soon as the previous one returns. <em>N</em> is 4 unless stated otherwise.</li>
+<li><strong>Closed loop:</strong> each of <em>N</em> concurrent clients sends its next order as soon as the previous one returns. <em>N</em> is 16 for every run on these pages.</li>
 <li><strong>Persistent connections</strong>, so connection set-up is not part of the measured round trip.</li>
-<li><strong>Warm-up:</strong> 200 to 400 orders, not measured, so JIT compilation and connection pools are settled and the cache has seen its popular keys.</li>
-<li><strong>Measured run:</strong> 1,500 orders (4,000 for the load test).</li>
+<li><strong>Warm-up:</strong> 200 orders, not measured, so JIT compilation and connection pools are settled and the cache has seen its popular keys. After the warm-up (and a short settle for its asynchronous work) the driver runs <code>VACUUM ANALYZE</code> on every PostgreSQL instance in use, so the measured run starts with fresh planner statistics and no dead rows from the seed and the warm-up.</li>
+<li><strong>Measured run:</strong> 1,500 orders.</li>
 <li><strong>Clean database every run:</strong> <code>demo.sh start</code> wipes and re-initialises PostgreSQL, the driver bulk-loads the customers, products and stock, and
   every start is from the same state.</li>
 </ul>
@@ -2071,7 +2015,7 @@ expected business outcome; they are counted and shown separately, and excluded f
 <div class="admonition note">
 <p class="admonition-title">Read the figures with these in mind</p>
 <ul>
-<li><strong>One run per configuration.</strong> Run-to-run noise on this machine is about 3 to 5% for throughput and p50. Differences smaller than that are
+<li><strong>One run per configuration, except the headline table (5 runs per mode).</strong> Run-to-run noise on this machine is about 3 to 5% for throughput and p50. Differences smaller than that are
   noise; p99 and max are noisier still (single outliers of 50 to 100 ms appear in otherwise identical runs).</li>
 <li><strong>Call tracing has a cost.</strong> Recording each call adds a little overhead to every configuration equally. <code>--no-trace</code> measures round trips only.</li>
 <li><strong>It is a demo domain.</strong> Calls are cheap (one primary-key query each), so the network and framework share of the time is larger than it would
@@ -2080,10 +2024,10 @@ expected business outcome; they are counted and shown separately, and excluded f
 </ul>
 </div>
 <h2 id="reproducing-it">Reproducing it<a class="headerlink" href="#reproducing-it" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code>scripts/perf.sh<span class="w"> </span>--modes<span class="w"> </span>all<span class="w"> </span>--cache<span class="w"> </span>both<span class="w"> </span>--orders<span class="w"> </span><span class="m">1500</span><span class="w"> </span>--warmup<span class="w"> </span><span class="m">200</span><span class="w"> </span>--concurrency<span class="w"> </span><span class="m">4</span><span class="w">          </span><span class="c1"># the mode comparison</span>
+<div class="highlight"><pre><span></span><code>scripts/perf.sh<span class="w"> </span>--modes<span class="w"> </span>all<span class="w"> </span>--cache<span class="w"> </span>both<span class="w"> </span>--orders<span class="w"> </span><span class="m">1500</span><span class="w"> </span>--warmup<span class="w"> </span><span class="m">200</span><span class="w"> </span>--concurrency<span class="w"> </span><span class="m">16</span><span class="w">         </span><span class="c1"># the mode comparison</span>
 scripts/perf.sh<span class="w"> </span>--modes<span class="w"> </span>loopback-http,split-dbs,microservices-macro<span class="w"> </span>--parallel<span class="w"> </span>both<span class="w"> </span>...<span class="w">      </span><span class="c1"># parallel quotes</span>
 scripts/perf.sh<span class="w"> </span>--modes<span class="w"> </span>modulith,groups,microservices<span class="w"> </span>--async<span class="w"> </span>both<span class="w"> </span>--parallel<span class="w"> </span>both<span class="w"> </span>...<span class="w">       </span><span class="c1"># delivery and parallel</span>
-scripts/perf.sh<span class="w"> </span>--modes<span class="w"> </span>modulith,groups,microservices<span class="w"> </span>--orders<span class="w"> </span><span class="m">4000</span><span class="w"> </span>--warmup<span class="w"> </span><span class="m">400</span><span class="w"> </span>--concurrency<span class="w"> </span><span class="m">16</span><span class="w">   </span><span class="c1"># more load</span>
+scripts/perf.sh<span class="w"> </span>--modes<span class="w"> </span>all<span class="w"> </span>--cache<span class="w"> </span>on<span class="w"> </span>...<span class="w">                                                   </span><span class="c1"># repeated 5 times for the headline means</span>
 </code></pre></div>
 <p>Each run writes a timestamped markdown report with the modes side by side, plus the raw samples, to <code>.demo/perf/&lt;timestamp&gt;/</code>. The tables and charts
 on these pages are generated from those saved summaries by <code>scripts/perf_site.py</code>, never typed by hand.</p>

@@ -27,7 +27,7 @@
     
     
       
-        <title>Load and delivery speed - microlith</title>
+        <title>Follow-up delivery speed - microlith</title>
       
     
     
@@ -80,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#load-and-delivery-speed" class="md-skip">
+        <a href="#delivery-speed-of-follow-ups" class="md-skip">
           Skip to content
         </a>
       
@@ -118,7 +118,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Load and delivery speed
+              Follow-up delivery speed
             
           </span>
         </div>
@@ -1024,24 +1024,6 @@
         
       
       
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Load and delivery speed
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
       <a href="./" class="md-nav__link md-nav__link--active">
         
   
@@ -1049,7 +1031,7 @@
   <span class="md-ellipsis">
     
   
-    Load and delivery speed
+    Follow-up delivery speed
   
 
     
@@ -1058,47 +1040,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#more-clients" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        More clients
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#delivery-of-follow-ups" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Delivery of follow-ups
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
       
     </li>
   
@@ -1315,62 +1256,6 @@
     
   
     Outbox and events
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../reports/load-4-clients/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    4 clients
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../reports/load-16-clients/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    16 clients
   
 
     
@@ -1869,36 +1754,6 @@
     
   
   
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#more-clients" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        More clients
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#delivery-of-follow-ups" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Delivery of follow-ups
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
 </nav>
                   </div>
                 </div>
@@ -1917,76 +1772,10 @@
   
 
 
-<h1 id="load-and-delivery-speed">Load and delivery speed<a class="headerlink" href="#load-and-delivery-speed" title="Permanent link">&para;</a></h1>
-<h2 id="more-clients">More clients<a class="headerlink" href="#more-clients" title="Permanent link">&para;</a></h2>
-<p>The mode comparison used four concurrent clients. Does more load buy more throughput? Same workload, result cache and parallel quotes on, <strong>call tracing off</strong>
-for both rows (so tracing overhead does not distort the comparison), 3,000 measured orders.</p>
-<figure class="viz"><figcaption><strong>Throughput under more load</strong><span>orders per second, no call tracing; longer is better</span></figcaption><ul class="viz-legend"><li><span class="sw s1"></span>4 clients</li><li><span class="sw s2"></span>16 clients</li></ul><svg viewBox="0 0 760 182" role="img" aria-label="Throughput under more load: orders per second, no call tracing; longer is better"><line class="grid" x1="103.8" y1="6" x2="103.8" y2="156"/><text class="tick" x="103.8" y="174" text-anchor="middle">0</text><line class="grid" x1="251.9" y1="6" x2="251.9" y2="156"/><text class="tick" x="251.9" y="174" text-anchor="middle">100</text><line class="grid" x1="399.9" y1="6" x2="399.9" y2="156"/><text class="tick" x="399.9" y="174" text-anchor="middle">200</text><line class="grid" x1="548.0" y1="6" x2="548.0" y2="156"/><text class="tick" x="548.0" y="174" text-anchor="middle">300</text><line class="grid" x1="696.0" y1="6" x2="696.0" y2="156"/><text class="tick" x="696.0" y="174" text-anchor="middle">400</text><line class="axis" x1="103.8" y1="6" x2="103.8" y2="156"/><g class="row"><title>modulith: 4 clients 371 orders/s, 16 clients 354 orders/s</title><rect class="hit" x="0" y="6" width="760" height="50"/><text class="cat" x="95.8" y="35.0" text-anchor="end">modulith</text><path class="mark s1" d="M103.8,14.0h545.0a4.0,4.0 0 0 1 4.0,4.0v8.0a4.0,4.0 0 0 1 -4.0,4.0h-545.0z"><title>4 clients: 371 orders/s</title></path><text class="val" x="658.8" y="26.0">371</text><path class="mark s2" d="M103.8,32.0h520.4a4.0,4.0 0 0 1 4.0,4.0v8.0a4.0,4.0 0 0 1 -4.0,4.0h-520.4z"><title>16 clients: 354 orders/s</title></path><text class="val" x="634.2" y="44.0">354</text></g><g class="row"><title>groups: 4 clients 243 orders/s, 16 clients 237 orders/s</title><rect class="hit" x="0" y="56" width="760" height="50"/><text class="cat" x="95.8" y="85.0" text-anchor="end">groups</text><path class="mark s1" d="M103.8,64.0h355.1a4.0,4.0 0 0 1 4.0,4.0v8.0a4.0,4.0 0 0 1 -4.0,4.0h-355.1z"><title>4 clients: 243 orders/s</title></path><text class="val" x="468.9" y="76.0">243</text><path class="mark s2" d="M103.8,82.0h347.2a4.0,4.0 0 0 1 4.0,4.0v8.0a4.0,4.0 0 0 1 -4.0,4.0h-347.2z"><title>16 clients: 237 orders/s</title></path><text class="val" x="461.0" y="94.0">237</text></g><g class="row"><title>microservices: 4 clients 192 orders/s, 16 clients 188 orders/s</title><rect class="hit" x="0" y="106" width="760" height="50"/><text class="cat" x="95.8" y="135.0" text-anchor="end">microservices</text><path class="mark s1" d="M103.8,114.0h279.7a4.0,4.0 0 0 1 4.0,4.0v8.0a4.0,4.0 0 0 1 -4.0,4.0h-279.7z"><title>4 clients: 192 orders/s</title></path><text class="val" x="393.5" y="126.0">192</text><path class="mark s2" d="M103.8,132.0h274.2a4.0,4.0 0 0 1 4.0,4.0v8.0a4.0,4.0 0 0 1 -4.0,4.0h-274.2z"><title>16 clients: 188 orders/s</title></path><text class="val" x="388.0" y="144.0">188</text></g></svg><details class="viz-data"><summary>Show the numbers</summary><table><thead><tr><th></th><th>4 clients (orders/s)</th><th>16 clients (orders/s)</th></tr></thead><tbody><tr><td>modulith</td><td>371</td><td>354</td></tr><tr><td>groups</td><td>243</td><td>237</td></tr><tr><td>microservices</td><td>192</td><td>188</td></tr></tbody></table></details></figure>
-
-<table>
-<thead>
-<tr>
-<th>Mode</th>
-<th style="text-align: right;">4 clients: orders/s</th>
-<th style="text-align: right;">p50 ms</th>
-<th style="text-align: right;">p99 ms</th>
-<th style="text-align: right;">16 clients: orders/s</th>
-<th style="text-align: right;">p50 ms</th>
-<th style="text-align: right;">p99 ms</th>
-<th style="text-align: right;">throughput change</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>modulith</td>
-<td style="text-align: right;">371</td>
-<td style="text-align: right;">10.5</td>
-<td style="text-align: right;">17.7</td>
-<td style="text-align: right;">354</td>
-<td style="text-align: right;">45.5</td>
-<td style="text-align: right;">55.4</td>
-<td style="text-align: right;">-4%</td>
-</tr>
-<tr>
-<td>groups</td>
-<td style="text-align: right;">243</td>
-<td style="text-align: right;">16.0</td>
-<td style="text-align: right;">26.8</td>
-<td style="text-align: right;">237</td>
-<td style="text-align: right;">66.9</td>
-<td style="text-align: right;">80.3</td>
-<td style="text-align: right;">-2%</td>
-</tr>
-<tr>
-<td>microservices</td>
-<td style="text-align: right;">192</td>
-<td style="text-align: right;">20.0</td>
-<td style="text-align: right;">35.3</td>
-<td style="text-align: right;">188</td>
-<td style="text-align: right;">84.1</td>
-<td style="text-align: right;">105.1</td>
-<td style="text-align: right;">-2%</td>
-</tr>
-</tbody>
-</table>
-<ul>
-<li><strong>Throughput does not grow.</strong> Going from 4 to 16 clients leaves orders per second flat (it falls 2 to 4%). The system is already saturated at about four
-  concurrent orders on this machine.</li>
-<li><strong>Latency grows in proportion.</strong> With a fixed number of clients that each wait for their answer, the median order is roughly <em>clients ÷ throughput</em>: 10.5 ms
-  becomes 45.5 ms in <code>modulith</code>, 16.0 becomes 66.9 in <code>groups</code> and 20.0 becomes 84.1 in <code>microservices</code>. Extra clients only queue.</li>
-<li><strong>The ordering of the shapes does not change under load.</strong> The monolith stays ahead of three processes, which stay ahead of eight.</li>
-<li><strong>The ceiling is mostly the application, not the load generator.</strong> A second generator running at the same time added only about 10% to the combined rate
-  (410 against 371 orders/s on <code>modulith</code>); that test also ran into out-of-stock failures because the stock was sized for one generator, so treat it as indicative.</li>
-</ul>
-<div class="admonition warning">
-<p class="admonition-title">Why the ceiling is where it is</p>
-<p>The demo JVMs are deliberately small (<code>-Xmx320m</code>, C1-only JIT, serial GC) so that eight fit on a laptop, and each order makes about 20 module calls,
-most of them a database query. Change them with <code>DEMO_JAVA_OPTS</code> before reading anything into the absolute number; <a href="../jvm-settings/">JVM settings</a> shows what a full JIT and the parallel GC do.</p>
-</div>
-<h2 id="delivery-of-follow-ups">Delivery of follow-ups<a class="headerlink" href="#delivery-of-follow-ups" title="Permanent link">&para;</a></h2>
+<h1 id="delivery-speed-of-follow-ups">Delivery speed of follow-ups<a class="headerlink" href="#delivery-speed-of-follow-ups" title="Permanent link">&para;</a></h1>
 <p>The request path cannot show this, because follow-ups are delivered <em>after</em> the order returns. The test: place 978 orders flat out, then time how long until every
 confirmation message has actually arrived in the notifications module.</p>
-<figure class="viz"><figcaption><strong>Time until every notification is delivered</strong><span>seconds after the last order was placed; shorter is better</span></figcaption><svg viewBox="0 0 760 104" role="img" aria-label="Time until every notification is delivered: seconds after the last order was placed; shorter is better"><line class="grid" x1="57.6" y1="6" x2="57.6" y2="78"/><text class="tick" x="57.6" y="96" text-anchor="middle">0.0</text><line class="grid" x1="185.3" y1="6" x2="185.3" y2="78"/><text class="tick" x="185.3" y="96" text-anchor="middle">10.0</text><line class="grid" x1="313.0" y1="6" x2="313.0" y2="78"/><text class="tick" x="313.0" y="96" text-anchor="middle">20.0</text><line class="grid" x1="440.6" y1="6" x2="440.6" y2="78"/><text class="tick" x="440.6" y="96" text-anchor="middle">30.0</text><line class="grid" x1="568.3" y1="6" x2="568.3" y2="78"/><text class="tick" x="568.3" y="96" text-anchor="middle">40.0</text><line class="grid" x1="696.0" y1="6" x2="696.0" y2="78"/><text class="tick" x="696.0" y="96" text-anchor="middle">50.0</text><line class="axis" x1="57.599999999999994" y1="6" x2="57.599999999999994" y2="78"/><g class="row"><title>outbox: lag 48.9 s</title><rect class="hit" x="0" y="6" width="760" height="36"/><text class="cat" x="49.599999999999994" y="28.0" text-anchor="end">outbox</text><path class="mark s1" d="M57.6,14.0h620.4a4.0,4.0 0 0 1 4.0,4.0v12.0a4.0,4.0 0 0 1 -4.0,4.0h-620.4z"><title>lag: 48.9 s</title></path><text class="val" x="688.0" y="28.0">48.9</text></g><g class="row"><title>events: lag 0.1 s</title><rect class="hit" x="0" y="42" width="760" height="36"/><text class="cat" x="49.599999999999994" y="64.0" text-anchor="end">events</text><path class="mark s1" d="M57.6,50.0h0.6a0.6,0.6 0 0 1 0.6,0.6v18.7a0.6,0.6 0 0 1 -0.6,0.6h-0.6z"><title>lag: 0.1 s</title></path><text class="val" x="64.9" y="64.0">0.1</text></g></svg><details class="viz-data"><summary>Show the numbers</summary><table><thead><tr><th></th><th>lag (s)</th></tr></thead><tbody><tr><td>outbox</td><td>48.9</td></tr><tr><td>events</td><td>0.1</td></tr></tbody></table></details></figure>
+<figure class="viz"><figcaption><strong>Time until every notification is delivered</strong><span>seconds after the last order was placed; smaller is better</span></figcaption><svg viewBox="0 0 760 104" role="img" aria-label="Time until every notification is delivered: seconds after the last order was placed; smaller is better"><line class="grid" x1="57.6" y1="6" x2="57.6" y2="78"/><text class="tick" x="57.6" y="96" text-anchor="middle">0.0</text><line class="grid" x1="185.3" y1="6" x2="185.3" y2="78"/><text class="tick" x="185.3" y="96" text-anchor="middle">10.0</text><line class="grid" x1="313.0" y1="6" x2="313.0" y2="78"/><text class="tick" x="313.0" y="96" text-anchor="middle">20.0</text><line class="grid" x1="440.6" y1="6" x2="440.6" y2="78"/><text class="tick" x="440.6" y="96" text-anchor="middle">30.0</text><line class="grid" x1="568.3" y1="6" x2="568.3" y2="78"/><text class="tick" x="568.3" y="96" text-anchor="middle">40.0</text><line class="grid" x1="696.0" y1="6" x2="696.0" y2="78"/><text class="tick" x="696.0" y="96" text-anchor="middle">50.0</text><line class="axis" x1="57.599999999999994" y1="6" x2="57.599999999999994" y2="78"/><g class="row"><title>outbox: lag 48.9 s</title><rect class="hit" x="0" y="6" width="760" height="36"/><text class="cat" x="49.599999999999994" y="28.0" text-anchor="end">outbox</text><path class="mark s1" d="M57.6,14.0h620.4a4.0,4.0 0 0 1 4.0,4.0v12.0a4.0,4.0 0 0 1 -4.0,4.0h-620.4z"><title>lag: 48.9 s</title></path><text class="val" x="688.0" y="28.0">48.9</text></g><g class="row"><title>events: lag 0.1 s</title><rect class="hit" x="0" y="42" width="760" height="36"/><text class="cat" x="49.599999999999994" y="64.0" text-anchor="end">events</text><path class="mark s1" d="M57.6,50.0h0.6a0.6,0.6 0 0 1 0.6,0.6v18.7a0.6,0.6 0 0 1 -0.6,0.6h-0.6z"><title>lag: 0.1 s</title></path><text class="val" x="64.9" y="64.0">0.1</text></g></svg><details class="viz-data"><summary>Show the numbers</summary><table><thead><tr><th></th><th>lag (s)</th></tr></thead><tbody><tr><td>outbox</td><td>48.9</td></tr><tr><td>events</td><td>0.1</td></tr></tbody></table></details></figure>
 
 <table>
 <thead>
@@ -2021,6 +1810,8 @@ confirmation message has actually arrived in the notifications module.</p>
   <em>this relay</em>, not of the pattern: a bigger batch or a shorter poll interval (<code>modules.orders.outbox.poll-interval</code>) would close most of the gap.</li>
 <li>Under sustained load the outbox backlog keeps growing while orders arrive faster than 20 a second, so a notification can be minutes late, though the order itself is never slowed.</li>
 </ul>
+<p>Note also how each behaves as the order rate rises. The outbox can be tuned and handles bursty load well: follow-ups queue in a table and drain at the relay's pace, so
+a burst is spread over time. Events are all in process, so their work grows with the order rate and loads the same JVM that serves the orders. This test measures neither effect directly; it only times a drain after a flat-out run.</p>
 <p>Which to choose is <a href="../../features/follow-ups/#which-is-better">a judgement, not a benchmark</a>: events drain faster out of the box and come with a library's
 semantics, at the cost of an adapter and a retry policy to maintain; the outbox is simple, self-contained and can be tuned.</p>
 

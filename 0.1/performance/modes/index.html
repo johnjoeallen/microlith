@@ -1141,7 +1141,7 @@
   <span class="md-ellipsis">
     
   
-    Load and delivery speed
+    Follow-up delivery speed
   
 
     
@@ -1365,62 +1365,6 @@
     
   
     Outbox and events
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../reports/load-4-clients/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    4 clients
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../reports/load-16-clients/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    16 clients
   
 
     
@@ -2018,13 +1962,83 @@
 
 
 <h1 id="the-eight-modes-compared">The eight modes compared<a class="headerlink" href="#the-eight-modes-compared" title="Permanent link">&para;</a></h1>
-<p>Same code, same API, same tests, same workload, and (except <code>split-dbs</code>) the <strong>same single PostgreSQL instance</strong>: the eight-process modes share one database server, so the comparison measures the cost of the process boundary, not of separate databases. Four concurrent clients, 1,200 measured orders per run, result cache on, parallel quotes on,
-follow-ups through the outbox (<a href="../method/">method</a>).</p>
-<p>The charts add a 16-client run with the same JVM flags beside this run; the tables and the per-call figures below are this four-client run only.</p>
-<figure class="viz"><figcaption><strong>Throughput by mode</strong><span>orders per second, result cache on; demo JVM flags (C1, serial GC), 4 clients against 16 clients; longer is better</span></figcaption><ul class="viz-legend"><li><span class="sw s1"></span>4 clients</li><li><span class="sw s2"></span>16 clients</li></ul><svg viewBox="0 0 760 432" role="img" aria-label="Throughput by mode: orders per second, result cache on; demo JVM flags (C1, serial GC), 4 clients against 16 clients; longer is better"><line class="grid" x1="143.4" y1="6" x2="143.4" y2="406"/><text class="tick" x="143.4" y="424" text-anchor="middle">0</text><line class="grid" x1="281.5" y1="6" x2="281.5" y2="406"/><text class="tick" x="281.5" y="424" text-anchor="middle">100</text><line class="grid" x1="419.7" y1="6" x2="419.7" y2="406"/><text class="tick" x="419.7" y="424" text-anchor="middle">200</text><line class="grid" x1="557.8" y1="6" x2="557.8" y2="406"/><text class="tick" x="557.8" y="424" text-anchor="middle">300</text><line class="grid" x1="696.0" y1="6" x2="696.0" y2="406"/><text class="tick" x="696.0" y="424" text-anchor="middle">400</text><line class="axis" x1="143.39999999999998" y1="6" x2="143.39999999999998" y2="406"/><g class="row"><title>modulith: 4 clients 336 orders/s, 16 clients 330 orders/s</title><rect class="hit" x="0" y="6" width="760" height="50"/><text class="cat" x="135.39999999999998" y="35.0" text-anchor="end">modulith</text><path class="mark s1" d="M143.4,14.0h460.8a4.0,4.0 0 0 1 4.0,4.0v8.0a4.0,4.0 0 0 1 -4.0,4.0h-460.8z"><title>4 clients: 336 orders/s</title></path><text class="val" x="614.2" y="26.0">336</text><path class="mark s2" d="M143.4,32.0h451.7a4.0,4.0 0 0 1 4.0,4.0v8.0a4.0,4.0 0 0 1 -4.0,4.0h-451.7z"><title>16 clients: 330 orders/s</title></path><text class="val" x="605.1" y="44.0">330</text></g><g class="row"><title>macro-modulith: 4 clients 331 orders/s, 16 clients 339 orders/s</title><rect class="hit" x="0" y="56" width="760" height="50"/><text class="cat" x="135.39999999999998" y="85.0" text-anchor="end">macro-modulith</text><path class="mark s1" d="M143.4,64.0h453.0a4.0,4.0 0 0 1 4.0,4.0v8.0a4.0,4.0 0 0 1 -4.0,4.0h-453.0z"><title>4 clients: 331 orders/s</title></path><text class="val" x="606.4" y="76.0">331</text><path class="mark s2" d="M143.4,82.0h464.3a4.0,4.0 0 0 1 4.0,4.0v8.0a4.0,4.0 0 0 1 -4.0,4.0h-464.3z"><title>16 clients: 339 orders/s</title></path><text class="val" x="617.7" y="94.0">339</text></g><g class="row"><title>loopback-codec: 4 clients 314 orders/s, 16 clients 314 orders/s</title><rect class="hit" x="0" y="106" width="760" height="50"/><text class="cat" x="135.39999999999998" y="135.0" text-anchor="end">loopback-codec</text><path class="mark s1" d="M143.4,114.0h429.7a4.0,4.0 0 0 1 4.0,4.0v8.0a4.0,4.0 0 0 1 -4.0,4.0h-429.7z"><title>4 clients: 314 orders/s</title></path><text class="val" x="583.1" y="126.0">314</text><path class="mark s2" d="M143.4,132.0h429.6a4.0,4.0 0 0 1 4.0,4.0v8.0a4.0,4.0 0 0 1 -4.0,4.0h-429.6z"><title>16 clients: 314 orders/s</title></path><text class="val" x="583.0" y="144.0">314</text></g><g class="row"><title>loopback-http: 4 clients 238 orders/s, 16 clients 209 orders/s</title><rect class="hit" x="0" y="156" width="760" height="50"/><text class="cat" x="135.39999999999998" y="185.0" text-anchor="end">loopback-http</text><path class="mark s1" d="M143.4,164.0h324.6a4.0,4.0 0 0 1 4.0,4.0v8.0a4.0,4.0 0 0 1 -4.0,4.0h-324.6z"><title>4 clients: 238 orders/s</title></path><text class="val" x="478.0" y="176.0">238</text><path class="mark s2" d="M143.4,182.0h285.2a4.0,4.0 0 0 1 4.0,4.0v8.0a4.0,4.0 0 0 1 -4.0,4.0h-285.2z"><title>16 clients: 209 orders/s</title></path><text class="val" x="438.6" y="194.0">209</text></g><g class="row"><title>groups: 4 clients 225 orders/s, 16 clients 227 orders/s</title><rect class="hit" x="0" y="206" width="760" height="50"/><text class="cat" x="135.39999999999998" y="235.0" text-anchor="end">groups</text><path class="mark s1" d="M143.4,214.0h307.0a4.0,4.0 0 0 1 4.0,4.0v8.0a4.0,4.0 0 0 1 -4.0,4.0h-307.0z"><title>4 clients: 225 orders/s</title></path><text class="val" x="460.4" y="226.0">225</text><path class="mark s2" d="M143.4,232.0h310.2a4.0,4.0 0 0 1 4.0,4.0v8.0a4.0,4.0 0 0 1 -4.0,4.0h-310.2z"><title>16 clients: 227 orders/s</title></path><text class="val" x="463.6" y="244.0">227</text></g><g class="row"><title>split-dbs: 4 clients 230 orders/s, 16 clients 235 orders/s</title><rect class="hit" x="0" y="256" width="760" height="50"/><text class="cat" x="135.39999999999998" y="285.0" text-anchor="end">split-dbs</text><path class="mark s1" d="M143.4,264.0h314.0a4.0,4.0 0 0 1 4.0,4.0v8.0a4.0,4.0 0 0 1 -4.0,4.0h-314.0z"><title>4 clients: 230 orders/s</title></path><text class="val" x="467.4" y="276.0">230</text><path class="mark s2" d="M143.4,282.0h320.3a4.0,4.0 0 0 1 4.0,4.0v8.0a4.0,4.0 0 0 1 -4.0,4.0h-320.3z"><title>16 clients: 235 orders/s</title></path><text class="val" x="473.7" y="294.0">235</text></g><g class="row"><title>microservices: 4 clients 166 orders/s, 16 clients 165 orders/s</title><rect class="hit" x="0" y="306" width="760" height="50"/><text class="cat" x="135.39999999999998" y="335.0" text-anchor="end">microservices</text><path class="mark s1" d="M143.4,314.0h224.7a4.0,4.0 0 0 1 4.0,4.0v8.0a4.0,4.0 0 0 1 -4.0,4.0h-224.7z"><title>4 clients: 166 orders/s</title></path><text class="val" x="378.1" y="326.0">166</text><path class="mark s2" d="M143.4,332.0h223.3a4.0,4.0 0 0 1 4.0,4.0v8.0a4.0,4.0 0 0 1 -4.0,4.0h-223.3z"><title>16 clients: 165 orders/s</title></path><text class="val" x="376.7" y="344.0">165</text></g><g class="row"><title>microservices-macro: 4 clients 178 orders/s, 16 clients 169 orders/s</title><rect class="hit" x="0" y="356" width="760" height="50"/><text class="cat" x="135.39999999999998" y="385.0" text-anchor="end">microservices-macro</text><path class="mark s1" d="M143.4,364.0h242.5a4.0,4.0 0 0 1 4.0,4.0v8.0a4.0,4.0 0 0 1 -4.0,4.0h-242.5z"><title>4 clients: 178 orders/s</title></path><text class="val" x="395.9" y="376.0">178</text><path class="mark s2" d="M143.4,382.0h229.3a4.0,4.0 0 0 1 4.0,4.0v8.0a4.0,4.0 0 0 1 -4.0,4.0h-229.3z"><title>16 clients: 169 orders/s</title></path><text class="val" x="382.7" y="394.0">169</text></g></svg><details class="viz-data"><summary>Show the numbers</summary><table><thead><tr><th></th><th>4 clients (orders/s)</th><th>16 clients (orders/s)</th></tr></thead><tbody><tr><td>modulith</td><td>336</td><td>330</td></tr><tr><td>macro-modulith</td><td>331</td><td>339</td></tr><tr><td>loopback-codec</td><td>314</td><td>314</td></tr><tr><td>loopback-http</td><td>238</td><td>209</td></tr><tr><td>groups</td><td>225</td><td>227</td></tr><tr><td>split-dbs</td><td>230</td><td>235</td></tr><tr><td>microservices</td><td>166</td><td>165</td></tr><tr><td>microservices-macro</td><td>178</td><td>169</td></tr></tbody></table></details></figure>
+<p>Same code, same API, same tests, same workload, and (except <code>split-dbs</code>) the <strong>same single PostgreSQL instance</strong>: the eight-process modes share one database server, so the comparison measures the cost of the process boundary, not of separate databases. Sixteen concurrent clients, 1,500 measured orders per run, result cache on, parallel quotes on,
+follow-ups through the outbox, a <code>VACUUM ANALYZE</code> after the warm-up (<a href="../method/">method</a>). The charts and the first table are means over 5 runs; the table under "All numbers" is the first of those runs, which also holds the call counts.</p>
+<figure class="viz"><figcaption><strong>Throughput by mode</strong><span>orders per second, 16 clients, result cache on, mean of 5 runs; larger is better</span></figcaption><svg viewBox="0 0 760 320" role="img" aria-label="Throughput by mode: orders per second, 16 clients, result cache on, mean of 5 runs; larger is better"><line class="grid" x1="143.4" y1="6" x2="143.4" y2="294"/><text class="tick" x="143.4" y="312" text-anchor="middle">0</text><line class="grid" x1="253.9" y1="6" x2="253.9" y2="294"/><text class="tick" x="253.9" y="312" text-anchor="middle">100</text><line class="grid" x1="364.4" y1="6" x2="364.4" y2="294"/><text class="tick" x="364.4" y="312" text-anchor="middle">200</text><line class="grid" x1="475.0" y1="6" x2="475.0" y2="294"/><text class="tick" x="475.0" y="312" text-anchor="middle">300</text><line class="grid" x1="585.5" y1="6" x2="585.5" y2="294"/><text class="tick" x="585.5" y="312" text-anchor="middle">400</text><line class="grid" x1="696.0" y1="6" x2="696.0" y2="294"/><text class="tick" x="696.0" y="312" text-anchor="middle">500</text><line class="axis" x1="143.39999999999998" y1="6" x2="143.39999999999998" y2="294"/><g class="row"><title>modulith: orders/s 445 orders/s</title><rect class="hit" x="0" y="6" width="760" height="36"/><text class="cat" x="135.39999999999998" y="28.0" text-anchor="end">modulith</text><path class="mark s1" d="M143.4,14.0h487.3a4.0,4.0 0 0 1 4.0,4.0v12.0a4.0,4.0 0 0 1 -4.0,4.0h-487.3z"><title>orders/s: 445 orders/s</title></path><text class="val" x="640.7" y="28.0">445</text></g><g class="row"><title>macro-modulith: orders/s 442 orders/s</title><rect class="hit" x="0" y="42" width="760" height="36"/><text class="cat" x="135.39999999999998" y="64.0" text-anchor="end">macro-modulith</text><path class="mark s1" d="M143.4,50.0h484.2a4.0,4.0 0 0 1 4.0,4.0v12.0a4.0,4.0 0 0 1 -4.0,4.0h-484.2z"><title>orders/s: 442 orders/s</title></path><text class="val" x="637.6" y="64.0">442</text></g><g class="row"><title>loopback-codec: orders/s 434 orders/s</title><rect class="hit" x="0" y="78" width="760" height="36"/><text class="cat" x="135.39999999999998" y="100.0" text-anchor="end">loopback-codec</text><path class="mark s1" d="M143.4,86.0h475.2a4.0,4.0 0 0 1 4.0,4.0v12.0a4.0,4.0 0 0 1 -4.0,4.0h-475.2z"><title>orders/s: 434 orders/s</title></path><text class="val" x="628.6" y="100.0">434</text></g><g class="row"><title>loopback-http: orders/s 312 orders/s</title><rect class="hit" x="0" y="114" width="760" height="36"/><text class="cat" x="135.39999999999998" y="136.0" text-anchor="end">loopback-http</text><path class="mark s1" d="M143.4,122.0h341.0a4.0,4.0 0 0 1 4.0,4.0v12.0a4.0,4.0 0 0 1 -4.0,4.0h-341.0z"><title>orders/s: 312 orders/s</title></path><text class="val" x="494.4" y="136.0">312</text></g><g class="row"><title>groups: orders/s 247 orders/s</title><rect class="hit" x="0" y="150" width="760" height="36"/><text class="cat" x="135.39999999999998" y="172.0" text-anchor="end">groups</text><path class="mark s1" d="M143.4,158.0h268.9a4.0,4.0 0 0 1 4.0,4.0v12.0a4.0,4.0 0 0 1 -4.0,4.0h-268.9z"><title>orders/s: 247 orders/s</title></path><text class="val" x="422.3" y="172.0">247</text></g><g class="row"><title>split-dbs: orders/s 250 orders/s</title><rect class="hit" x="0" y="186" width="760" height="36"/><text class="cat" x="135.39999999999998" y="208.0" text-anchor="end">split-dbs</text><path class="mark s1" d="M143.4,194.0h272.1a4.0,4.0 0 0 1 4.0,4.0v12.0a4.0,4.0 0 0 1 -4.0,4.0h-272.1z"><title>orders/s: 250 orders/s</title></path><text class="val" x="425.5" y="208.0">250</text></g><g class="row"><title>microservices: orders/s 159 orders/s</title><rect class="hit" x="0" y="222" width="760" height="36"/><text class="cat" x="135.39999999999998" y="244.0" text-anchor="end">microservices</text><path class="mark s1" d="M143.4,230.0h171.7a4.0,4.0 0 0 1 4.0,4.0v12.0a4.0,4.0 0 0 1 -4.0,4.0h-171.7z"><title>orders/s: 159 orders/s</title></path><text class="val" x="325.1" y="244.0">159</text></g><g class="row"><title>microservices-macro: orders/s 156 orders/s</title><rect class="hit" x="0" y="258" width="760" height="36"/><text class="cat" x="135.39999999999998" y="280.0" text-anchor="end">microservices-macro</text><path class="mark s1" d="M143.4,266.0h169.0a4.0,4.0 0 0 1 4.0,4.0v12.0a4.0,4.0 0 0 1 -4.0,4.0h-169.0z"><title>orders/s: 156 orders/s</title></path><text class="val" x="322.4" y="280.0">156</text></g></svg><details class="viz-data"><summary>Show the numbers</summary><table><thead><tr><th></th><th>orders/s (orders/s)</th></tr></thead><tbody><tr><td>modulith</td><td>445</td></tr><tr><td>macro-modulith</td><td>442</td></tr><tr><td>loopback-codec</td><td>434</td></tr><tr><td>loopback-http</td><td>312</td></tr><tr><td>groups</td><td>247</td></tr><tr><td>split-dbs</td><td>250</td></tr><tr><td>microservices</td><td>159</td></tr><tr><td>microservices-macro</td><td>156</td></tr></tbody></table></details></figure>
 
-<figure class="viz"><figcaption><strong>Median round trip by mode</strong><span>milliseconds per order (p50), result cache on; demo JVM flags (C1, serial GC), 4 clients against 16 clients; shorter is better</span></figcaption><ul class="viz-legend"><li><span class="sw s1"></span>4 clients</li><li><span class="sw s2"></span>16 clients</li></ul><svg viewBox="0 0 760 432" role="img" aria-label="Median round trip by mode: milliseconds per order (p50), result cache on; demo JVM flags (C1, serial GC), 4 clients against 16 clients; shorter is better"><line class="grid" x1="143.4" y1="6" x2="143.4" y2="406"/><text class="tick" x="143.4" y="424" text-anchor="middle">0.0</text><line class="grid" x1="253.9" y1="6" x2="253.9" y2="406"/><text class="tick" x="253.9" y="424" text-anchor="middle">20.0</text><line class="grid" x1="364.4" y1="6" x2="364.4" y2="406"/><text class="tick" x="364.4" y="424" text-anchor="middle">40.0</text><line class="grid" x1="475.0" y1="6" x2="475.0" y2="406"/><text class="tick" x="475.0" y="424" text-anchor="middle">60.0</text><line class="grid" x1="585.5" y1="6" x2="585.5" y2="406"/><text class="tick" x="585.5" y="424" text-anchor="middle">80.0</text><line class="grid" x1="696.0" y1="6" x2="696.0" y2="406"/><text class="tick" x="696.0" y="424" text-anchor="middle">100.0</text><line class="axis" x1="143.39999999999998" y1="6" x2="143.39999999999998" y2="406"/><g class="row"><title>modulith: 4 clients 11.6 ms, 16 clients 46.9 ms</title><rect class="hit" x="0" y="6" width="760" height="50"/><text class="cat" x="135.39999999999998" y="35.0" text-anchor="end">modulith</text><path class="mark s1" d="M143.4,14.0h60.1a4.0,4.0 0 0 1 4.0,4.0v8.0a4.0,4.0 0 0 1 -4.0,4.0h-60.1z"><title>4 clients: 11.6 ms</title></path><text class="val" x="213.5" y="26.0">11.6</text><path class="mark s2" d="M143.4,32.0h255.4a4.0,4.0 0 0 1 4.0,4.0v8.0a4.0,4.0 0 0 1 -4.0,4.0h-255.4z"><title>16 clients: 46.9 ms</title></path><text class="val" x="408.8" y="44.0">46.9</text></g><g class="row"><title>macro-modulith: 4 clients 11.6 ms, 16 clients 46.8 ms</title><rect class="hit" x="0" y="56" width="760" height="50"/><text class="cat" x="135.39999999999998" y="85.0" text-anchor="end">macro-modulith</text><path class="mark s1" d="M143.4,64.0h60.3a4.0,4.0 0 0 1 4.0,4.0v8.0a4.0,4.0 0 0 1 -4.0,4.0h-60.3z"><title>4 clients: 11.6 ms</title></path><text class="val" x="213.7" y="76.0">11.6</text><path class="mark s2" d="M143.4,82.0h254.9a4.0,4.0 0 0 1 4.0,4.0v8.0a4.0,4.0 0 0 1 -4.0,4.0h-254.9z"><title>16 clients: 46.8 ms</title></path><text class="val" x="408.3" y="94.0">46.8</text></g><g class="row"><title>loopback-codec: 4 clients 12.4 ms, 16 clients 49.4 ms</title><rect class="hit" x="0" y="106" width="760" height="50"/><text class="cat" x="135.39999999999998" y="135.0" text-anchor="end">loopback-codec</text><path class="mark s1" d="M143.4,114.0h64.5a4.0,4.0 0 0 1 4.0,4.0v8.0a4.0,4.0 0 0 1 -4.0,4.0h-64.5z"><title>4 clients: 12.4 ms</title></path><text class="val" x="217.9" y="126.0">12.4</text><path class="mark s2" d="M143.4,132.0h269.0a4.0,4.0 0 0 1 4.0,4.0v8.0a4.0,4.0 0 0 1 -4.0,4.0h-269.0z"><title>16 clients: 49.4 ms</title></path><text class="val" x="422.4" y="144.0">49.4</text></g><g class="row"><title>loopback-http: 4 clients 16.3 ms, 16 clients 75.8 ms</title><rect class="hit" x="0" y="156" width="760" height="50"/><text class="cat" x="135.39999999999998" y="185.0" text-anchor="end">loopback-http</text><path class="mark s1" d="M143.4,164.0h86.2a4.0,4.0 0 0 1 4.0,4.0v8.0a4.0,4.0 0 0 1 -4.0,4.0h-86.2z"><title>4 clients: 16.3 ms</title></path><text class="val" x="239.6" y="176.0">16.3</text><path class="mark s2" d="M143.4,182.0h415.1a4.0,4.0 0 0 1 4.0,4.0v8.0a4.0,4.0 0 0 1 -4.0,4.0h-415.1z"><title>16 clients: 75.8 ms</title></path><text class="val" x="568.5" y="194.0">75.8</text></g><g class="row"><title>groups: 4 clients 17.4 ms, 16 clients 69.2 ms</title><rect class="hit" x="0" y="206" width="760" height="50"/><text class="cat" x="135.39999999999998" y="235.0" text-anchor="end">groups</text><path class="mark s1" d="M143.4,214.0h92.4a4.0,4.0 0 0 1 4.0,4.0v8.0a4.0,4.0 0 0 1 -4.0,4.0h-92.4z"><title>4 clients: 17.4 ms</title></path><text class="val" x="245.8" y="226.0">17.4</text><path class="mark s2" d="M143.4,232.0h378.5a4.0,4.0 0 0 1 4.0,4.0v8.0a4.0,4.0 0 0 1 -4.0,4.0h-378.5z"><title>16 clients: 69.2 ms</title></path><text class="val" x="531.9" y="244.0">69.2</text></g><g class="row"><title>split-dbs: 4 clients 16.7 ms, 16 clients 67.4 ms</title><rect class="hit" x="0" y="256" width="760" height="50"/><text class="cat" x="135.39999999999998" y="285.0" text-anchor="end">split-dbs</text><path class="mark s1" d="M143.4,264.0h88.2a4.0,4.0 0 0 1 4.0,4.0v8.0a4.0,4.0 0 0 1 -4.0,4.0h-88.2z"><title>4 clients: 16.7 ms</title></path><text class="val" x="241.6" y="276.0">16.7</text><path class="mark s2" d="M143.4,282.0h368.4a4.0,4.0 0 0 1 4.0,4.0v8.0a4.0,4.0 0 0 1 -4.0,4.0h-368.4z"><title>16 clients: 67.4 ms</title></path><text class="val" x="521.8" y="294.0">67.4</text></g><g class="row"><title>microservices: 4 clients 22.7 ms, 16 clients 92.0 ms</title><rect class="hit" x="0" y="306" width="760" height="50"/><text class="cat" x="135.39999999999998" y="335.0" text-anchor="end">microservices</text><path class="mark s1" d="M143.4,314.0h121.3a4.0,4.0 0 0 1 4.0,4.0v8.0a4.0,4.0 0 0 1 -4.0,4.0h-121.3z"><title>4 clients: 22.7 ms</title></path><text class="val" x="274.7" y="326.0">22.7</text><path class="mark s2" d="M143.4,332.0h504.6a4.0,4.0 0 0 1 4.0,4.0v8.0a4.0,4.0 0 0 1 -4.0,4.0h-504.6z"><title>16 clients: 92.0 ms</title></path><text class="val" x="658.0" y="344.0">92.0</text></g><g class="row"><title>microservices-macro: 4 clients 21.5 ms, 16 clients 91.4 ms</title><rect class="hit" x="0" y="356" width="760" height="50"/><text class="cat" x="135.39999999999998" y="385.0" text-anchor="end">microservices-macro</text><path class="mark s1" d="M143.4,364.0h114.5a4.0,4.0 0 0 1 4.0,4.0v8.0a4.0,4.0 0 0 1 -4.0,4.0h-114.5z"><title>4 clients: 21.5 ms</title></path><text class="val" x="267.9" y="376.0">21.5</text><path class="mark s2" d="M143.4,382.0h501.3a4.0,4.0 0 0 1 4.0,4.0v8.0a4.0,4.0 0 0 1 -4.0,4.0h-501.3z"><title>16 clients: 91.4 ms</title></path><text class="val" x="654.7" y="394.0">91.4</text></g></svg><details class="viz-data"><summary>Show the numbers</summary><table><thead><tr><th></th><th>4 clients (ms)</th><th>16 clients (ms)</th></tr></thead><tbody><tr><td>modulith</td><td>11.6</td><td>46.9</td></tr><tr><td>macro-modulith</td><td>11.6</td><td>46.8</td></tr><tr><td>loopback-codec</td><td>12.4</td><td>49.4</td></tr><tr><td>loopback-http</td><td>16.3</td><td>75.8</td></tr><tr><td>groups</td><td>17.4</td><td>69.2</td></tr><tr><td>split-dbs</td><td>16.7</td><td>67.4</td></tr><tr><td>microservices</td><td>22.7</td><td>92.0</td></tr><tr><td>microservices-macro</td><td>21.5</td><td>91.4</td></tr></tbody></table></details></figure>
+<figure class="viz"><figcaption><strong>Round-trip latency by mode</strong><span>milliseconds per order, 16 clients, result cache on, mean of 5 runs; smaller is better</span></figcaption><ul class="viz-legend"><li><span class="sw s1"></span>p50</li><li><span class="sw s2"></span>p99</li></ul><svg viewBox="0 0 760 432" role="img" aria-label="Round-trip latency by mode: milliseconds per order, 16 clients, result cache on, mean of 5 runs; smaller is better"><line class="grid" x1="143.4" y1="6" x2="143.4" y2="406"/><text class="tick" x="143.4" y="424" text-anchor="middle">0.0</text><line class="grid" x1="419.7" y1="6" x2="419.7" y2="406"/><text class="tick" x="419.7" y="424" text-anchor="middle">100.0</text><line class="grid" x1="696.0" y1="6" x2="696.0" y2="406"/><text class="tick" x="696.0" y="424" text-anchor="middle">200.0</text><line class="axis" x1="143.39999999999998" y1="6" x2="143.39999999999998" y2="406"/><g class="row"><title>modulith: p50 34.2 ms, p99 60.5 ms</title><rect class="hit" x="0" y="6" width="760" height="50"/><text class="cat" x="135.39999999999998" y="35.0" text-anchor="end">modulith</text><path class="mark s1" d="M143.4,14.0h90.5a4.0,4.0 0 0 1 4.0,4.0v8.0a4.0,4.0 0 0 1 -4.0,4.0h-90.5z"><title>p50: 34.2 ms</title></path><text class="val" x="243.9" y="26.0">34.2</text><path class="mark s2" d="M143.4,32.0h163.2a4.0,4.0 0 0 1 4.0,4.0v8.0a4.0,4.0 0 0 1 -4.0,4.0h-163.2z"><title>p99: 60.5 ms</title></path><text class="val" x="316.6" y="44.0">60.5</text></g><g class="row"><title>macro-modulith: p50 34.3 ms, p99 63.4 ms</title><rect class="hit" x="0" y="56" width="760" height="50"/><text class="cat" x="135.39999999999998" y="85.0" text-anchor="end">macro-modulith</text><path class="mark s1" d="M143.4,64.0h90.7a4.0,4.0 0 0 1 4.0,4.0v8.0a4.0,4.0 0 0 1 -4.0,4.0h-90.7z"><title>p50: 34.3 ms</title></path><text class="val" x="244.1" y="76.0">34.3</text><path class="mark s2" d="M143.4,82.0h171.3a4.0,4.0 0 0 1 4.0,4.0v8.0a4.0,4.0 0 0 1 -4.0,4.0h-171.3z"><title>p99: 63.4 ms</title></path><text class="val" x="324.7" y="94.0">63.4</text></g><g class="row"><title>loopback-codec: p50 35.2 ms, p99 60.2 ms</title><rect class="hit" x="0" y="106" width="760" height="50"/><text class="cat" x="135.39999999999998" y="135.0" text-anchor="end">loopback-codec</text><path class="mark s1" d="M143.4,114.0h93.2a4.0,4.0 0 0 1 4.0,4.0v8.0a4.0,4.0 0 0 1 -4.0,4.0h-93.2z"><title>p50: 35.2 ms</title></path><text class="val" x="246.6" y="126.0">35.2</text><path class="mark s2" d="M143.4,132.0h162.2a4.0,4.0 0 0 1 4.0,4.0v8.0a4.0,4.0 0 0 1 -4.0,4.0h-162.2z"><title>p99: 60.2 ms</title></path><text class="val" x="315.6" y="144.0">60.2</text></g><g class="row"><title>loopback-http: p50 48.1 ms, p99 77.6 ms</title><rect class="hit" x="0" y="156" width="760" height="50"/><text class="cat" x="135.39999999999998" y="185.0" text-anchor="end">loopback-http</text><path class="mark s1" d="M143.4,164.0h129.0a4.0,4.0 0 0 1 4.0,4.0v8.0a4.0,4.0 0 0 1 -4.0,4.0h-129.0z"><title>p50: 48.1 ms</title></path><text class="val" x="282.4" y="176.0">48.1</text><path class="mark s2" d="M143.4,182.0h210.3a4.0,4.0 0 0 1 4.0,4.0v8.0a4.0,4.0 0 0 1 -4.0,4.0h-210.3z"><title>p99: 77.6 ms</title></path><text class="val" x="363.7" y="194.0">77.6</text></g><g class="row"><title>groups: p50 62.2 ms, p99 98.7 ms</title><rect class="hit" x="0" y="206" width="760" height="50"/><text class="cat" x="135.39999999999998" y="235.0" text-anchor="end">groups</text><path class="mark s1" d="M143.4,214.0h167.8a4.0,4.0 0 0 1 4.0,4.0v8.0a4.0,4.0 0 0 1 -4.0,4.0h-167.8z"><title>p50: 62.2 ms</title></path><text class="val" x="321.2" y="226.0">62.2</text><path class="mark s2" d="M143.4,232.0h268.6a4.0,4.0 0 0 1 4.0,4.0v8.0a4.0,4.0 0 0 1 -4.0,4.0h-268.6z"><title>p99: 98.7 ms</title></path><text class="val" x="422.0" y="244.0">98.7</text></g><g class="row"><title>split-dbs: p50 61.0 ms, p99 98.2 ms</title><rect class="hit" x="0" y="256" width="760" height="50"/><text class="cat" x="135.39999999999998" y="285.0" text-anchor="end">split-dbs</text><path class="mark s1" d="M143.4,264.0h164.7a4.0,4.0 0 0 1 4.0,4.0v8.0a4.0,4.0 0 0 1 -4.0,4.0h-164.7z"><title>p50: 61.0 ms</title></path><text class="val" x="318.1" y="276.0">61.0</text><path class="mark s2" d="M143.4,282.0h267.3a4.0,4.0 0 0 1 4.0,4.0v8.0a4.0,4.0 0 0 1 -4.0,4.0h-267.3z"><title>p99: 98.2 ms</title></path><text class="val" x="420.7" y="294.0">98.2</text></g><g class="row"><title>microservices: p50 96.9 ms, p99 181.9 ms</title><rect class="hit" x="0" y="306" width="760" height="50"/><text class="cat" x="135.39999999999998" y="335.0" text-anchor="end">microservices</text><path class="mark s1" d="M143.4,314.0h263.7a4.0,4.0 0 0 1 4.0,4.0v8.0a4.0,4.0 0 0 1 -4.0,4.0h-263.7z"><title>p50: 96.9 ms</title></path><text class="val" x="417.1" y="326.0">96.9</text><path class="mark s2" d="M143.4,332.0h498.5a4.0,4.0 0 0 1 4.0,4.0v8.0a4.0,4.0 0 0 1 -4.0,4.0h-498.5z"><title>p99: 181.9 ms</title></path><text class="val" x="651.9" y="344.0">181.9</text></g><g class="row"><title>microservices-macro: p50 98.4 ms, p99 177.4 ms</title><rect class="hit" x="0" y="356" width="760" height="50"/><text class="cat" x="135.39999999999998" y="385.0" text-anchor="end">microservices-macro</text><path class="mark s1" d="M143.4,364.0h268.0a4.0,4.0 0 0 1 4.0,4.0v8.0a4.0,4.0 0 0 1 -4.0,4.0h-268.0z"><title>p50: 98.4 ms</title></path><text class="val" x="421.4" y="376.0">98.4</text><path class="mark s2" d="M143.4,382.0h486.0a4.0,4.0 0 0 1 4.0,4.0v8.0a4.0,4.0 0 0 1 -4.0,4.0h-486.0z"><title>p99: 177.4 ms</title></path><text class="val" x="639.4" y="394.0">177.4</text></g></svg><details class="viz-data"><summary>Show the numbers</summary><table><thead><tr><th></th><th>p50 (ms)</th><th>p99 (ms)</th></tr></thead><tbody><tr><td>modulith</td><td>34.2</td><td>60.5</td></tr><tr><td>macro-modulith</td><td>34.3</td><td>63.4</td></tr><tr><td>loopback-codec</td><td>35.2</td><td>60.2</td></tr><tr><td>loopback-http</td><td>48.1</td><td>77.6</td></tr><tr><td>groups</td><td>62.2</td><td>98.7</td></tr><tr><td>split-dbs</td><td>61.0</td><td>98.2</td></tr><tr><td>microservices</td><td>96.9</td><td>181.9</td></tr><tr><td>microservices-macro</td><td>98.4</td><td>177.4</td></tr></tbody></table></details></figure>
 
+<table>
+<thead>
+<tr>
+<th>Mode</th>
+<th style="text-align: right;">Orders/s</th>
+<th style="text-align: right;">Share of <code>modulith</code></th>
+<th style="text-align: right;">Median order (p50)</th>
+<th style="text-align: right;">p99</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>modulith</code></td>
+<td style="text-align: right;">445</td>
+<td style="text-align: right;">100%</td>
+<td style="text-align: right;">34.2 ms</td>
+<td style="text-align: right;">60.5 ms</td>
+</tr>
+<tr>
+<td><code>macro-modulith</code></td>
+<td style="text-align: right;">442</td>
+<td style="text-align: right;">99%</td>
+<td style="text-align: right;">34.3 ms</td>
+<td style="text-align: right;">63.4 ms</td>
+</tr>
+<tr>
+<td><code>loopback-codec</code></td>
+<td style="text-align: right;">434</td>
+<td style="text-align: right;">98%</td>
+<td style="text-align: right;">35.2 ms</td>
+<td style="text-align: right;">60.2 ms</td>
+</tr>
+<tr>
+<td><code>loopback-http</code></td>
+<td style="text-align: right;">312</td>
+<td style="text-align: right;">70%</td>
+<td style="text-align: right;">48.1 ms</td>
+<td style="text-align: right;">77.6 ms</td>
+</tr>
+<tr>
+<td><code>groups</code></td>
+<td style="text-align: right;">247</td>
+<td style="text-align: right;">56%</td>
+<td style="text-align: right;">62.2 ms</td>
+<td style="text-align: right;">98.7 ms</td>
+</tr>
+<tr>
+<td><code>split-dbs</code></td>
+<td style="text-align: right;">250</td>
+<td style="text-align: right;">56%</td>
+<td style="text-align: right;">61.0 ms</td>
+<td style="text-align: right;">98.2 ms</td>
+</tr>
+<tr>
+<td><code>microservices</code></td>
+<td style="text-align: right;">159</td>
+<td style="text-align: right;">36%</td>
+<td style="text-align: right;">96.9 ms</td>
+<td style="text-align: right;">181.9 ms</td>
+</tr>
+<tr>
+<td><code>microservices-macro</code></td>
+<td style="text-align: right;">156</td>
+<td style="text-align: right;">35%</td>
+<td style="text-align: right;">98.4 ms</td>
+<td style="text-align: right;">177.4 ms</td>
+</tr>
+</tbody>
+</table>
+<p>0 of 40 mode runs were dropped as outliers.</p>
+<p>The median is not the time one order takes alone: with 16 clients the orders queue behind each other, so the median is roughly <em>clients ÷ throughput</em>.</p>
 <h2 id="all-numbers">All numbers<a class="headerlink" href="#all-numbers" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
@@ -2042,83 +2056,83 @@ follow-ups through the outbox (<a href="../method/">method</a>).</p>
 <tbody>
 <tr>
 <td>modulith</td>
-<td style="text-align: right;">336</td>
+<td style="text-align: right;">444</td>
 <td style="text-align: right;">100%</td>
-<td style="text-align: right;">11.6</td>
-<td style="text-align: right;">16.4</td>
-<td style="text-align: right;">18.3</td>
-<td style="text-align: right;">20.0</td>
-<td>cache 7,050 (0.03 ms), local 16,965 (0.69 ms)</td>
+<td style="text-align: right;">33.9</td>
+<td style="text-align: right;">48.5</td>
+<td style="text-align: right;">82.6</td>
+<td style="text-align: right;">19.9</td>
+<td>cache 8,994 (0.01 ms), local 20,925 (0.49 ms)</td>
 </tr>
 <tr>
 <td>macro-modulith</td>
-<td style="text-align: right;">331</td>
-<td style="text-align: right;">98%</td>
-<td style="text-align: right;">11.6</td>
-<td style="text-align: right;">16.3</td>
-<td style="text-align: right;">18.8</td>
-<td style="text-align: right;">20.0</td>
-<td>cache 7,050 (0.03 ms), local 16,965 (0.71 ms)</td>
+<td style="text-align: right;">446</td>
+<td style="text-align: right;">100%</td>
+<td style="text-align: right;">34.0</td>
+<td style="text-align: right;">48.8</td>
+<td style="text-align: right;">53.3</td>
+<td style="text-align: right;">19.9</td>
+<td>cache 8,991 (0.01 ms), local 20,928 (0.49 ms)</td>
 </tr>
 <tr>
 <td>loopback-codec</td>
-<td style="text-align: right;">314</td>
-<td style="text-align: right;">93%</td>
-<td style="text-align: right;">12.4</td>
-<td style="text-align: right;">17.3</td>
-<td style="text-align: right;">20.2</td>
-<td style="text-align: right;">20.0</td>
-<td>cache 7,050 (0.00 ms), loopback-codec 16,965 (0.77 ms)</td>
+<td style="text-align: right;">444</td>
+<td style="text-align: right;">100%</td>
+<td style="text-align: right;">34.6</td>
+<td style="text-align: right;">45.6</td>
+<td style="text-align: right;">50.2</td>
+<td style="text-align: right;">19.9</td>
+<td>cache 8,994 (0.00 ms), loopback-codec 20,925 (0.51 ms)</td>
 </tr>
 <tr>
 <td>loopback-http</td>
-<td style="text-align: right;">238</td>
+<td style="text-align: right;">315</td>
 <td style="text-align: right;">71%</td>
-<td style="text-align: right;">16.3</td>
-<td style="text-align: right;">24.3</td>
-<td style="text-align: right;">27.9</td>
-<td style="text-align: right;">20.0</td>
-<td>cache 7,059 (0.00 ms), loopback-http 16,956 (1.31 ms)</td>
+<td style="text-align: right;">47.6</td>
+<td style="text-align: right;">70.3</td>
+<td style="text-align: right;">77.6</td>
+<td style="text-align: right;">19.9</td>
+<td>cache 9,008 (0.00 ms), loopback-http 20,911 (0.91 ms)</td>
 </tr>
 <tr>
 <td>groups</td>
-<td style="text-align: right;">225</td>
-<td style="text-align: right;">67%</td>
-<td style="text-align: right;">17.4</td>
-<td style="text-align: right;">24.9</td>
-<td style="text-align: right;">28.7</td>
-<td style="text-align: right;">20.0</td>
-<td>cache 7,073 (0.02 ms), local 6,788 (0.54 ms), remote 10,154 (1.66 ms)</td>
+<td style="text-align: right;">248</td>
+<td style="text-align: right;">56%</td>
+<td style="text-align: right;">62.1</td>
+<td style="text-align: right;">90.1</td>
+<td style="text-align: right;">100.1</td>
+<td style="text-align: right;">19.9</td>
+<td>cache 9,011 (0.01 ms), local 8,261 (0.43 ms), remote 12,647 (1.48 ms)</td>
 </tr>
 <tr>
 <td>split-dbs</td>
-<td style="text-align: right;">230</td>
-<td style="text-align: right;">68%</td>
-<td style="text-align: right;">16.7</td>
-<td style="text-align: right;">25.0</td>
-<td style="text-align: right;">28.0</td>
-<td style="text-align: right;">20.0</td>
-<td>cache 7,075 (0.02 ms), local 6,788 (0.54 ms), remote 10,152 (1.63 ms)</td>
+<td style="text-align: right;">255</td>
+<td style="text-align: right;">57%</td>
+<td style="text-align: right;">60.2</td>
+<td style="text-align: right;">86.3</td>
+<td style="text-align: right;">93.5</td>
+<td style="text-align: right;">19.9</td>
+<td>cache 9,021 (0.01 ms), local 8,261 (0.43 ms), remote 12,637 (1.45 ms)</td>
 </tr>
 <tr>
 <td>microservices</td>
-<td style="text-align: right;">166</td>
-<td style="text-align: right;">49%</td>
-<td style="text-align: right;">22.7</td>
-<td style="text-align: right;">34.9</td>
-<td style="text-align: right;">77.0</td>
-<td style="text-align: right;">20.0</td>
-<td>cache 6,722 (0.01 ms), remote 17,293 (1.98 ms)</td>
+<td style="text-align: right;">160</td>
+<td style="text-align: right;">36%</td>
+<td style="text-align: right;">96.1</td>
+<td style="text-align: right;">138.7</td>
+<td style="text-align: right;">180.9</td>
+<td style="text-align: right;">19.9</td>
+<td>cache 8,635 (0.01 ms), remote 21,284 (2.19 ms)</td>
 </tr>
 <tr>
 <td>microservices-macro</td>
-<td style="text-align: right;">178</td>
-<td style="text-align: right;">53%</td>
-<td style="text-align: right;">21.5</td>
-<td style="text-align: right;">33.7</td>
-<td style="text-align: right;">44.7</td>
-<td style="text-align: right;">20.0</td>
-<td>cache 6,726 (0.01 ms), remote 17,289 (1.88 ms)</td>
+<td style="text-align: right;">160</td>
+<td style="text-align: right;">36%</td>
+<td style="text-align: right;">97.5</td>
+<td style="text-align: right;">137.4</td>
+<td style="text-align: right;">176.1</td>
+<td style="text-align: right;">19.9</td>
+<td>cache 8,638 (0.01 ms), remote 21,281 (2.17 ms)</td>
 </tr>
 </tbody>
 </table>
@@ -2127,26 +2141,21 @@ a call between modules in the same process is <code>local</code>; the other bind
 <h2 id="what-the-numbers-say">What the numbers say<a class="headerlink" href="#what-the-numbers-say" title="Permanent link">&para;</a></h2>
 <h3 id="in-one-process-the-module-boundary-is-almost-free">In one process, the module boundary is almost free<a class="headerlink" href="#in-one-process-the-module-boundary-is-almost-free" title="Permanent link">&para;</a></h3>
 <ul>
-<li><code>modulith</code> and <code>macro-modulith</code> are the same thing built two ways, and they measure the same (336 and 331 orders/s).</li>
-<li><code>loopback-codec</code> forces every call through JSON encoding and decoding, in memory: 93% of the throughput, median 12.4 ms against 11.6 ms. Serialisation is a
+<li><code>modulith</code> and <code>macro-modulith</code> are the same thing built two ways, and they measure the same (445 and 442 orders/s).</li>
+<li><code>loopback-codec</code> forces every call through JSON encoding and decoding, in memory: 98% of the throughput, median 35.2 ms against 34.2 ms. Serialisation is a
   small tax, and it is the price of proving that no object identity or shared transaction crosses a boundary.</li>
-<li><code>loopback-http</code> makes every call a real HTTP request to the same process: 71% of the throughput and a median of 16.3 ms. The cost of the <em>protocol</em>,
-  without a second JVM, is already 29% of the throughput.</li>
+<li><code>loopback-http</code> makes every call a real HTTP request to the same process: 70% of the throughput and a median of 48.1 ms. The cost of the <em>protocol</em>,
+  without a second JVM, is already 30% of the throughput.</li>
 </ul>
 <h3 id="between-processes-the-price-is-paid-per-call">Between processes, the price is paid per call<a class="headerlink" href="#between-processes-the-price-is-paid-per-call" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Three processes (<code>groups</code>): 67% of the throughput, median 17.4 ms. Calls inside a group stay local at about 0.5 ms, calls between groups cost 1.7 ms.</li>
-<li>Eight services (<code>microservices</code>): 49%, median 22.7 ms, and every call is remote at about 2.0 ms.</li>
-<li><code>split-dbs</code> equals <code>groups</code> (230 against 225 orders/s): putting each group on its own PostgreSQL instance cost nothing measurable here. (On one machine
+<li>Three processes (<code>groups</code>): 56% of the throughput, median 62.2 ms. Calls inside a group stay local at about 0.4 ms, calls between groups cost about 1.5 ms.</li>
+<li>Eight services (<code>microservices</code>): 36%, median 96.9 ms, and every call is remote at about 2.2 ms.</li>
+<li><code>split-dbs</code> equals <code>groups</code> (250 against 247 orders/s): putting each group on its own PostgreSQL instance cost nothing measurable here. (On one machine
   the database servers do not compete for the same network link; across real hosts it would.)</li>
-<li><code>microservices-macro</code>, the same eight processes built from the single macro jar, matches <code>microservices</code> (178 against 166, inside the run-to-run
+<li><code>microservices-macro</code>, the same eight processes built from the single macro jar, matches <code>microservices</code> (156 against 159, inside the run-to-run
   noise). The one-artifact claim costs nothing at runtime.</li>
 </ul>
-<div class="admonition note">
-<p class="admonition-title">A single p99 outlier</p>
-<p><code>microservices</code> shows p99 77 ms against 44.7 ms for <code>microservices-macro</code>. That is one slow stretch in one run, not a property of the shape; compare the
-p50 and p95 columns, which agree.</p>
-</div>
 <h3 id="where-the-time-goes">Where the time goes<a class="headerlink" href="#where-the-time-goes" title="Permanent link">&para;</a></h3>
 <p>Mean latency of the most expensive module-to-module calls, over all bindings used:</p>
 <table>
@@ -2163,103 +2172,103 @@ p50 and p95 columns, which agree.</p>
 <tbody>
 <tr>
 <td>orders -&gt; shipping.quote</td>
-<td style="text-align: right;">1.16</td>
-<td style="text-align: right;">1.34</td>
-<td style="text-align: right;">2.87</td>
-<td style="text-align: right;">2.30</td>
-<td style="text-align: right;">4.35</td>
+<td style="text-align: right;">0.70</td>
+<td style="text-align: right;">0.74</td>
+<td style="text-align: right;">1.80</td>
+<td style="text-align: right;">1.89</td>
+<td style="text-align: right;">4.69</td>
 </tr>
 <tr>
 <td>orders -&gt; shipping.createShipment</td>
-<td style="text-align: right;">1.62</td>
-<td style="text-align: right;">1.74</td>
-<td style="text-align: right;">2.35</td>
-<td style="text-align: right;">2.31</td>
-<td style="text-align: right;">3.34</td>
+<td style="text-align: right;">1.14</td>
+<td style="text-align: right;">1.17</td>
+<td style="text-align: right;">1.72</td>
+<td style="text-align: right;">1.96</td>
+<td style="text-align: right;">3.52</td>
 </tr>
 <tr>
 <td>orders -&gt; inventory.reserve</td>
-<td style="text-align: right;">1.43</td>
-<td style="text-align: right;">1.53</td>
-<td style="text-align: right;">1.74</td>
-<td style="text-align: right;">2.09</td>
-<td style="text-align: right;">2.27</td>
+<td style="text-align: right;">1.20</td>
+<td style="text-align: right;">1.18</td>
+<td style="text-align: right;">1.47</td>
+<td style="text-align: right;">1.97</td>
+<td style="text-align: right;">2.35</td>
 </tr>
 <tr>
 <td>orders -&gt; payments.authorize</td>
-<td style="text-align: right;">1.00</td>
-<td style="text-align: right;">1.10</td>
-<td style="text-align: right;">1.68</td>
-<td style="text-align: right;">1.75</td>
-<td style="text-align: right;">2.72</td>
+<td style="text-align: right;">0.75</td>
+<td style="text-align: right;">0.78</td>
+<td style="text-align: right;">1.24</td>
+<td style="text-align: right;">1.76</td>
+<td style="text-align: right;">2.95</td>
 </tr>
 <tr>
 <td>orders -&gt; pricing.quote</td>
-<td style="text-align: right;">0.78</td>
-<td style="text-align: right;">0.88</td>
-<td style="text-align: right;">1.70</td>
-<td style="text-align: right;">1.91</td>
-<td style="text-align: right;">2.85</td>
+<td style="text-align: right;">0.44</td>
+<td style="text-align: right;">0.47</td>
+<td style="text-align: right;">1.05</td>
+<td style="text-align: right;">1.60</td>
+<td style="text-align: right;">3.46</td>
 </tr>
 <tr>
 <td>shipping -&gt; inventory.getStock</td>
-<td style="text-align: right;">0.40</td>
-<td style="text-align: right;">0.43</td>
-<td style="text-align: right;">0.89</td>
-<td style="text-align: right;">0.44</td>
-<td style="text-align: right;">1.39</td>
+<td style="text-align: right;">0.25</td>
+<td style="text-align: right;">0.25</td>
+<td style="text-align: right;">0.57</td>
+<td style="text-align: right;">0.33</td>
+<td style="text-align: right;">1.55</td>
 </tr>
 <tr>
 <td>orders -&gt; notifications.send</td>
-<td style="text-align: right;">0.79</td>
-<td style="text-align: right;">0.88</td>
-<td style="text-align: right;">1.59</td>
-<td style="text-align: right;">1.21</td>
-<td style="text-align: right;">2.58</td>
+<td style="text-align: right;">0.58</td>
+<td style="text-align: right;">0.62</td>
+<td style="text-align: right;">1.09</td>
+<td style="text-align: right;">0.92</td>
+<td style="text-align: right;">2.47</td>
 </tr>
 <tr>
 <td>orders -&gt; payments.capture</td>
-<td style="text-align: right;">0.62</td>
-<td style="text-align: right;">0.67</td>
-<td style="text-align: right;">1.02</td>
-<td style="text-align: right;">1.25</td>
-<td style="text-align: right;">1.47</td>
+<td style="text-align: right;">0.52</td>
+<td style="text-align: right;">0.53</td>
+<td style="text-align: right;">0.79</td>
+<td style="text-align: right;">1.20</td>
+<td style="text-align: right;">1.52</td>
 </tr>
 <tr>
 <td>shipping -&gt; inventory.getReservation</td>
-<td style="text-align: right;">0.35</td>
-<td style="text-align: right;">0.43</td>
-<td style="text-align: right;">0.76</td>
-<td style="text-align: right;">0.42</td>
-<td style="text-align: right;">1.12</td>
-</tr>
-<tr>
-<td>orders -&gt; customers.getCustomer</td>
-<td style="text-align: right;">0.22</td>
 <td style="text-align: right;">0.27</td>
-<td style="text-align: right;">0.53</td>
-<td style="text-align: right;">0.67</td>
-<td style="text-align: right;">0.74</td>
+<td style="text-align: right;">0.29</td>
+<td style="text-align: right;">0.55</td>
+<td style="text-align: right;">0.37</td>
+<td style="text-align: right;">1.11</td>
 </tr>
 <tr>
 <td>pricing -&gt; customers.getCustomer</td>
-<td style="text-align: right;">0.21</td>
-<td style="text-align: right;">0.25</td>
-<td style="text-align: right;">0.48</td>
+<td style="text-align: right;">0.14</td>
+<td style="text-align: right;">0.15</td>
+<td style="text-align: right;">0.30</td>
 <td style="text-align: right;">0.64</td>
-<td style="text-align: right;">0.77</td>
+<td style="text-align: right;">0.89</td>
+</tr>
+<tr>
+<td>orders -&gt; customers.getCustomer</td>
+<td style="text-align: right;">0.14</td>
+<td style="text-align: right;">0.15</td>
+<td style="text-align: right;">0.34</td>
+<td style="text-align: right;">0.59</td>
+<td style="text-align: right;">0.78</td>
 </tr>
 <tr>
 <td>shipping -&gt; customers.getCustomer</td>
-<td style="text-align: right;">0.12</td>
-<td style="text-align: right;">0.13</td>
-<td style="text-align: right;">0.24</td>
-<td style="text-align: right;">0.33</td>
-<td style="text-align: right;">0.35</td>
+<td style="text-align: right;">0.07</td>
+<td style="text-align: right;">0.07</td>
+<td style="text-align: right;">0.15</td>
+<td style="text-align: right;">0.32</td>
+<td style="text-align: right;">0.38</td>
 </tr>
 </tbody>
 </table>
-<p>Read across a row: <code>orders -&gt; shipping.quote</code> takes 1.16 ms inside one process and 4.35 ms between eight services. Reading down the table shows that a "local"
+<p>Read across a row: <code>orders -&gt; shipping.quote</code> takes 0.70 ms inside one process and 4.69 ms between eight services. Reading down the table shows that a "local"
 call is not free either: even in <code>modulith</code> each call is one database query, which is why the expensive rows (quote, create shipment, reserve) are the ones
 that do the most work.</p>
 <h2 id="choosing">Choosing<a class="headerlink" href="#choosing" title="Permanent link">&para;</a></h2>
@@ -2276,16 +2285,16 @@ that do the most work.</p>
 <td><code>modulith</code> (or <code>macro-modulith</code>, equal)</td>
 </tr>
 <tr>
-<td>A boundary that is proven to hold, at 7% cost</td>
+<td>A boundary that is proven to hold, at 2% cost</td>
 <td><code>loopback-codec</code> as a test configuration</td>
 </tr>
 <tr>
 <td>A few deployable units with most of the speed</td>
-<td><code>groups</code>: two thirds of the monolith's throughput with three processes instead of eight</td>
+<td><code>groups</code>: more than half of the monolith's throughput with three processes instead of eight</td>
 </tr>
 <tr>
 <td>Independent deployment and scaling of every module</td>
-<td><code>microservices</code> or <code>microservices-macro</code>, at about half the throughput on this machine</td>
+<td><code>microservices</code> or <code>microservices-macro</code>, at about a third of the throughput on this machine</td>
 </tr>
 </tbody>
 </table>

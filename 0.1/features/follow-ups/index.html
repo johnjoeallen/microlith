@@ -1102,7 +1102,7 @@
   <span class="md-ellipsis">
     
   
-    Load and delivery speed
+    Follow-up delivery speed
   
 
     
@@ -1323,62 +1323,6 @@
     
   
     Outbox and events
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../performance/reports/load-4-clients/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    4 clients
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../performance/reports/load-16-clients/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    16 clients
   
 
     
@@ -2012,8 +1956,15 @@ transaction manager and database roles</strong> needed adapting:</p>
 <p>The full list, with the reasoning, is in the <a href="../../design/spring-modulith-events/">spike write-up</a>.</p>
 <h2 id="which-is-better">Which is better?<a class="headerlink" href="#which-is-better" title="Permanent link">&para;</a></h2>
 <p>On the request path they are indistinguishable. The difference is how fast the follow-ups drain under load, which is
-<a href="../../performance/load/#delivery-of-follow-ups">measured here</a>: events deliver immediately, the outbox at the speed of its relay. That speed is a tuning limit
+<a href="../../performance/load/">measured here</a>: events deliver immediately, the outbox at the speed of its relay. That speed is a tuning limit
 of this relay (a larger batch would close most of the gap), not a limit of the pattern.</p>
+<p>Beyond speed, the two behave differently under load:</p>
+<ul>
+<li><strong>The outbox can be tuned and copes well with bursts.</strong> Follow-ups wait in a table and the relay drains them at its own pace (batch size, poll interval), so a burst of orders is
+  absorbed and delivered afterwards, and the work is spread over time instead of competing with the requests.</li>
+<li><strong>Events run entirely inside the JVM.</strong> Delivery happens on the application's own executor, so the follow-up work grows with the order rate and loads the same JVM that is serving
+  the orders. They deliver immediately when there is headroom, but they give no way to smooth a burst other than sizing the process.</li>
+</ul>
 <p>Where it lives: the outbox is on <code>main</code>; the events variant is on <code>spike/spring-modulith-events</code>; the switch is on <code>spike/switchable-async</code>.</p>
 
 

@@ -1022,7 +1022,7 @@
   <span class="md-ellipsis">
     
   
-    Load and delivery speed
+    Follow-up delivery speed
   
 
     
@@ -1370,62 +1370,6 @@
     
   
     Outbox and events
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../reports/load-4-clients/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    4 clients
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../reports/load-16-clients/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    16 clients
   
 
     
@@ -2156,7 +2100,7 @@ would have been invisible. The transport now turns that off and chooses the enco
 <li><strong>BSON is larger than JSON at every size (107 to 119%).</strong> Field names are kept, every value gets a type tag and every string a length, and arrays carry index keys; JSON's digits and brackets are already compact.</li>
 </ul>
 <h2 id="throughput-and-latency">Throughput and latency<a class="headerlink" href="#throughput-and-latency" title="Permanent link">&para;</a></h2>
-<p>Median order (p50) and throughput against plain JSON, four clients. Loopback, so no bandwidth to save:</p>
+<p>Median order (p50) and throughput against plain JSON, four clients. These wire-format runs were made earlier, with the former small demo JVMs and without the <code>VACUUM ANALYZE</code> step, and were not repeated at 16 clients; compare the formats with each other, not with the other pages. Loopback, so no bandwidth to save:</p>
 <div class="wide-table">
 <table>
 <thead>
@@ -2618,7 +2562,7 @@ JSON is faster</strong>. Read with the bytes columns above:</p>
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../load/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Load and delivery speed">
+          <a href="../load/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Follow-up delivery speed">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -2628,7 +2572,7 @@ JSON is faster</strong>. Read with the bytes columns above:</p>
                 Previous
               </span>
               <div class="md-ellipsis">
-                Load and delivery speed
+                Follow-up delivery speed
               </div>
             </div>
           </a>

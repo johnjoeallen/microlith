@@ -1152,7 +1152,7 @@
   <span class="md-ellipsis">
     
   
-    Load and delivery speed
+    Follow-up delivery speed
   
 
     
@@ -1373,62 +1373,6 @@
     
   
     Outbox and events
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../performance/reports/load-4-clients/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    4 clients
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../performance/reports/load-16-clients/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    16 clients
   
 
     
@@ -2219,11 +2163,11 @@ sends <code>/rpc/orders</code> to one pool and <code>/rpc/pricing</code> to anot
 </tbody>
 </table>
 <p>What one deployable costs you, measured on this domain: version-skew pairs 0 (against 3 for three groups and 13 for eight services), one image and pipeline, one database instance, and
-<code>macro-modulith</code> at the same throughput as <code>modulith</code> (461 against 457 orders/s).</p>
+<code>macro-modulith</code> at the same throughput as <code>modulith</code> (442 against 445 orders/s).</p>
 <p>What it does <strong>not</strong> give you: no CPU or memory isolation between modules (one leaky module affects all), one classpath, and one release unit, so a bad commit reaches everything. The controls are
 per-module bulkheads and connection pools, timeouts, asynchronous follow-ups, the runtime switches, and canarying the whole unit. If a requirement needs real isolation, that is a physical
 force, and you act on that module or group alone.</p>
-<p><strong>Split-readiness is a test, not a claim.</strong> <code>loopback-codec</code> in CI (97% of the throughput) passes only if no module relies on shared objects or a shared transaction, <code>loopback-http</code> adds a real HTTP hop, and
+<p><strong>Split-readiness is a test, not a claim.</strong> <code>loopback-codec</code> in CI (98% of the throughput) passes only if no module relies on shared objects or a shared transaction, <code>loopback-http</code> adds a real HTTP hop, and
 a periodic <code>microservices-macro</code> run in staging proves the full split from the same artifact and shows its cost.</p>
 <h2 id="4-start-small-and-let-boundaries-appear">4. Start small and let boundaries appear<a class="headerlink" href="#4-start-small-and-let-boundaries-appear" title="Permanent link">&para;</a></h2>
 <p>A new team should not begin with "how many services do we need?". Separate on evidence, merge on doubt.</p>
@@ -2415,9 +2359,9 @@ it is one.</p>
 </div>
 </div>
 </div>
-<p>The measurements show it. Keeping the chatty chains inside one process in <code>groups</code> cut the remote calls per order from 14.4 (eight services) to 8.5, and recovered 53% of the throughput (263 against 171 orders/s, C2 JVMs, 16 clients).</p>
-<p><strong>Cost of a boundary.</strong> Calls per order that would cross a boundary around each candidate, from the module call counts of one run. Each crossing call costs about 1.1 to 1.3 ms extra here (remote 1.7 to 2.0 ms against local 0.5 to 0.7 ms), <strong>on loopback, with no TLS, authentication or proxies, so a floor</strong>, against a
-median of 11.6 ms for the whole order in one process (small JVMs, four clients; the per-call figures come from that run).</p>
+<p>The measurements show it. Keeping the chatty chains inside one process in <code>groups</code> cut the remote calls per order from 14.2 (eight services) to 8.4, and recovered 55% of the throughput (247 against 159 orders/s, 16 clients).</p>
+<p><strong>Cost of a boundary.</strong> Calls per order that would cross a boundary around each candidate, from the module call counts of one run. Each crossing call costs about 1.0 to 1.7 ms extra here (remote 1.5 to 2.2 ms against local about 0.5 ms; the table below uses 1.2 ms), <strong>on loopback, with no TLS, authentication or proxies, so a floor</strong>, against the
+about 20 calls of every order, which cost about 0.5 ms each in one process.</p>
 <table>
 <thead>
 <tr>
@@ -2520,7 +2464,7 @@ median of 11.6 ms for the whole order in one process (small JVMs, four clients; 
 <li><strong>The cache changes the answer.</strong> After caching, <code>catalog</code> is nearly free to separate, because most of its calls never leave the caller. Recompute the best grouping after tuning caches.</li>
 <li>A minimum cut is one input. It ignores ownership, compliance, scaling and balance, so add those as constraints (for example, <code>payments</code> must be separate, <code>shipping</code> and <code>inventory</code> must stay together).</li>
 <li>The weights depend on the order mix.</li>
-<li>A prediction, <strong>not measured</strong>: a <code>groups</code>-style profile built on the computed cut should keep much more of the single-process throughput than the domain-based <code>groups</code> (67%).</li>
+<li>A prediction, <strong>not measured</strong>: a <code>groups</code>-style profile built on the computed cut should keep much more of the single-process throughput than the domain-based <code>groups</code> (56%).</li>
 </ul>
 <details class="note">
 <summary>How the numbers were computed</summary>

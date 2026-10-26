@@ -1113,7 +1113,7 @@
   <span class="md-ellipsis">
     
   
-    Load and delivery speed
+    Follow-up delivery speed
   
 
     
@@ -1334,62 +1334,6 @@
     
   
     Outbox and events
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../performance/reports/load-4-clients/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    4 clients
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../performance/reports/load-16-clients/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    16 clients
   
 
     
@@ -2030,8 +1974,8 @@
 </ul>
 <div class="admonition warning">
 <p class="admonition-title">Resource use</p>
-<p>The eight-process modes start eight JVMs (about 320 MB of heap each by default). On a laptop, <code>microservices</code> and <code>microservices-macro</code>
-are the heavy ones; <code>DEMO_JAVA_OPTS</code> overrides the JVM options.</p>
+<p>The eight-process modes start eight JVMs with <code>-Xmx2g</code> each by default, so up to 16 GB of heap. On a laptop, <code>microservices</code> and <code>microservices-macro</code>
+are the heavy ones; set <code>DEMO_JAVA_OPTS</code> (for example <code>-Xmx320m</code>) to shrink them.</p>
 </div>
 <p>How the split shapes compare under load is in <a href="../../performance/modes/">the measurements</a>.</p>
 

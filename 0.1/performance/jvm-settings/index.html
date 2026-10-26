@@ -1022,7 +1022,7 @@
   <span class="md-ellipsis">
     
   
-    Load and delivery speed
+    Follow-up delivery speed
   
 
     
@@ -1348,62 +1348,6 @@
     
   
     Outbox and events
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../reports/load-4-clients/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    4 clients
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../reports/load-16-clients/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    16 clients
   
 
     
@@ -1984,8 +1928,9 @@
 
 
 <h1 id="jvm-settings-bigger-heaps-c2-and-parallel-gc">JVM settings: bigger heaps, C2 and parallel GC<a class="headerlink" href="#jvm-settings-bigger-heaps-c2-and-parallel-gc" title="Permanent link">&para;</a></h1>
-<p>Every other page runs the demo's JVMs deliberately small (<code>-Xmx320m</code>, C1-only JIT, serial GC) so that eight of them fit on a laptop. This page repeats the
-<a href="../modes/">mode comparison</a> on the 128 GB, 32-CPU test machine with 16 concurrent clients, to see how much of the result is the JVM settings rather than the architecture.</p>
+<p>The demo's default JVM is now <code>-Xmx2g -XX:+UseParallelGC</code> with the full JIT; this page shows how that default was chosen. It repeats the
+<a href="../modes/">mode comparison</a> on the 128 GB, 32-CPU test machine with 16 concurrent clients, with the earlier small JVMs (<code>-Xmx320m</code>, C1-only JIT, serial GC) and with larger ones, to see how much of the result is the JVM settings rather than the architecture.
+These runs were made before the <code>VACUUM ANALYZE</code> step was added to the measurements, so their absolute numbers are a few percent different from the <a href="../#headline-numbers">headline numbers</a>.</p>
 <p><strong>Short answer.</strong> Giving each JVM more memory changes nothing measurable (1 GB and 2 GB agree, over five repetitions each); letting the JIT use C2 does most of the work, and the parallel collector adds a little throughput and a clearly better 99th percentile. Together they make the <strong>in-process shapes 37 to 59% faster</strong>,
 They leave the shapes that cross a process boundary almost where they were. The ordering of the shapes is unchanged, but the gap between the monolith and eight services widens from about 2.0x to 2.8x.</p>
 <h2 id="what-was-run">What was run<a class="headerlink" href="#what-was-run" title="Permanent link">&para;</a></h2>
@@ -2001,7 +1946,7 @@ They leave the shapes that cross a process boundary almost where they were. The 
 <tbody>
 <tr>
 <td><strong>C1</strong></td>
-<td><code>-Xmx2g -XX:+UseSerialGC -XX:TieredStopAtLevel=1</code> (the demo defaults, with 2 GB)</td>
+<td><code>-Xmx2g -XX:+UseSerialGC -XX:TieredStopAtLevel=1</code> (the former demo defaults, with 2 GB)</td>
 <td><a href="../reports/jvm-c1-2g/">report</a></td>
 </tr>
 <tr>
@@ -2469,15 +2414,13 @@ They leave the shapes that cross a process boundary almost where they were. The 
 <li><strong>Process boundaries dominate once the JVM is fast.</strong> <code>microservices</code> and <code>microservices-macro</code> stay at about 140 (cache off) and 165 to 175 orders/s (cache on) under both settings: each order still pays about 20 calls
   over HTTP, and the code on either side of them was not the bottleneck.</li>
 <li><strong>The cost of splitting looks larger, not smaller.</strong> With C1, <code>microservices</code> ran at 50% of <code>modulith</code>; with C2 it runs at 36%. A faster JVM speeds up the work between the calls, so the calls become a bigger share.</li>
-<li><strong>The 16-client ceiling is higher than the 4-client one.</strong> The <a href="../load/">load page</a> found saturation at about four clients with the small JVMs; with these settings 16 clients reach 465 orders/s
-  on <code>modulith</code>, against 336 for four clients on the small JVMs. The two runs differ in both settings, so this does not separate the effect of clients from that of the JVM.</li>
 </ul>
 <h2 id="limits">Limits<a class="headerlink" href="#limits" title="Permanent link">&para;</a></h2>
 <ul>
 <li>One run per configuration, so differences below about 5 to 8% are noise.</li>
 <li>The first comparison changes the JIT and the collector together; the <a href="#heap-size-and-collector-repeated">repeated matrix</a> varies only heap and collector, and C2 is inferred as the remainder.</li>
 <li>Still one machine, loopback only, and a shared PostgreSQL server; see <a href="../method/">the method page</a>.</li>
-<li>The other pages keep their small-JVM numbers, so that their comparisons stay like for like.</li>
+<li>The other pages use the 2 GB parallel-GC default and the <code>VACUUM ANALYZE</code> step, so their absolute numbers differ slightly from the C2 figures here.</li>
 </ul>
 
 

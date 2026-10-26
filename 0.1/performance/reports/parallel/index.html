@@ -80,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#performance-run-20261024t150139z" class="md-skip">
+        <a href="#performance-run-20261026t184505z" class="md-skip">
           Skip to content
         </a>
       
@@ -1022,7 +1022,7 @@
   <span class="md-ellipsis">
     
   
-    Load and delivery speed
+    Follow-up delivery speed
   
 
     
@@ -1287,6 +1287,17 @@
     <span class="md-ellipsis">
       
         Parallel quotes effect (off to on)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#bytes-on-the-wire-per-order" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bytes on the wire per order
       
     </span>
   </a>
@@ -1689,62 +1700,6 @@
     
   
     Outbox and events
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../load-4-clients/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    4 clients
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../load-16-clients/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    16 clients
   
 
     
@@ -2272,6 +2227,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#bytes-on-the-wire-per-order" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bytes on the wire per order
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#mean-ms-per-module-to-module-call" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2663,15 +2629,15 @@
   
 
 
-<h1 id="performance-run-20261024t150139z">Performance run 20261024T150139Z<a class="headerlink" href="#performance-run-20261024t150139z" title="Permanent link">&para;</a></h1>
+<h1 id="performance-run-20261026t184505z">Performance run 20261026T184505Z<a class="headerlink" href="#performance-run-20261026t184505z" title="Permanent link">&para;</a></h1>
 <ul>
-<li>Started: 2026-10-24T15:01:39+00:00</li>
-<li>Commit: 2c801ac (uncommitted changes)</li>
+<li>Started: 2026-10-26T18:45:05+00:00</li>
+<li>Commit: 3e82736 (uncommitted changes)</li>
 <li>Host: 32 CPUs, Linux 6.12.113+deb13-amd64, Python 3.13.5</li>
-<li>Load: 1200 orders, 4 concurrent clients (closed loop, persistent connections), 200 warmup orders not measured</li>
+<li>Load: 1500 orders, 16 concurrent clients (closed loop, persistent connections), 200 warmup orders not measured, then VACUUM ANALYZE of every PostgreSQL instance in use</li>
 <li>Workload: realistic: 10,000 customers (Zipf 0.8), 2,000 SKUs (Zipf 1), 1-4 lines per order (mean 2.0), 1-3 units per line, 8% gold and 2% always-declined customers, seed 42</li>
 <li>Call tracing: on, settle 3 s, drain 120 s</li>
-<li>Command line: <code>--modes loopback-http,split-dbs,microservices-macro --parallel both --orders 1200 --warmup 200 --concurrency 4</code></li>
+<li>Command line: <code>--modes loopback-http,split-dbs,microservices-macro --parallel both --orders 1500 --warmup 200 --concurrency 16</code></li>
 </ul>
 <h2 id="placeorder-round-trip">placeOrder round trip<a class="headerlink" href="#placeorder-round-trip" title="Permanent link">&para;</a></h2>
 <p>Client side, ms. Declined orders (expected) are excluded from the latencies.</p>
@@ -2696,92 +2662,92 @@
 <tbody>
 <tr>
 <td>loopback-http parallel off</td>
-<td style="text-align: right;">193</td>
-<td style="text-align: right;">1179</td>
-<td style="text-align: right;">21</td>
-<td style="text-align: right;">10.9</td>
-<td style="text-align: right;">20.8</td>
-<td style="text-align: right;">20.5</td>
-<td style="text-align: right;">26.9</td>
-<td style="text-align: right;">28.7</td>
-<td style="text-align: right;">32.9</td>
-<td style="text-align: right;">42.8</td>
-<td style="text-align: right;">20.0</td>
+<td style="text-align: right;">301</td>
+<td style="text-align: right;">1473</td>
+<td style="text-align: right;">27</td>
+<td style="text-align: right;">24.7</td>
+<td style="text-align: right;">53.0</td>
+<td style="text-align: right;">49.8</td>
+<td style="text-align: right;">68.3</td>
+<td style="text-align: right;">72.7</td>
+<td style="text-align: right;">83.0</td>
+<td style="text-align: right;">101.4</td>
+<td style="text-align: right;">19.9</td>
 <td style="text-align: right;">PASS</td>
 </tr>
 <tr>
 <td>loopback-http parallel on</td>
-<td style="text-align: right;">211</td>
-<td style="text-align: right;">1179</td>
-<td style="text-align: right;">21</td>
-<td style="text-align: right;">9.3</td>
-<td style="text-align: right;">19.0</td>
-<td style="text-align: right;">18.4</td>
-<td style="text-align: right;">24.9</td>
-<td style="text-align: right;">26.9</td>
-<td style="text-align: right;">30.7</td>
-<td style="text-align: right;">38.5</td>
-<td style="text-align: right;">20.0</td>
+<td style="text-align: right;">326</td>
+<td style="text-align: right;">1473</td>
+<td style="text-align: right;">27</td>
+<td style="text-align: right;">21.5</td>
+<td style="text-align: right;">48.9</td>
+<td style="text-align: right;">46.3</td>
+<td style="text-align: right;">62.6</td>
+<td style="text-align: right;">67.5</td>
+<td style="text-align: right;">73.7</td>
+<td style="text-align: right;">89.3</td>
+<td style="text-align: right;">19.9</td>
 <td style="text-align: right;">PASS</td>
 </tr>
 <tr>
 <td>split-dbs parallel off</td>
-<td style="text-align: right;">203</td>
-<td style="text-align: right;">1179</td>
-<td style="text-align: right;">21</td>
-<td style="text-align: right;">10.6</td>
-<td style="text-align: right;">19.7</td>
-<td style="text-align: right;">18.7</td>
-<td style="text-align: right;">26.3</td>
-<td style="text-align: right;">28.7</td>
-<td style="text-align: right;">32.6</td>
-<td style="text-align: right;">100.4</td>
-<td style="text-align: right;">20.0</td>
+<td style="text-align: right;">247</td>
+<td style="text-align: right;">1473</td>
+<td style="text-align: right;">27</td>
+<td style="text-align: right;">29.2</td>
+<td style="text-align: right;">64.6</td>
+<td style="text-align: right;">61.7</td>
+<td style="text-align: right;">85.4</td>
+<td style="text-align: right;">91.7</td>
+<td style="text-align: right;">102.9</td>
+<td style="text-align: right;">110.8</td>
+<td style="text-align: right;">19.9</td>
 <td style="text-align: right;">PASS</td>
 </tr>
 <tr>
 <td>split-dbs parallel on</td>
-<td style="text-align: right;">227</td>
-<td style="text-align: right;">1179</td>
-<td style="text-align: right;">21</td>
-<td style="text-align: right;">10.6</td>
-<td style="text-align: right;">17.7</td>
-<td style="text-align: right;">16.9</td>
-<td style="text-align: right;">24.1</td>
-<td style="text-align: right;">26.1</td>
-<td style="text-align: right;">29.2</td>
-<td style="text-align: right;">35.6</td>
-<td style="text-align: right;">20.0</td>
+<td style="text-align: right;">253</td>
+<td style="text-align: right;">1473</td>
+<td style="text-align: right;">27</td>
+<td style="text-align: right;">29.7</td>
+<td style="text-align: right;">62.9</td>
+<td style="text-align: right;">61.1</td>
+<td style="text-align: right;">81.8</td>
+<td style="text-align: right;">87.9</td>
+<td style="text-align: right;">99.5</td>
+<td style="text-align: right;">115.4</td>
+<td style="text-align: right;">19.9</td>
 <td style="text-align: right;">PASS</td>
 </tr>
 <tr>
 <td>microservices-macro parallel off</td>
-<td style="text-align: right;">143</td>
-<td style="text-align: right;">1179</td>
-<td style="text-align: right;">21</td>
-<td style="text-align: right;">13.9</td>
-<td style="text-align: right;">28.0</td>
-<td style="text-align: right;">26.8</td>
-<td style="text-align: right;">37.9</td>
-<td style="text-align: right;">41.4</td>
-<td style="text-align: right;">50.0</td>
-<td style="text-align: right;">110.8</td>
-<td style="text-align: right;">20.0</td>
+<td style="text-align: right;">138</td>
+<td style="text-align: right;">1473</td>
+<td style="text-align: right;">27</td>
+<td style="text-align: right;">50.8</td>
+<td style="text-align: right;">115.9</td>
+<td style="text-align: right;">108.6</td>
+<td style="text-align: right;">158.0</td>
+<td style="text-align: right;">175.6</td>
+<td style="text-align: right;">211.1</td>
+<td style="text-align: right;">247.1</td>
+<td style="text-align: right;">19.9</td>
 <td style="text-align: right;">PASS</td>
 </tr>
 <tr>
 <td>microservices-macro parallel on</td>
-<td style="text-align: right;">169</td>
-<td style="text-align: right;">1179</td>
-<td style="text-align: right;">21</td>
-<td style="text-align: right;">12.7</td>
-<td style="text-align: right;">23.6</td>
-<td style="text-align: right;">22.7</td>
-<td style="text-align: right;">31.4</td>
-<td style="text-align: right;">34.0</td>
-<td style="text-align: right;">40.5</td>
-<td style="text-align: right;">88.6</td>
-<td style="text-align: right;">20.0</td>
+<td style="text-align: right;">161</td>
+<td style="text-align: right;">1473</td>
+<td style="text-align: right;">27</td>
+<td style="text-align: right;">36.4</td>
+<td style="text-align: right;">98.9</td>
+<td style="text-align: right;">95.3</td>
+<td style="text-align: right;">130.5</td>
+<td style="text-align: right;">140.8</td>
+<td style="text-align: right;">167.6</td>
+<td style="text-align: right;">195.5</td>
+<td style="text-align: right;">19.9</td>
 <td style="text-align: right;">PASS</td>
 </tr>
 </tbody>
@@ -2809,48 +2775,119 @@
 <tbody>
 <tr>
 <td>loopback-http</td>
-<td style="text-align: right;">193</td>
-<td style="text-align: right;">211</td>
-<td style="text-align: right;">+9%</td>
-<td style="text-align: right;">20.5</td>
-<td style="text-align: right;">18.4</td>
-<td style="text-align: right;">-10%</td>
-<td style="text-align: right;">28.7</td>
-<td style="text-align: right;">26.9</td>
-<td style="text-align: right;">-6%</td>
-<td style="text-align: right;">32.9</td>
-<td style="text-align: right;">30.7</td>
+<td style="text-align: right;">301</td>
+<td style="text-align: right;">326</td>
+<td style="text-align: right;">+8%</td>
+<td style="text-align: right;">49.8</td>
+<td style="text-align: right;">46.3</td>
 <td style="text-align: right;">-7%</td>
+<td style="text-align: right;">72.7</td>
+<td style="text-align: right;">67.5</td>
+<td style="text-align: right;">-7%</td>
+<td style="text-align: right;">83.0</td>
+<td style="text-align: right;">73.7</td>
+<td style="text-align: right;">-11%</td>
 </tr>
 <tr>
 <td>split-dbs</td>
-<td style="text-align: right;">203</td>
-<td style="text-align: right;">227</td>
-<td style="text-align: right;">+12%</td>
-<td style="text-align: right;">18.7</td>
-<td style="text-align: right;">16.9</td>
-<td style="text-align: right;">-10%</td>
-<td style="text-align: right;">28.7</td>
-<td style="text-align: right;">26.1</td>
-<td style="text-align: right;">-9%</td>
-<td style="text-align: right;">32.6</td>
-<td style="text-align: right;">29.2</td>
-<td style="text-align: right;">-10%</td>
+<td style="text-align: right;">247</td>
+<td style="text-align: right;">253</td>
+<td style="text-align: right;">+3%</td>
+<td style="text-align: right;">61.7</td>
+<td style="text-align: right;">61.1</td>
+<td style="text-align: right;">-1%</td>
+<td style="text-align: right;">91.7</td>
+<td style="text-align: right;">87.9</td>
+<td style="text-align: right;">-4%</td>
+<td style="text-align: right;">102.9</td>
+<td style="text-align: right;">99.5</td>
+<td style="text-align: right;">-3%</td>
 </tr>
 <tr>
 <td>microservices-macro</td>
-<td style="text-align: right;">143</td>
-<td style="text-align: right;">169</td>
-<td style="text-align: right;">+18%</td>
-<td style="text-align: right;">26.8</td>
-<td style="text-align: right;">22.7</td>
-<td style="text-align: right;">-15%</td>
-<td style="text-align: right;">41.4</td>
-<td style="text-align: right;">34.0</td>
-<td style="text-align: right;">-18%</td>
-<td style="text-align: right;">50.0</td>
-<td style="text-align: right;">40.5</td>
-<td style="text-align: right;">-19%</td>
+<td style="text-align: right;">138</td>
+<td style="text-align: right;">161</td>
+<td style="text-align: right;">+17%</td>
+<td style="text-align: right;">108.6</td>
+<td style="text-align: right;">95.3</td>
+<td style="text-align: right;">-12%</td>
+<td style="text-align: right;">175.6</td>
+<td style="text-align: right;">140.8</td>
+<td style="text-align: right;">-20%</td>
+<td style="text-align: right;">211.1</td>
+<td style="text-align: right;">167.6</td>
+<td style="text-align: right;">-21%</td>
+</tr>
+</tbody>
+</table>
+<h2 id="bytes-on-the-wire-per-order">Bytes on the wire per order<a class="headerlink" href="#bytes-on-the-wire-per-order" title="Permanent link">&para;</a></h2>
+<p>HTTP calls only (calls inside one process are not counted). Raw is the JSON-RPC envelope as JSON; wire is what crossed the connection. Request and response sizes are bytes per call, raw to wire.</p>
+<table>
+<thead>
+<tr>
+<th>run</th>
+<th style="text-align: right;">HTTP calls/order</th>
+<th style="text-align: right;">JSON bytes/order</th>
+<th style="text-align: right;">wire bytes/order</th>
+<th style="text-align: right;">wire / JSON</th>
+<th style="text-align: right;">request/call</th>
+<th style="text-align: right;">response/call</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>loopback-http parallel off</td>
+<td style="text-align: right;">12.7</td>
+<td style="text-align: right;">4,082</td>
+<td style="text-align: right;">4,082</td>
+<td style="text-align: right;">100%</td>
+<td style="text-align: right;">151 to 151</td>
+<td style="text-align: right;">169 to 169</td>
+</tr>
+<tr>
+<td>loopback-http parallel on</td>
+<td style="text-align: right;">14.0</td>
+<td style="text-align: right;">4,475</td>
+<td style="text-align: right;">4,475</td>
+<td style="text-align: right;">100%</td>
+<td style="text-align: right;">146 to 146</td>
+<td style="text-align: right;">173 to 173</td>
+</tr>
+<tr>
+<td>split-dbs parallel off</td>
+<td style="text-align: right;">7.8</td>
+<td style="text-align: right;">2,841</td>
+<td style="text-align: right;">2,841</td>
+<td style="text-align: right;">100%</td>
+<td style="text-align: right;">165 to 165</td>
+<td style="text-align: right;">200 to 200</td>
+</tr>
+<tr>
+<td>split-dbs parallel on</td>
+<td style="text-align: right;">8.4</td>
+<td style="text-align: right;">3,037</td>
+<td style="text-align: right;">3,037</td>
+<td style="text-align: right;">100%</td>
+<td style="text-align: right;">160 to 160</td>
+<td style="text-align: right;">200 to 200</td>
+</tr>
+<tr>
+<td>microservices-macro parallel off</td>
+<td style="text-align: right;">14.3</td>
+<td style="text-align: right;">4,545</td>
+<td style="text-align: right;">4,545</td>
+<td style="text-align: right;">100%</td>
+<td style="text-align: right;">145 to 145</td>
+<td style="text-align: right;">173 to 173</td>
+</tr>
+<tr>
+<td>microservices-macro parallel on</td>
+<td style="text-align: right;">14.3</td>
+<td style="text-align: right;">4,547</td>
+<td style="text-align: right;">4,547</td>
+<td style="text-align: right;">100%</td>
+<td style="text-align: right;">145 to 145</td>
+<td style="text-align: right;">173 to 173</td>
 </tr>
 </tbody>
 </table>
@@ -2871,125 +2908,134 @@
 <tbody>
 <tr>
 <td>orders -&gt; shipping.quote</td>
-<td style="text-align: right;">2.7</td>
-<td style="text-align: right;">3.3</td>
-<td style="text-align: right;">1.5</td>
-<td style="text-align: right;">2.3</td>
-<td style="text-align: right;">4.1</td>
-<td style="text-align: right;">4.3</td>
+<td style="text-align: right;">1.4</td>
+<td style="text-align: right;">1.7</td>
+<td style="text-align: right;">1.0</td>
+<td style="text-align: right;">1.9</td>
+<td style="text-align: right;">4.2</td>
+<td style="text-align: right;">4.5</td>
 </tr>
 <tr>
 <td>orders -&gt; shipping.createShipment</td>
-<td style="text-align: right;">2.7</td>
-<td style="text-align: right;">2.7</td>
-<td style="text-align: right;">2.2</td>
-<td style="text-align: right;">2.3</td>
-<td style="text-align: right;">3.3</td>
-<td style="text-align: right;">3.3</td>
-</tr>
-<tr>
-<td>orders -&gt; pricing.quote</td>
-<td style="text-align: right;">1.3</td>
+<td style="text-align: right;">1.7</td>
+<td style="text-align: right;">1.7</td>
+<td style="text-align: right;">1.8</td>
 <td style="text-align: right;">1.9</td>
-<td style="text-align: right;">2.0</td>
-<td style="text-align: right;">1.9</td>
-<td style="text-align: right;">2.8</td>
-<td style="text-align: right;">2.9</td>
-</tr>
-<tr>
-<td>orders -&gt; inventory.reserve</td>
-<td style="text-align: right;">2.0</td>
-<td style="text-align: right;">2.0</td>
-<td style="text-align: right;">2.0</td>
-<td style="text-align: right;">2.0</td>
-<td style="text-align: right;">2.2</td>
-<td style="text-align: right;">2.3</td>
+<td style="text-align: right;">3.5</td>
+<td style="text-align: right;">3.5</td>
 </tr>
 <tr>
 <td>orders -&gt; payments.authorize</td>
-<td style="text-align: right;">1.9</td>
-<td style="text-align: right;">1.9</td>
+<td style="text-align: right;">1.2</td>
+<td style="text-align: right;">1.2</td>
+<td style="text-align: right;">1.6</td>
 <td style="text-align: right;">1.7</td>
+<td style="text-align: right;">3.0</td>
+<td style="text-align: right;">3.0</td>
+</tr>
+<tr>
+<td>orders -&gt; pricing.quote</td>
+<td style="text-align: right;">0.7</td>
+<td style="text-align: right;">1.0</td>
+<td style="text-align: right;">1.5</td>
+<td style="text-align: right;">1.6</td>
+<td style="text-align: right;">3.1</td>
+<td style="text-align: right;">3.3</td>
+</tr>
+<tr>
+<td>orders -&gt; inventory.reserve</td>
+<td style="text-align: right;">1.4</td>
+<td style="text-align: right;">1.4</td>
 <td style="text-align: right;">1.7</td>
+<td style="text-align: right;">1.9</td>
+<td style="text-align: right;">2.2</td>
+<td style="text-align: right;">2.4</td>
+</tr>
+<tr>
+<td>shipping -&gt; inventory.getStock</td>
+<td style="text-align: right;">0.6</td>
+<td style="text-align: right;">0.5</td>
+<td style="text-align: right;">0.3</td>
+<td style="text-align: right;">0.3</td>
+<td style="text-align: right;">1.4</td>
+<td style="text-align: right;">1.5</td>
+</tr>
+<tr>
+<td>orders -&gt; notifications.send</td>
+<td style="text-align: right;">1.1</td>
+<td style="text-align: right;">1.1</td>
+<td style="text-align: right;">0.9</td>
+<td style="text-align: right;">0.9</td>
 <td style="text-align: right;">2.6</td>
 <td style="text-align: right;">2.5</td>
 </tr>
 <tr>
-<td>shipping -&gt; inventory.getStock</td>
-<td style="text-align: right;">1.0</td>
-<td style="text-align: right;">1.0</td>
-<td style="text-align: right;">0.4</td>
-<td style="text-align: right;">0.4</td>
-<td style="text-align: right;">1.3</td>
-<td style="text-align: right;">1.3</td>
-</tr>
-<tr>
-<td>orders -&gt; notifications.send</td>
-<td style="text-align: right;">1.7</td>
-<td style="text-align: right;">1.7</td>
-<td style="text-align: right;">1.2</td>
-<td style="text-align: right;">1.2</td>
-<td style="text-align: right;">2.6</td>
-<td style="text-align: right;">2.6</td>
-</tr>
-<tr>
 <td>orders -&gt; payments.capture</td>
+<td style="text-align: right;">0.8</td>
+<td style="text-align: right;">0.8</td>
 <td style="text-align: right;">1.1</td>
 <td style="text-align: right;">1.2</td>
-<td style="text-align: right;">1.2</td>
-<td style="text-align: right;">1.2</td>
-<td style="text-align: right;">1.4</td>
-<td style="text-align: right;">1.4</td>
+<td style="text-align: right;">1.5</td>
+<td style="text-align: right;">1.5</td>
 </tr>
 <tr>
 <td>shipping -&gt; inventory.getReservation</td>
-<td style="text-align: right;">0.9</td>
-<td style="text-align: right;">0.9</td>
-<td style="text-align: right;">0.4</td>
+<td style="text-align: right;">0.6</td>
+<td style="text-align: right;">0.5</td>
+<td style="text-align: right;">0.3</td>
 <td style="text-align: right;">0.4</td>
 <td style="text-align: right;">1.1</td>
 <td style="text-align: right;">1.1</td>
-</tr>
-<tr>
-<td>orders -&gt; customers.getCustomer</td>
-<td style="text-align: right;">0.6</td>
-<td style="text-align: right;">0.6</td>
-<td style="text-align: right;">0.6</td>
-<td style="text-align: right;">0.7</td>
-<td style="text-align: right;">0.7</td>
-<td style="text-align: right;">0.8</td>
-</tr>
-<tr>
-<td>notifications -&gt; customers.getCustomer</td>
-<td style="text-align: right;">0.4</td>
-<td style="text-align: right;">0.4</td>
-<td style="text-align: right;">0.5</td>
-<td style="text-align: right;">0.5</td>
-<td style="text-align: right;">0.9</td>
-<td style="text-align: right;">0.9</td>
 </tr>
 <tr>
 <td>pricing -&gt; customers.getCustomer</td>
 <td style="text-align: right;">0.0</td>
+<td style="text-align: right;">0.3</td>
+<td style="text-align: right;">0.6</td>
+<td style="text-align: right;">0.6</td>
+<td style="text-align: right;">0.8</td>
+<td style="text-align: right;">0.9</td>
+</tr>
+<tr>
+<td>orders -&gt; customers.getCustomer</td>
+<td style="text-align: right;">0.3</td>
+<td style="text-align: right;">0.3</td>
 <td style="text-align: right;">0.5</td>
+<td style="text-align: right;">0.6</td>
 <td style="text-align: right;">0.7</td>
-<td style="text-align: right;">0.7</td>
-<td style="text-align: right;">0.7</td>
-<td style="text-align: right;">0.7</td>
+<td style="text-align: right;">0.8</td>
 </tr>
 <tr>
 <td>payments -&gt; customers.getPaymentMethod</td>
-<td style="text-align: right;">0.5</td>
-<td style="text-align: right;">0.5</td>
+<td style="text-align: right;">0.3</td>
+<td style="text-align: right;">0.3</td>
 <td style="text-align: right;">0.2</td>
 <td style="text-align: right;">0.2</td>
+<td style="text-align: right;">0.9</td>
+<td style="text-align: right;">1.0</td>
+</tr>
+<tr>
+<td>notifications -&gt; customers.getCustomer</td>
+<td style="text-align: right;">0.2</td>
+<td style="text-align: right;">0.2</td>
+<td style="text-align: right;">0.3</td>
+<td style="text-align: right;">0.3</td>
+<td style="text-align: right;">0.9</td>
 <td style="text-align: right;">0.8</td>
-<td style="text-align: right;">0.8</td>
+</tr>
+<tr>
+<td>inventory -&gt; catalog.productExists</td>
+<td style="text-align: right;">0.1</td>
+<td style="text-align: right;">0.1</td>
+<td style="text-align: right;">0.1</td>
+<td style="text-align: right;">0.1</td>
+<td style="text-align: right;">0.4</td>
+<td style="text-align: right;">0.5</td>
 </tr>
 <tr>
 <td>shipping -&gt; customers.getCustomer</td>
 <td style="text-align: right;">0.0</td>
-<td style="text-align: right;">0.3</td>
+<td style="text-align: right;">0.1</td>
 <td style="text-align: right;">0.0</td>
 <td style="text-align: right;">0.3</td>
 <td style="text-align: right;">0.3</td>
@@ -2997,39 +3043,30 @@
 </tr>
 <tr>
 <td>pricing -&gt; catalog.getProduct</td>
-<td style="text-align: right;">0.2</td>
-<td style="text-align: right;">0.2</td>
 <td style="text-align: right;">0.1</td>
 <td style="text-align: right;">0.1</td>
-<td style="text-align: right;">0.3</td>
-<td style="text-align: right;">0.3</td>
-</tr>
-<tr>
-<td>inventory -&gt; catalog.productExists</td>
-<td style="text-align: right;">0.2</td>
-<td style="text-align: right;">0.2</td>
 <td style="text-align: right;">0.1</td>
 <td style="text-align: right;">0.1</td>
-<td style="text-align: right;">0.3</td>
-<td style="text-align: right;">0.3</td>
+<td style="text-align: right;">0.4</td>
+<td style="text-align: right;">0.4</td>
 </tr>
 <tr>
 <td>orders -&gt; inventory.release</td>
+<td style="text-align: right;">1.7</td>
+<td style="text-align: right;">1.6</td>
+<td style="text-align: right;">2.4</td>
 <td style="text-align: right;">2.2</td>
-<td style="text-align: right;">2.2</td>
-<td style="text-align: right;">2.9</td>
-<td style="text-align: right;">3.0</td>
-<td style="text-align: right;">3.1</td>
-<td style="text-align: right;">2.9</td>
+<td style="text-align: right;">2.3</td>
+<td style="text-align: right;">2.4</td>
 </tr>
 <tr>
 <td>(calls per order)</td>
-<td style="text-align: right;">20.0</td>
-<td style="text-align: right;">20.0</td>
-<td style="text-align: right;">20.0</td>
-<td style="text-align: right;">20.0</td>
-<td style="text-align: right;">20.0</td>
-<td style="text-align: right;">20.0</td>
+<td style="text-align: right;">19.9</td>
+<td style="text-align: right;">19.9</td>
+<td style="text-align: right;">19.9</td>
+<td style="text-align: right;">19.9</td>
+<td style="text-align: right;">19.9</td>
+<td style="text-align: right;">19.9</td>
 </tr>
 </tbody>
 </table>
@@ -3050,165 +3087,165 @@
 <tbody>
 <tr>
 <td>orders -&gt; shipping.quote</td>
-<td style="text-align: right;">5.0</td>
-<td style="text-align: right;">5.9</td>
-<td style="text-align: right;">2.3</td>
-<td style="text-align: right;">3.6</td>
-<td style="text-align: right;">7.3</td>
-<td style="text-align: right;">7.6</td>
+<td style="text-align: right;">3.0</td>
+<td style="text-align: right;">3.3</td>
+<td style="text-align: right;">1.9</td>
+<td style="text-align: right;">3.5</td>
+<td style="text-align: right;">9.1</td>
+<td style="text-align: right;">9.6</td>
 </tr>
 <tr>
 <td>orders -&gt; shipping.createShipment</td>
-<td style="text-align: right;">3.2</td>
-<td style="text-align: right;">3.3</td>
+<td style="text-align: right;">2.4</td>
+<td style="text-align: right;">2.3</td>
 <td style="text-align: right;">2.7</td>
-<td style="text-align: right;">2.8</td>
-<td style="text-align: right;">4.1</td>
-<td style="text-align: right;">4.2</td>
-</tr>
-<tr>
-<td>orders -&gt; pricing.quote</td>
-<td style="text-align: right;">2.5</td>
-<td style="text-align: right;">3.4</td>
-<td style="text-align: right;">2.7</td>
-<td style="text-align: right;">2.8</td>
-<td style="text-align: right;">4.7</td>
-<td style="text-align: right;">4.9</td>
-</tr>
-<tr>
-<td>orders -&gt; inventory.reserve</td>
-<td style="text-align: right;">2.6</td>
 <td style="text-align: right;">2.9</td>
-<td style="text-align: right;">2.6</td>
-<td style="text-align: right;">2.7</td>
-<td style="text-align: right;">3.0</td>
-<td style="text-align: right;">3.2</td>
+<td style="text-align: right;">5.6</td>
+<td style="text-align: right;">5.4</td>
 </tr>
 <tr>
 <td>orders -&gt; payments.authorize</td>
-<td style="text-align: right;">2.4</td>
-<td style="text-align: right;">2.4</td>
-<td style="text-align: right;">2.2</td>
-<td style="text-align: right;">2.3</td>
-<td style="text-align: right;">3.6</td>
-<td style="text-align: right;">3.7</td>
+<td style="text-align: right;">1.9</td>
+<td style="text-align: right;">1.8</td>
+<td style="text-align: right;">2.5</td>
+<td style="text-align: right;">2.8</td>
+<td style="text-align: right;">5.3</td>
+<td style="text-align: right;">5.2</td>
+</tr>
+<tr>
+<td>orders -&gt; pricing.quote</td>
+<td style="text-align: right;">1.4</td>
+<td style="text-align: right;">2.0</td>
+<td style="text-align: right;">2.9</td>
+<td style="text-align: right;">3.0</td>
+<td style="text-align: right;">6.6</td>
+<td style="text-align: right;">6.8</td>
+</tr>
+<tr>
+<td>orders -&gt; inventory.reserve</td>
+<td style="text-align: right;">2.1</td>
+<td style="text-align: right;">2.1</td>
+<td style="text-align: right;">2.6</td>
+<td style="text-align: right;">2.9</td>
+<td style="text-align: right;">3.5</td>
+<td style="text-align: right;">3.8</td>
 </tr>
 <tr>
 <td>shipping -&gt; inventory.getStock</td>
-<td style="text-align: right;">1.7</td>
-<td style="text-align: right;">1.7</td>
+<td style="text-align: right;">1.1</td>
+<td style="text-align: right;">1.1</td>
+<td style="text-align: right;">0.5</td>
 <td style="text-align: right;">0.7</td>
-<td style="text-align: right;">0.8</td>
-<td style="text-align: right;">2.5</td>
-<td style="text-align: right;">2.6</td>
+<td style="text-align: right;">3.5</td>
+<td style="text-align: right;">3.7</td>
 </tr>
 <tr>
 <td>orders -&gt; notifications.send</td>
-<td style="text-align: right;">2.7</td>
-<td style="text-align: right;">2.7</td>
-<td style="text-align: right;">2.3</td>
-<td style="text-align: right;">2.3</td>
-<td style="text-align: right;">4.5</td>
-<td style="text-align: right;">4.4</td>
+<td style="text-align: right;">1.8</td>
+<td style="text-align: right;">1.9</td>
+<td style="text-align: right;">1.6</td>
+<td style="text-align: right;">1.7</td>
+<td style="text-align: right;">5.5</td>
+<td style="text-align: right;">5.2</td>
 </tr>
 <tr>
 <td>orders -&gt; payments.capture</td>
-<td style="text-align: right;">1.3</td>
-<td style="text-align: right;">1.4</td>
-<td style="text-align: right;">1.5</td>
-<td style="text-align: right;">1.6</td>
+<td style="text-align: right;">1.0</td>
+<td style="text-align: right;">1.0</td>
 <td style="text-align: right;">1.7</td>
 <td style="text-align: right;">1.8</td>
+<td style="text-align: right;">2.4</td>
+<td style="text-align: right;">2.4</td>
 </tr>
 <tr>
 <td>shipping -&gt; inventory.getReservation</td>
-<td style="text-align: right;">1.0</td>
-<td style="text-align: right;">1.0</td>
+<td style="text-align: right;">0.8</td>
+<td style="text-align: right;">0.7</td>
 <td style="text-align: right;">0.5</td>
 <td style="text-align: right;">0.5</td>
-<td style="text-align: right;">1.4</td>
-<td style="text-align: right;">1.4</td>
-</tr>
-<tr>
-<td>orders -&gt; customers.getCustomer</td>
-<td style="text-align: right;">0.9</td>
-<td style="text-align: right;">1.0</td>
-<td style="text-align: right;">1.0</td>
-<td style="text-align: right;">1.1</td>
-<td style="text-align: right;">1.3</td>
-<td style="text-align: right;">1.4</td>
-</tr>
-<tr>
-<td>notifications -&gt; customers.getCustomer</td>
-<td style="text-align: right;">1.1</td>
-<td style="text-align: right;">1.1</td>
-<td style="text-align: right;">1.3</td>
-<td style="text-align: right;">1.4</td>
-<td style="text-align: right;">1.8</td>
+<td style="text-align: right;">1.7</td>
 <td style="text-align: right;">1.8</td>
 </tr>
 <tr>
 <td>pricing -&gt; customers.getCustomer</td>
 <td style="text-align: right;">0.0</td>
-<td style="text-align: right;">0.9</td>
-<td style="text-align: right;">1.2</td>
+<td style="text-align: right;">0.6</td>
+<td style="text-align: right;">1.4</td>
+<td style="text-align: right;">1.5</td>
+<td style="text-align: right;">1.8</td>
+<td style="text-align: right;">1.9</td>
+</tr>
+<tr>
+<td>orders -&gt; customers.getCustomer</td>
+<td style="text-align: right;">0.7</td>
+<td style="text-align: right;">0.7</td>
 <td style="text-align: right;">1.1</td>
-<td style="text-align: right;">1.3</td>
-<td style="text-align: right;">1.3</td>
+<td style="text-align: right;">1.5</td>
+<td style="text-align: right;">1.7</td>
+<td style="text-align: right;">1.9</td>
 </tr>
 <tr>
 <td>payments -&gt; customers.getPaymentMethod</td>
+<td style="text-align: right;">0.7</td>
+<td style="text-align: right;">0.6</td>
+<td style="text-align: right;">0.5</td>
+<td style="text-align: right;">0.5</td>
+<td style="text-align: right;">2.2</td>
+<td style="text-align: right;">2.3</td>
+</tr>
+<tr>
+<td>notifications -&gt; customers.getCustomer</td>
+<td style="text-align: right;">0.7</td>
+<td style="text-align: right;">0.7</td>
 <td style="text-align: right;">0.9</td>
-<td style="text-align: right;">0.9</td>
-<td style="text-align: right;">0.4</td>
-<td style="text-align: right;">0.4</td>
-<td style="text-align: right;">1.5</td>
-<td style="text-align: right;">1.6</td>
+<td style="text-align: right;">0.8</td>
+<td style="text-align: right;">2.0</td>
+<td style="text-align: right;">1.9</td>
+</tr>
+<tr>
+<td>inventory -&gt; catalog.productExists</td>
+<td style="text-align: right;">0.5</td>
+<td style="text-align: right;">0.6</td>
+<td style="text-align: right;">0.3</td>
+<td style="text-align: right;">0.3</td>
+<td style="text-align: right;">2.2</td>
+<td style="text-align: right;">2.4</td>
 </tr>
 <tr>
 <td>shipping -&gt; customers.getCustomer</td>
 <td style="text-align: right;">0.0</td>
-<td style="text-align: right;">0.9</td>
+<td style="text-align: right;">0.5</td>
 <td style="text-align: right;">0.0</td>
-<td style="text-align: right;">1.1</td>
-<td style="text-align: right;">1.2</td>
-<td style="text-align: right;">1.2</td>
-</tr>
-<tr>
-<td>pricing -&gt; catalog.getProduct</td>
-<td style="text-align: right;">0.8</td>
-<td style="text-align: right;">0.9</td>
-<td style="text-align: right;">0.3</td>
-<td style="text-align: right;">0.4</td>
-<td style="text-align: right;">1.4</td>
-<td style="text-align: right;">1.4</td>
-</tr>
-<tr>
-<td>inventory -&gt; catalog.productExists</td>
-<td style="text-align: right;">0.8</td>
-<td style="text-align: right;">0.8</td>
-<td style="text-align: right;">0.3</td>
-<td style="text-align: right;">0.4</td>
+<td style="text-align: right;">1.3</td>
 <td style="text-align: right;">1.4</td>
 <td style="text-align: right;">1.5</td>
 </tr>
 <tr>
+<td>pricing -&gt; catalog.getProduct</td>
+<td style="text-align: right;">0.5</td>
+<td style="text-align: right;">0.5</td>
+<td style="text-align: right;">0.3</td>
+<td style="text-align: right;">0.3</td>
+<td style="text-align: right;">2.1</td>
+<td style="text-align: right;">2.1</td>
+</tr>
+<tr>
 <td>orders -&gt; inventory.release</td>
+<td style="text-align: right;">2.4</td>
+<td style="text-align: right;">2.5</td>
+<td style="text-align: right;">3.3</td>
+<td style="text-align: right;">3.3</td>
 <td style="text-align: right;">3.1</td>
-<td style="text-align: right;">3.2</td>
-<td style="text-align: right;">3.8</td>
-<td style="text-align: right;">3.9</td>
-<td style="text-align: right;">4.1</td>
-<td style="text-align: right;">3.9</td>
+<td style="text-align: right;">3.7</td>
 </tr>
 <tr>
 <td>(calls per order)</td>
-<td style="text-align: right;">20.0</td>
-<td style="text-align: right;">20.0</td>
-<td style="text-align: right;">20.0</td>
-<td style="text-align: right;">20.0</td>
-<td style="text-align: right;">20.0</td>
-<td style="text-align: right;">20.0</td>
+<td style="text-align: right;">19.9</td>
+<td style="text-align: right;">19.9</td>
+<td style="text-align: right;">19.9</td>
+<td style="text-align: right;">19.9</td>
+<td style="text-align: right;">19.9</td>
+<td style="text-align: right;">19.9</td>
 </tr>
 </tbody>
 </table>
@@ -3229,39 +3266,39 @@
 <tbody>
 <tr>
 <td>catalog.getProduct</td>
-<td style="text-align: right;">75.8%</td>
-<td style="text-align: right;">75.8%</td>
-<td style="text-align: right;">75.8%</td>
-<td style="text-align: right;">75.8%</td>
-<td style="text-align: right;">75.7%</td>
-<td style="text-align: right;">75.7%</td>
+<td style="text-align: right;">78.0%</td>
+<td style="text-align: right;">78.0%</td>
+<td style="text-align: right;">78.0%</td>
+<td style="text-align: right;">78.0%</td>
+<td style="text-align: right;">77.7%</td>
+<td style="text-align: right;">77.7%</td>
 </tr>
 <tr>
 <td>catalog.productExists</td>
-<td style="text-align: right;">75.8%</td>
-<td style="text-align: right;">75.8%</td>
-<td style="text-align: right;">75.8%</td>
-<td style="text-align: right;">75.8%</td>
-<td style="text-align: right;">75.7%</td>
-<td style="text-align: right;">75.7%</td>
+<td style="text-align: right;">78.0%</td>
+<td style="text-align: right;">78.0%</td>
+<td style="text-align: right;">78.0%</td>
+<td style="text-align: right;">78.0%</td>
+<td style="text-align: right;">77.7%</td>
+<td style="text-align: right;">77.7%</td>
 </tr>
 <tr>
 <td>customers.getCustomer</td>
-<td style="text-align: right;">77.2%</td>
-<td style="text-align: right;">49.8%</td>
-<td style="text-align: right;">63.5%</td>
-<td style="text-align: right;">50.1%</td>
-<td style="text-align: right;">44.2%</td>
-<td style="text-align: right;">44.3%</td>
+<td style="text-align: right;">76.6%</td>
+<td style="text-align: right;">50.6%</td>
+<td style="text-align: right;">63.7%</td>
+<td style="text-align: right;">50.8%</td>
+<td style="text-align: right;">46.0%</td>
+<td style="text-align: right;">45.9%</td>
 </tr>
 <tr>
 <td>customers.getPaymentMethod</td>
-<td style="text-align: right;">32.7%</td>
-<td style="text-align: right;">32.7%</td>
-<td style="text-align: right;">32.7%</td>
-<td style="text-align: right;">32.7%</td>
-<td style="text-align: right;">32.7%</td>
-<td style="text-align: right;">32.7%</td>
+<td style="text-align: right;">35.4%</td>
+<td style="text-align: right;">35.4%</td>
+<td style="text-align: right;">35.4%</td>
+<td style="text-align: right;">35.4%</td>
+<td style="text-align: right;">35.4%</td>
+<td style="text-align: right;">35.2%</td>
 </tr>
 </tbody>
 </table>
@@ -3281,58 +3318,58 @@
 <tbody>
 <tr>
 <td>loopback-http parallel off</td>
-<td style="text-align: right;">8687 calls, 0.00 ms</td>
+<td style="text-align: right;">10941 calls, 0.00 ms</td>
 <td style="text-align: right;">-</td>
 <td style="text-align: right;">-</td>
-<td style="text-align: right;">15328 calls, 1.45 ms</td>
+<td style="text-align: right;">18978 calls, 0.89 ms</td>
 <td style="text-align: right;">-</td>
 </tr>
 <tr>
 <td>loopback-http parallel on</td>
-<td style="text-align: right;">7059 calls, 0.00 ms</td>
+<td style="text-align: right;">9009 calls, 0.00 ms</td>
 <td style="text-align: right;">-</td>
 <td style="text-align: right;">-</td>
-<td style="text-align: right;">16956 calls, 1.47 ms</td>
+<td style="text-align: right;">20910 calls, 0.88 ms</td>
 <td style="text-align: right;">-</td>
 </tr>
 <tr>
 <td>split-dbs parallel off</td>
-<td style="text-align: right;">7876 calls, 0.02 ms</td>
-<td style="text-align: right;">6788 calls, 0.51 ms</td>
+<td style="text-align: right;">9983 calls, 0.01 ms</td>
+<td style="text-align: right;">8261 calls, 0.39 ms</td>
 <td style="text-align: right;">-</td>
 <td style="text-align: right;">-</td>
-<td style="text-align: right;">9351 calls, 1.58 ms</td>
+<td style="text-align: right;">11675 calls, 1.29 ms</td>
 </tr>
 <tr>
 <td>split-dbs parallel on</td>
-<td style="text-align: right;">7076 calls, 0.02 ms</td>
-<td style="text-align: right;">6788 calls, 0.54 ms</td>
+<td style="text-align: right;">9022 calls, 0.01 ms</td>
+<td style="text-align: right;">8261 calls, 0.43 ms</td>
 <td style="text-align: right;">-</td>
 <td style="text-align: right;">-</td>
-<td style="text-align: right;">10151 calls, 1.65 ms</td>
+<td style="text-align: right;">12636 calls, 1.46 ms</td>
 </tr>
 <tr>
 <td>microservices-macro parallel off</td>
-<td style="text-align: right;">6723 calls, 0.01 ms</td>
+<td style="text-align: right;">8646 calls, 0.01 ms</td>
 <td style="text-align: right;">-</td>
 <td style="text-align: right;">-</td>
 <td style="text-align: right;">-</td>
-<td style="text-align: right;">17292 calls, 1.92 ms</td>
+<td style="text-align: right;">21273 calls, 2.07 ms</td>
 </tr>
 <tr>
 <td>microservices-macro parallel on</td>
-<td style="text-align: right;">6723 calls, 0.01 ms</td>
+<td style="text-align: right;">8634 calls, 0.01 ms</td>
 <td style="text-align: right;">-</td>
 <td style="text-align: right;">-</td>
 <td style="text-align: right;">-</td>
-<td style="text-align: right;">17292 calls, 1.94 ms</td>
+<td style="text-align: right;">21285 calls, 2.15 ms</td>
 </tr>
 </tbody>
 </table>
 <h2 id="detail-per-run">Detail per run<a class="headerlink" href="#detail-per-run" title="Permanent link">&para;</a></h2>
 <p>The same figures one run at a time, with every module-to-module call and each call's binding.</p>
 <h3 id="loopback-http-cache-on-parallel-quotes-off-async-outbox">loopback-http (cache on, parallel quotes off, async outbox)<a class="headerlink" href="#loopback-http-cache-on-parallel-quotes-off-async-outbox" title="Permanent link">&para;</a></h3>
-<p>1200 orders in 6.2 s = 192.7 orders/s; 1179 ok, 21 declined (expected), 0 failed.</p>
+<p>1500 orders in 5.0 s = 300.5 orders/s; 1473 ok, 27 declined (expected), 0 failed.</p>
 <h4 id="placeorder-round-trip-client-side-ms">placeOrder round trip (client side), ms<a class="headerlink" href="#placeorder-round-trip-client-side-ms" title="Permanent link">&para;</a></h4>
 <table>
 <thead>
@@ -3353,26 +3390,26 @@
 <tr>
 <td>placeOrder</td>
 <td>ok</td>
-<td style="text-align: right;">1179</td>
-<td style="text-align: right;">10.9</td>
-<td style="text-align: right;">20.8</td>
-<td style="text-align: right;">20.5</td>
-<td style="text-align: right;">26.9</td>
-<td style="text-align: right;">28.7</td>
-<td style="text-align: right;">32.9</td>
-<td style="text-align: right;">42.8</td>
+<td style="text-align: right;">1473</td>
+<td style="text-align: right;">24.7</td>
+<td style="text-align: right;">53.0</td>
+<td style="text-align: right;">49.8</td>
+<td style="text-align: right;">68.3</td>
+<td style="text-align: right;">72.7</td>
+<td style="text-align: right;">83.0</td>
+<td style="text-align: right;">101.4</td>
 </tr>
 <tr>
 <td>placeOrder</td>
 <td>declined</td>
-<td style="text-align: right;">21</td>
-<td style="text-align: right;">9.0</td>
-<td style="text-align: right;">15.0</td>
-<td style="text-align: right;">13.8</td>
-<td style="text-align: right;">20.6</td>
-<td style="text-align: right;">21.0</td>
-<td style="text-align: right;">27.5</td>
-<td style="text-align: right;">27.5</td>
+<td style="text-align: right;">27</td>
+<td style="text-align: right;">38.4</td>
+<td style="text-align: right;">50.0</td>
+<td style="text-align: right;">45.9</td>
+<td style="text-align: right;">63.3</td>
+<td style="text-align: right;">65.6</td>
+<td style="text-align: right;">87.0</td>
+<td style="text-align: right;">87.0</td>
 </tr>
 </tbody>
 </table>
@@ -3389,27 +3426,27 @@
 <tbody>
 <tr>
 <td>catalog.getProduct</td>
-<td>2440</td>
-<td style="text-align: right;">1849</td>
-<td style="text-align: right;">75.8%</td>
+<td>3018</td>
+<td style="text-align: right;">2354</td>
+<td style="text-align: right;">78.0%</td>
 </tr>
 <tr>
 <td>catalog.productExists</td>
-<td>2440</td>
-<td style="text-align: right;">1849</td>
-<td style="text-align: right;">75.8%</td>
+<td>3018</td>
+<td style="text-align: right;">2354</td>
+<td style="text-align: right;">78.0%</td>
 </tr>
 <tr>
 <td>customers.getCustomer</td>
-<td>5958</td>
-<td style="text-align: right;">4597</td>
-<td style="text-align: right;">77.2%</td>
+<td>7446</td>
+<td style="text-align: right;">5702</td>
+<td style="text-align: right;">76.6%</td>
 </tr>
 <tr>
 <td>customers.getPaymentMethod</td>
-<td>1200</td>
-<td style="text-align: right;">392</td>
-<td style="text-align: right;">32.7%</td>
+<td>1500</td>
+<td style="text-align: right;">531</td>
+<td style="text-align: right;">35.4%</td>
 </tr>
 </tbody>
 </table>
@@ -3430,158 +3467,158 @@
 </thead>
 <tbody>
 <tr>
-<td>orders -&gt; shipping.quote [loopback-http]</td>
-<td>1200</td>
-<td style="text-align: right;"></td>
-<td style="text-align: right;">2.7</td>
-<td style="text-align: right;">2.3</td>
-<td style="text-align: right;">5.0</td>
-<td style="text-align: right;">6.1</td>
-<td style="text-align: right;">7.9</td>
-</tr>
-<tr>
 <td>orders -&gt; shipping.createShipment [loopback-http]</td>
-<td>1179</td>
+<td>1473</td>
 <td style="text-align: right;"></td>
-<td style="text-align: right;">2.7</td>
-<td style="text-align: right;">2.6</td>
-<td style="text-align: right;">3.2</td>
-<td style="text-align: right;">6.2</td>
-<td style="text-align: right;">10.7</td>
-</tr>
-<tr>
-<td>shipping -&gt; inventory.getStock [loopback-http]</td>
-<td>2440</td>
-<td style="text-align: right;"></td>
-<td style="text-align: right;">1.0</td>
-<td style="text-align: right;">0.8</td>
 <td style="text-align: right;">1.7</td>
-<td style="text-align: right;">1.9</td>
-<td style="text-align: right;">5.1</td>
+<td style="text-align: right;">1.6</td>
+<td style="text-align: right;">2.4</td>
+<td style="text-align: right;">3.6</td>
+<td style="text-align: right;">7.2</td>
 </tr>
 <tr>
 <td>orders -&gt; inventory.reserve [loopback-http]</td>
-<td>1200</td>
+<td>1500</td>
 <td style="text-align: right;"></td>
-<td style="text-align: right;">2.0</td>
-<td style="text-align: right;">1.9</td>
-<td style="text-align: right;">2.6</td>
-<td style="text-align: right;">4.8</td>
-<td style="text-align: right;">6.0</td>
+<td style="text-align: right;">1.4</td>
+<td style="text-align: right;">1.4</td>
+<td style="text-align: right;">2.1</td>
+<td style="text-align: right;">2.7</td>
+<td style="text-align: right;">8.1</td>
+</tr>
+<tr>
+<td>orders -&gt; shipping.quote [loopback-http]</td>
+<td>1500</td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;">1.4</td>
+<td style="text-align: right;">1.2</td>
+<td style="text-align: right;">3.0</td>
+<td style="text-align: right;">4.5</td>
+<td style="text-align: right;">6.8</td>
 </tr>
 <tr>
 <td>orders -&gt; payments.authorize [loopback-http]</td>
-<td>1200</td>
-<td style="text-align: right;">21</td>
+<td>1500</td>
+<td style="text-align: right;">27</td>
+<td style="text-align: right;">1.2</td>
+<td style="text-align: right;">1.2</td>
 <td style="text-align: right;">1.9</td>
-<td style="text-align: right;">2.0</td>
 <td style="text-align: right;">2.4</td>
-<td style="text-align: right;">4.3</td>
-<td style="text-align: right;">6.9</td>
+<td style="text-align: right;">5.3</td>
+</tr>
+<tr>
+<td>shipping -&gt; inventory.getStock [loopback-http]</td>
+<td>3018</td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;">0.6</td>
+<td style="text-align: right;">0.4</td>
+<td style="text-align: right;">1.1</td>
+<td style="text-align: right;">1.5</td>
+<td style="text-align: right;">5.7</td>
 </tr>
 <tr>
 <td>orders -&gt; notifications.send [loopback-http]</td>
-<td>1179</td>
+<td>1473</td>
 <td style="text-align: right;"></td>
-<td style="text-align: right;">1.7</td>
-<td style="text-align: right;">1.6</td>
-<td style="text-align: right;">2.7</td>
-<td style="text-align: right;">3.8</td>
-<td style="text-align: right;">5.0</td>
-</tr>
-<tr>
-<td>orders -&gt; pricing.quote [loopback-http]</td>
-<td>1200</td>
-<td style="text-align: right;"></td>
-<td style="text-align: right;">1.3</td>
+<td style="text-align: right;">1.1</td>
 <td style="text-align: right;">1.0</td>
-<td style="text-align: right;">2.5</td>
-<td style="text-align: right;">4.1</td>
-<td style="text-align: right;">6.2</td>
+<td style="text-align: right;">1.8</td>
+<td style="text-align: right;">2.8</td>
+<td style="text-align: right;">3.5</td>
 </tr>
 <tr>
 <td>orders -&gt; payments.capture [loopback-http]</td>
-<td>1179</td>
+<td>1473</td>
 <td style="text-align: right;"></td>
-<td style="text-align: right;">1.1</td>
-<td style="text-align: right;">1.1</td>
-<td style="text-align: right;">1.3</td>
-<td style="text-align: right;">1.6</td>
-<td style="text-align: right;">4.8</td>
+<td style="text-align: right;">0.8</td>
+<td style="text-align: right;">0.7</td>
+<td style="text-align: right;">1.0</td>
+<td style="text-align: right;">1.2</td>
+<td style="text-align: right;">3.2</td>
+</tr>
+<tr>
+<td>orders -&gt; pricing.quote [loopback-http]</td>
+<td>1500</td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;">0.7</td>
+<td style="text-align: right;">0.5</td>
+<td style="text-align: right;">1.4</td>
+<td style="text-align: right;">2.4</td>
+<td style="text-align: right;">5.4</td>
 </tr>
 <tr>
 <td>shipping -&gt; inventory.getReservation [loopback-http]</td>
-<td>1179</td>
+<td>1473</td>
 <td style="text-align: right;"></td>
+<td style="text-align: right;">0.6</td>
+<td style="text-align: right;">0.5</td>
+<td style="text-align: right;">0.8</td>
 <td style="text-align: right;">0.9</td>
-<td style="text-align: right;">0.9</td>
-<td style="text-align: right;">1.0</td>
-<td style="text-align: right;">1.3</td>
-<td style="text-align: right;">4.6</td>
+<td style="text-align: right;">5.1</td>
 </tr>
 <tr>
 <td>orders -&gt; customers.getCustomer [loopback-http]</td>
-<td>808</td>
+<td>969</td>
 <td style="text-align: right;"></td>
-<td style="text-align: right;">0.8</td>
-<td style="text-align: right;">0.8</td>
+<td style="text-align: right;">0.5</td>
+<td style="text-align: right;">0.4</td>
+<td style="text-align: right;">0.7</td>
 <td style="text-align: right;">0.9</td>
-<td style="text-align: right;">1.7</td>
-<td style="text-align: right;">4.4</td>
+<td style="text-align: right;">3.9</td>
 </tr>
 <tr>
 <td>payments -&gt; customers.getPaymentMethod [loopback-http]</td>
-<td>808</td>
+<td>969</td>
 <td style="text-align: right;"></td>
-<td style="text-align: right;">0.8</td>
-<td style="text-align: right;">0.8</td>
+<td style="text-align: right;">0.5</td>
+<td style="text-align: right;">0.4</td>
+<td style="text-align: right;">0.7</td>
 <td style="text-align: right;">0.9</td>
-<td style="text-align: right;">1.0</td>
-<td style="text-align: right;">4.1</td>
-</tr>
-<tr>
-<td>pricing -&gt; catalog.getProduct [loopback-http]</td>
-<td>591</td>
-<td style="text-align: right;"></td>
-<td style="text-align: right;">0.8</td>
-<td style="text-align: right;">0.8</td>
-<td style="text-align: right;">0.9</td>
-<td style="text-align: right;">1.1</td>
-<td style="text-align: right;">4.3</td>
-</tr>
-<tr>
-<td>inventory -&gt; catalog.productExists [loopback-http]</td>
-<td>591</td>
-<td style="text-align: right;"></td>
-<td style="text-align: right;">0.8</td>
-<td style="text-align: right;">0.8</td>
-<td style="text-align: right;">0.9</td>
-<td style="text-align: right;">1.0</td>
-<td style="text-align: right;">4.2</td>
+<td style="text-align: right;">3.0</td>
 </tr>
 <tr>
 <td>notifications -&gt; customers.getCustomer [loopback-http]</td>
-<td>553</td>
+<td>775</td>
 <td style="text-align: right;"></td>
-<td style="text-align: right;">0.8</td>
-<td style="text-align: right;">0.8</td>
-<td style="text-align: right;">1.4</td>
+<td style="text-align: right;">0.5</td>
+<td style="text-align: right;">0.4</td>
+<td style="text-align: right;">0.9</td>
+<td style="text-align: right;">1.2</td>
+<td style="text-align: right;">1.7</td>
+</tr>
+<tr>
+<td>inventory -&gt; catalog.productExists [loopback-http]</td>
+<td>664</td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;">0.5</td>
+<td style="text-align: right;">0.4</td>
+<td style="text-align: right;">0.7</td>
+<td style="text-align: right;">0.9</td>
+<td style="text-align: right;">3.8</td>
+</tr>
+<tr>
+<td>pricing -&gt; catalog.getProduct [loopback-http]</td>
+<td>664</td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;">0.5</td>
+<td style="text-align: right;">0.4</td>
+<td style="text-align: right;">0.7</td>
+<td style="text-align: right;">0.9</td>
 <td style="text-align: right;">1.6</td>
-<td style="text-align: right;">2.8</td>
 </tr>
 <tr>
 <td>orders -&gt; inventory.release [loopback-http]</td>
-<td>21</td>
+<td>27</td>
 <td style="text-align: right;"></td>
-<td style="text-align: right;">2.2</td>
-<td style="text-align: right;">2.0</td>
-<td style="text-align: right;">3.1</td>
-<td style="text-align: right;">4.0</td>
-<td style="text-align: right;">4.0</td>
+<td style="text-align: right;">1.7</td>
+<td style="text-align: right;">1.6</td>
+<td style="text-align: right;">2.4</td>
+<td style="text-align: right;">3.3</td>
+<td style="text-align: right;">3.3</td>
 </tr>
 <tr>
 <td>shipping -&gt; customers.getCustomer [cache]</td>
-<td>2379</td>
+<td>2973</td>
 <td style="text-align: right;"></td>
 <td style="text-align: right;">0.0</td>
 <td style="text-align: right;">0.0</td>
@@ -3591,7 +3628,7 @@
 </tr>
 <tr>
 <td>inventory -&gt; catalog.productExists [cache]</td>
-<td>1849</td>
+<td>2354</td>
 <td style="text-align: right;"></td>
 <td style="text-align: right;">0.0</td>
 <td style="text-align: right;">0.0</td>
@@ -3601,7 +3638,7 @@
 </tr>
 <tr>
 <td>pricing -&gt; catalog.getProduct [cache]</td>
-<td>1849</td>
+<td>2354</td>
 <td style="text-align: right;"></td>
 <td style="text-align: right;">0.0</td>
 <td style="text-align: right;">0.0</td>
@@ -3611,7 +3648,7 @@
 </tr>
 <tr>
 <td>pricing -&gt; customers.getCustomer [cache]</td>
-<td>1200</td>
+<td>1500</td>
 <td style="text-align: right;"></td>
 <td style="text-align: right;">0.0</td>
 <td style="text-align: right;">0.0</td>
@@ -3621,17 +3658,7 @@
 </tr>
 <tr>
 <td>notifications -&gt; customers.getCustomer [cache]</td>
-<td>626</td>
-<td style="text-align: right;"></td>
-<td style="text-align: right;">0.0</td>
-<td style="text-align: right;">0.0</td>
-<td style="text-align: right;">0.0</td>
-<td style="text-align: right;">0.0</td>
-<td style="text-align: right;">0.0</td>
-</tr>
-<tr>
-<td>orders -&gt; customers.getCustomer [cache]</td>
-<td>392</td>
+<td>698</td>
 <td style="text-align: right;"></td>
 <td style="text-align: right;">0.0</td>
 <td style="text-align: right;">0.0</td>
@@ -3641,7 +3668,17 @@
 </tr>
 <tr>
 <td>payments -&gt; customers.getPaymentMethod [cache]</td>
-<td>392</td>
+<td>531</td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;">0.0</td>
+<td style="text-align: right;">0.0</td>
+<td style="text-align: right;">0.0</td>
+<td style="text-align: right;">0.0</td>
+<td style="text-align: right;">0.0</td>
+</tr>
+<tr>
+<td>orders -&gt; customers.getCustomer [cache]</td>
+<td>531</td>
 <td style="text-align: right;"></td>
 <td style="text-align: right;">0.0</td>
 <td style="text-align: right;">0.0</td>
@@ -3651,10 +3688,10 @@
 </tr>
 </tbody>
 </table>
-<p>By binding: cache 8687 calls, mean 0.00 ms, loopback-http 15328 calls, mean 1.45 ms. 20.0 module-to-module calls per order.</p>
-<p>Raw samples: <code>.demo/perf/20261024T150139Z/loopback-http-parallel-off</code> (<code>orders.csv</code>, <code>calls.csv</code>, <code>summary.json</code>).</p>
+<p>By binding: cache 10941 calls, mean 0.00 ms, loopback-http 18978 calls, mean 0.89 ms. 19.9 module-to-module calls per order.</p>
+<p>Raw samples: <code>.demo/perf/20261026T184505Z/loopback-http-parallel-off</code> (<code>orders.csv</code>, <code>calls.csv</code>, <code>summary.json</code>).</p>
 <h3 id="loopback-http-cache-on-parallel-quotes-on-async-outbox">loopback-http (cache on, parallel quotes on, async outbox)<a class="headerlink" href="#loopback-http-cache-on-parallel-quotes-on-async-outbox" title="Permanent link">&para;</a></h3>
-<p>1200 orders in 5.7 s = 210.5 orders/s; 1179 ok, 21 declined (expected), 0 failed.</p>
+<p>1500 orders in 4.6 s = 325.7 orders/s; 1473 ok, 27 declined (expected), 0 failed.</p>
 <h4 id="placeorder-round-trip-client-side-ms_1">placeOrder round trip (client side), ms<a class="headerlink" href="#placeorder-round-trip-client-side-ms_1" title="Permanent link">&para;</a></h4>
 <table>
 <thead>
@@ -3675,26 +3712,26 @@
 <tr>
 <td>placeOrder</td>
 <td>ok</td>
-<td style="text-align: right;">1179</td>
-<td style="text-align: right;">9.3</td>
-<td style="text-align: right;">19.0</td>
-<td style="text-align: right;">18.4</td>
-<td style="text-align: right;">24.9</td>
-<td style="text-align: right;">26.9</td>
-<td style="text-align: right;">30.7</td>
-<td style="text-align: right;">38.5</td>
+<td style="text-align: right;">1473</td>
+<td style="text-align: right;">21.5</td>
+<td style="text-align: right;">48.9</td>
+<td style="text-align: right;">46.3</td>
+<td style="text-align: right;">62.6</td>
+<td style="text-align: right;">67.5</td>
+<td style="text-align: right;">73.7</td>
+<td style="text-align: right;">89.3</td>
 </tr>
 <tr>
 <td>placeOrder</td>
 <td>declined</td>
-<td style="text-align: right;">21</td>
-<td style="text-align: right;">8.1</td>
-<td style="text-align: right;">13.4</td>
-<td style="text-align: right;">11.8</td>
-<td style="text-align: right;">18.4</td>
-<td style="text-align: right;">22.5</td>
-<td style="text-align: right;">27.9</td>
-<td style="text-align: right;">27.9</td>
+<td style="text-align: right;">27</td>
+<td style="text-align: right;">35.6</td>
+<td style="text-align: right;">44.8</td>
+<td style="text-align: right;">43.6</td>
+<td style="text-align: right;">51.6</td>
+<td style="text-align: right;">56.0</td>
+<td style="text-align: right;">66.4</td>
+<td style="text-align: right;">66.4</td>
 </tr>
 </tbody>
 </table>
@@ -3711,27 +3748,27 @@
 <tbody>
 <tr>
 <td>catalog.getProduct</td>
-<td>2440</td>
-<td style="text-align: right;">1849</td>
-<td style="text-align: right;">75.8%</td>
+<td>3018</td>
+<td style="text-align: right;">2354</td>
+<td style="text-align: right;">78.0%</td>
 </tr>
 <tr>
 <td>catalog.productExists</td>
-<td>2440</td>
-<td style="text-align: right;">1849</td>
-<td style="text-align: right;">75.8%</td>
+<td>3018</td>
+<td style="text-align: right;">2354</td>
+<td style="text-align: right;">78.0%</td>
 </tr>
 <tr>
 <td>customers.getCustomer</td>
-<td>5958</td>
-<td style="text-align: right;">2969</td>
-<td style="text-align: right;">49.8%</td>
+<td>7446</td>
+<td style="text-align: right;">3770</td>
+<td style="text-align: right;">50.6%</td>
 </tr>
 <tr>
 <td>customers.getPaymentMethod</td>
-<td>1200</td>
-<td style="text-align: right;">392</td>
-<td style="text-align: right;">32.7%</td>
+<td>1500</td>
+<td style="text-align: right;">531</td>
+<td style="text-align: right;">35.4%</td>
 </tr>
 </tbody>
 </table>
@@ -3753,177 +3790,177 @@
 <tbody>
 <tr>
 <td>orders -&gt; shipping.quote [loopback-http]</td>
-<td>1200</td>
+<td>1500</td>
 <td style="text-align: right;"></td>
+<td style="text-align: right;">1.7</td>
+<td style="text-align: right;">1.5</td>
 <td style="text-align: right;">3.3</td>
-<td style="text-align: right;">3.0</td>
-<td style="text-align: right;">5.9</td>
-<td style="text-align: right;">7.9</td>
-<td style="text-align: right;">10.2</td>
+<td style="text-align: right;">4.6</td>
+<td style="text-align: right;">7.6</td>
 </tr>
 <tr>
 <td>orders -&gt; shipping.createShipment [loopback-http]</td>
-<td>1179</td>
+<td>1473</td>
 <td style="text-align: right;"></td>
-<td style="text-align: right;">2.7</td>
-<td style="text-align: right;">2.6</td>
-<td style="text-align: right;">3.3</td>
-<td style="text-align: right;">6.6</td>
-<td style="text-align: right;">8.9</td>
-</tr>
-<tr>
-<td>shipping -&gt; inventory.getStock [loopback-http]</td>
-<td>2440</td>
-<td style="text-align: right;"></td>
-<td style="text-align: right;">1.0</td>
-<td style="text-align: right;">0.8</td>
 <td style="text-align: right;">1.7</td>
-<td style="text-align: right;">3.5</td>
-<td style="text-align: right;">5.8</td>
+<td style="text-align: right;">1.6</td>
+<td style="text-align: right;">2.3</td>
+<td style="text-align: right;">3.1</td>
+<td style="text-align: right;">5.6</td>
 </tr>
 <tr>
 <td>orders -&gt; inventory.reserve [loopback-http]</td>
-<td>1200</td>
+<td>1500</td>
 <td style="text-align: right;"></td>
-<td style="text-align: right;">2.0</td>
-<td style="text-align: right;">1.9</td>
-<td style="text-align: right;">2.9</td>
-<td style="text-align: right;">5.3</td>
-<td style="text-align: right;">12.9</td>
-</tr>
-<tr>
-<td>orders -&gt; pricing.quote [loopback-http]</td>
-<td>1200</td>
-<td style="text-align: right;"></td>
-<td style="text-align: right;">1.9</td>
-<td style="text-align: right;">1.8</td>
-<td style="text-align: right;">3.4</td>
-<td style="text-align: right;">5.8</td>
-<td style="text-align: right;">8.2</td>
-</tr>
-<tr>
-<td>orders -&gt; payments.authorize [loopback-http]</td>
-<td>1200</td>
-<td style="text-align: right;">21</td>
-<td style="text-align: right;">1.9</td>
-<td style="text-align: right;">1.9</td>
-<td style="text-align: right;">2.4</td>
-<td style="text-align: right;">5.1</td>
-<td style="text-align: right;">7.2</td>
-</tr>
-<tr>
-<td>orders -&gt; notifications.send [loopback-http]</td>
-<td>1179</td>
-<td style="text-align: right;"></td>
-<td style="text-align: right;">1.7</td>
-<td style="text-align: right;">1.7</td>
-<td style="text-align: right;">2.7</td>
-<td style="text-align: right;">3.9</td>
-<td style="text-align: right;">6.7</td>
-</tr>
-<tr>
-<td>orders -&gt; payments.capture [loopback-http]</td>
-<td>1179</td>
-<td style="text-align: right;"></td>
-<td style="text-align: right;">1.2</td>
-<td style="text-align: right;">1.1</td>
 <td style="text-align: right;">1.4</td>
-<td style="text-align: right;">4.4</td>
-<td style="text-align: right;">7.1</td>
-</tr>
-<tr>
-<td>shipping -&gt; inventory.getReservation [loopback-http]</td>
-<td>1179</td>
-<td style="text-align: right;"></td>
-<td style="text-align: right;">0.9</td>
-<td style="text-align: right;">0.9</td>
-<td style="text-align: right;">1.0</td>
-<td style="text-align: right;">1.5</td>
-<td style="text-align: right;">5.3</td>
-</tr>
-<tr>
-<td>orders -&gt; customers.getCustomer [loopback-http]</td>
-<td>808</td>
-<td style="text-align: right;"></td>
-<td style="text-align: right;">0.9</td>
-<td style="text-align: right;">0.8</td>
-<td style="text-align: right;">1.0</td>
-<td style="text-align: right;">3.7</td>
-<td style="text-align: right;">5.8</td>
-</tr>
-<tr>
-<td>payments -&gt; customers.getPaymentMethod [loopback-http]</td>
-<td>808</td>
-<td style="text-align: right;"></td>
-<td style="text-align: right;">0.8</td>
-<td style="text-align: right;">0.8</td>
-<td style="text-align: right;">0.9</td>
-<td style="text-align: right;">3.9</td>
+<td style="text-align: right;">1.3</td>
+<td style="text-align: right;">2.1</td>
+<td style="text-align: right;">2.8</td>
 <td style="text-align: right;">4.6</td>
 </tr>
 <tr>
-<td>shipping -&gt; customers.getCustomer [loopback-http]</td>
-<td>808</td>
-<td style="text-align: right;"></td>
-<td style="text-align: right;">0.8</td>
-<td style="text-align: right;">0.8</td>
-<td style="text-align: right;">0.9</td>
+<td>orders -&gt; payments.authorize [loopback-http]</td>
+<td>1500</td>
+<td style="text-align: right;">27</td>
 <td style="text-align: right;">1.2</td>
-<td style="text-align: right;">4.5</td>
+<td style="text-align: right;">1.2</td>
+<td style="text-align: right;">1.8</td>
+<td style="text-align: right;">2.3</td>
+<td style="text-align: right;">7.0</td>
 </tr>
 <tr>
-<td>pricing -&gt; customers.getCustomer [loopback-http]</td>
-<td>808</td>
+<td>shipping -&gt; inventory.getStock [loopback-http]</td>
+<td>3018</td>
 <td style="text-align: right;"></td>
-<td style="text-align: right;">0.8</td>
-<td style="text-align: right;">0.8</td>
-<td style="text-align: right;">0.9</td>
-<td style="text-align: right;">1.3</td>
-<td style="text-align: right;">4.5</td>
+<td style="text-align: right;">0.5</td>
+<td style="text-align: right;">0.4</td>
+<td style="text-align: right;">1.1</td>
+<td style="text-align: right;">1.4</td>
+<td style="text-align: right;">4.0</td>
 </tr>
 <tr>
-<td>pricing -&gt; catalog.getProduct [loopback-http]</td>
-<td>591</td>
+<td>orders -&gt; notifications.send [loopback-http]</td>
+<td>1473</td>
 <td style="text-align: right;"></td>
-<td style="text-align: right;">0.8</td>
-<td style="text-align: right;">0.8</td>
+<td style="text-align: right;">1.1</td>
 <td style="text-align: right;">1.0</td>
-<td style="text-align: right;">3.9</td>
-<td style="text-align: right;">4.7</td>
+<td style="text-align: right;">1.9</td>
+<td style="text-align: right;">2.6</td>
+<td style="text-align: right;">3.5</td>
 </tr>
 <tr>
-<td>notifications -&gt; customers.getCustomer [loopback-http]</td>
-<td>565</td>
+<td>orders -&gt; pricing.quote [loopback-http]</td>
+<td>1500</td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;">1.0</td>
+<td style="text-align: right;">0.9</td>
+<td style="text-align: right;">2.0</td>
+<td style="text-align: right;">2.9</td>
+<td style="text-align: right;">6.0</td>
+</tr>
+<tr>
+<td>orders -&gt; payments.capture [loopback-http]</td>
+<td>1473</td>
 <td style="text-align: right;"></td>
 <td style="text-align: right;">0.8</td>
 <td style="text-align: right;">0.7</td>
+<td style="text-align: right;">1.0</td>
 <td style="text-align: right;">1.3</td>
-<td style="text-align: right;">1.7</td>
-<td style="text-align: right;">5.2</td>
+<td style="text-align: right;">4.7</td>
+</tr>
+<tr>
+<td>shipping -&gt; inventory.getReservation [loopback-http]</td>
+<td>1473</td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;">0.5</td>
+<td style="text-align: right;">0.5</td>
+<td style="text-align: right;">0.7</td>
+<td style="text-align: right;">0.9</td>
+<td style="text-align: right;">3.4</td>
+</tr>
+<tr>
+<td>orders -&gt; customers.getCustomer [loopback-http]</td>
+<td>969</td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;">0.5</td>
+<td style="text-align: right;">0.5</td>
+<td style="text-align: right;">0.8</td>
+<td style="text-align: right;">0.9</td>
+<td style="text-align: right;">3.1</td>
+</tr>
+<tr>
+<td>shipping -&gt; customers.getCustomer [loopback-http]</td>
+<td>967</td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;">0.4</td>
+<td style="text-align: right;">0.4</td>
+<td style="text-align: right;">0.6</td>
+<td style="text-align: right;">0.8</td>
+<td style="text-align: right;">2.0</td>
+</tr>
+<tr>
+<td>payments -&gt; customers.getPaymentMethod [loopback-http]</td>
+<td>969</td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;">0.4</td>
+<td style="text-align: right;">0.4</td>
+<td style="text-align: right;">0.7</td>
+<td style="text-align: right;">0.8</td>
+<td style="text-align: right;">4.0</td>
+</tr>
+<tr>
+<td>pricing -&gt; customers.getCustomer [loopback-http]</td>
+<td>965</td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;">0.4</td>
+<td style="text-align: right;">0.4</td>
+<td style="text-align: right;">0.7</td>
+<td style="text-align: right;">0.8</td>
+<td style="text-align: right;">2.2</td>
+</tr>
+<tr>
+<td>notifications -&gt; customers.getCustomer [loopback-http]</td>
+<td>775</td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;">0.5</td>
+<td style="text-align: right;">0.4</td>
+<td style="text-align: right;">0.9</td>
+<td style="text-align: right;">1.1</td>
+<td style="text-align: right;">1.5</td>
+</tr>
+<tr>
+<td>pricing -&gt; catalog.getProduct [loopback-http]</td>
+<td>664</td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;">0.5</td>
+<td style="text-align: right;">0.4</td>
+<td style="text-align: right;">0.7</td>
+<td style="text-align: right;">1.0</td>
+<td style="text-align: right;">2.4</td>
 </tr>
 <tr>
 <td>inventory -&gt; catalog.productExists [loopback-http]</td>
-<td>591</td>
+<td>664</td>
 <td style="text-align: right;"></td>
-<td style="text-align: right;">0.8</td>
-<td style="text-align: right;">0.8</td>
+<td style="text-align: right;">0.5</td>
+<td style="text-align: right;">0.4</td>
+<td style="text-align: right;">0.7</td>
 <td style="text-align: right;">0.9</td>
-<td style="text-align: right;">1.3</td>
-<td style="text-align: right;">4.2</td>
+<td style="text-align: right;">2.4</td>
 </tr>
 <tr>
 <td>orders -&gt; inventory.release [loopback-http]</td>
-<td>21</td>
+<td>27</td>
 <td style="text-align: right;"></td>
-<td style="text-align: right;">2.2</td>
-<td style="text-align: right;">2.0</td>
-<td style="text-align: right;">3.2</td>
-<td style="text-align: right;">3.6</td>
-<td style="text-align: right;">3.6</td>
+<td style="text-align: right;">1.6</td>
+<td style="text-align: right;">1.6</td>
+<td style="text-align: right;">2.5</td>
+<td style="text-align: right;">2.7</td>
+<td style="text-align: right;">2.7</td>
 </tr>
 <tr>
 <td>inventory -&gt; catalog.productExists [cache]</td>
-<td>1849</td>
+<td>2354</td>
 <td style="text-align: right;"></td>
 <td style="text-align: right;">0.0</td>
 <td style="text-align: right;">0.0</td>
@@ -3933,7 +3970,7 @@
 </tr>
 <tr>
 <td>shipping -&gt; customers.getCustomer [cache]</td>
-<td>1571</td>
+<td>2006</td>
 <td style="text-align: right;"></td>
 <td style="text-align: right;">0.0</td>
 <td style="text-align: right;">0.0</td>
@@ -3943,27 +3980,17 @@
 </tr>
 <tr>
 <td>pricing -&gt; catalog.getProduct [cache]</td>
-<td>1849</td>
+<td>2354</td>
 <td style="text-align: right;"></td>
 <td style="text-align: right;">0.0</td>
 <td style="text-align: right;">0.0</td>
 <td style="text-align: right;">0.0</td>
 <td style="text-align: right;">0.0</td>
-<td style="text-align: right;">0.1</td>
+<td style="text-align: right;">0.0</td>
 </tr>
 <tr>
 <td>notifications -&gt; customers.getCustomer [cache]</td>
-<td>614</td>
-<td style="text-align: right;"></td>
-<td style="text-align: right;">0.0</td>
-<td style="text-align: right;">0.0</td>
-<td style="text-align: right;">0.0</td>
-<td style="text-align: right;">0.0</td>
-<td style="text-align: right;">0.0</td>
-</tr>
-<tr>
-<td>orders -&gt; customers.getCustomer [cache]</td>
-<td>392</td>
+<td>698</td>
 <td style="text-align: right;"></td>
 <td style="text-align: right;">0.0</td>
 <td style="text-align: right;">0.0</td>
@@ -3973,7 +4000,17 @@
 </tr>
 <tr>
 <td>payments -&gt; customers.getPaymentMethod [cache]</td>
-<td>392</td>
+<td>531</td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;">0.0</td>
+<td style="text-align: right;">0.0</td>
+<td style="text-align: right;">0.0</td>
+<td style="text-align: right;">0.0</td>
+<td style="text-align: right;">0.0</td>
+</tr>
+<tr>
+<td>orders -&gt; customers.getCustomer [cache]</td>
+<td>531</td>
 <td style="text-align: right;"></td>
 <td style="text-align: right;">0.0</td>
 <td style="text-align: right;">0.0</td>
@@ -3983,7 +4020,7 @@
 </tr>
 <tr>
 <td>pricing -&gt; customers.getCustomer [cache]</td>
-<td>392</td>
+<td>535</td>
 <td style="text-align: right;"></td>
 <td style="text-align: right;">0.0</td>
 <td style="text-align: right;">0.0</td>
@@ -3993,10 +4030,10 @@
 </tr>
 </tbody>
 </table>
-<p>By binding: cache 7059 calls, mean 0.00 ms, loopback-http 16956 calls, mean 1.47 ms. 20.0 module-to-module calls per order.</p>
-<p>Raw samples: <code>.demo/perf/20261024T150139Z/loopback-http-parallel-on</code> (<code>orders.csv</code>, <code>calls.csv</code>, <code>summary.json</code>).</p>
+<p>By binding: cache 9009 calls, mean 0.00 ms, loopback-http 20910 calls, mean 0.88 ms. 19.9 module-to-module calls per order.</p>
+<p>Raw samples: <code>.demo/perf/20261026T184505Z/loopback-http-parallel-on</code> (<code>orders.csv</code>, <code>calls.csv</code>, <code>summary.json</code>).</p>
 <h3 id="split-dbs-cache-on-parallel-quotes-off-async-outbox">split-dbs (cache on, parallel quotes off, async outbox)<a class="headerlink" href="#split-dbs-cache-on-parallel-quotes-off-async-outbox" title="Permanent link">&para;</a></h3>
-<p>1200 orders in 5.9 s = 203.2 orders/s; 1179 ok, 21 declined (expected), 0 failed.</p>
+<p>1500 orders in 6.1 s = 246.9 orders/s; 1473 ok, 27 declined (expected), 0 failed.</p>
 <h4 id="placeorder-round-trip-client-side-ms_2">placeOrder round trip (client side), ms<a class="headerlink" href="#placeorder-round-trip-client-side-ms_2" title="Permanent link">&para;</a></h4>
 <table>
 <thead>
@@ -4017,26 +4054,26 @@
 <tr>
 <td>placeOrder</td>
 <td>ok</td>
-<td style="text-align: right;">1179</td>
-<td style="text-align: right;">10.6</td>
-<td style="text-align: right;">19.7</td>
-<td style="text-align: right;">18.7</td>
-<td style="text-align: right;">26.3</td>
-<td style="text-align: right;">28.7</td>
-<td style="text-align: right;">32.6</td>
-<td style="text-align: right;">100.4</td>
+<td style="text-align: right;">1473</td>
+<td style="text-align: right;">29.2</td>
+<td style="text-align: right;">64.6</td>
+<td style="text-align: right;">61.7</td>
+<td style="text-align: right;">85.4</td>
+<td style="text-align: right;">91.7</td>
+<td style="text-align: right;">102.9</td>
+<td style="text-align: right;">110.8</td>
 </tr>
 <tr>
 <td>placeOrder</td>
 <td>declined</td>
-<td style="text-align: right;">21</td>
-<td style="text-align: right;">8.3</td>
-<td style="text-align: right;">14.9</td>
-<td style="text-align: right;">13.5</td>
-<td style="text-align: right;">20.2</td>
-<td style="text-align: right;">21.7</td>
-<td style="text-align: right;">26.7</td>
-<td style="text-align: right;">26.7</td>
+<td style="text-align: right;">27</td>
+<td style="text-align: right;">44.3</td>
+<td style="text-align: right;">61.9</td>
+<td style="text-align: right;">63.0</td>
+<td style="text-align: right;">79.5</td>
+<td style="text-align: right;">82.0</td>
+<td style="text-align: right;">83.4</td>
+<td style="text-align: right;">83.4</td>
 </tr>
 </tbody>
 </table>
@@ -4053,27 +4090,27 @@
 <tbody>
 <tr>
 <td>catalog.getProduct</td>
-<td>2440</td>
-<td style="text-align: right;">1849</td>
-<td style="text-align: right;">75.8%</td>
+<td>3018</td>
+<td style="text-align: right;">2354</td>
+<td style="text-align: right;">78.0%</td>
 </tr>
 <tr>
 <td>catalog.productExists</td>
-<td>2440</td>
-<td style="text-align: right;">1849</td>
-<td style="text-align: right;">75.8%</td>
+<td>3018</td>
+<td style="text-align: right;">2354</td>
+<td style="text-align: right;">78.0%</td>
 </tr>
 <tr>
 <td>customers.getCustomer</td>
-<td>5958</td>
-<td style="text-align: right;">3786</td>
-<td style="text-align: right;">63.5%</td>
+<td>7446</td>
+<td style="text-align: right;">4744</td>
+<td style="text-align: right;">63.7%</td>
 </tr>
 <tr>
 <td>customers.getPaymentMethod</td>
-<td>1200</td>
-<td style="text-align: right;">392</td>
-<td style="text-align: right;">32.7%</td>
+<td>1500</td>
+<td style="text-align: right;">531</td>
+<td style="text-align: right;">35.4%</td>
 </tr>
 </tbody>
 </table>
@@ -4094,198 +4131,198 @@
 </thead>
 <tbody>
 <tr>
-<td>orders -&gt; shipping.createShipment [remote]</td>
-<td>1179</td>
-<td style="text-align: right;"></td>
-<td style="text-align: right;">2.2</td>
-<td style="text-align: right;">2.2</td>
-<td style="text-align: right;">2.7</td>
-<td style="text-align: right;">3.6</td>
-<td style="text-align: right;">6.9</td>
-</tr>
-<tr>
-<td>orders -&gt; pricing.quote [remote]</td>
-<td>1200</td>
-<td style="text-align: right;"></td>
-<td style="text-align: right;">2.0</td>
-<td style="text-align: right;">1.9</td>
-<td style="text-align: right;">2.7</td>
-<td style="text-align: right;">4.6</td>
-<td style="text-align: right;">69.5</td>
-</tr>
-<tr>
 <td>orders -&gt; inventory.reserve [remote]</td>
-<td>1200</td>
+<td>1500</td>
 <td style="text-align: right;"></td>
-<td style="text-align: right;">2.0</td>
-<td style="text-align: right;">1.9</td>
+<td style="text-align: right;">1.7</td>
+<td style="text-align: right;">1.6</td>
 <td style="text-align: right;">2.6</td>
-<td style="text-align: right;">3.4</td>
+<td style="text-align: right;">3.2</td>
+<td style="text-align: right;">4.7</td>
+</tr>
+<tr>
+<td>orders -&gt; shipping.createShipment [remote]</td>
+<td>1473</td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;">1.8</td>
+<td style="text-align: right;">1.6</td>
+<td style="text-align: right;">2.7</td>
+<td style="text-align: right;">3.3</td>
 <td style="text-align: right;">6.1</td>
 </tr>
 <tr>
 <td>orders -&gt; payments.authorize [remote]</td>
-<td>1200</td>
-<td style="text-align: right;">21</td>
-<td style="text-align: right;">1.7</td>
-<td style="text-align: right;">1.7</td>
-<td style="text-align: right;">2.2</td>
-<td style="text-align: right;">3.3</td>
-<td style="text-align: right;">6.0</td>
+<td>1500</td>
+<td style="text-align: right;">27</td>
+<td style="text-align: right;">1.6</td>
+<td style="text-align: right;">1.4</td>
+<td style="text-align: right;">2.5</td>
+<td style="text-align: right;">3.2</td>
+<td style="text-align: right;">7.9</td>
 </tr>
 <tr>
-<td>orders -&gt; shipping.quote [remote]</td>
-<td>1200</td>
+<td>orders -&gt; pricing.quote [remote]</td>
+<td>1500</td>
 <td style="text-align: right;"></td>
 <td style="text-align: right;">1.5</td>
 <td style="text-align: right;">1.4</td>
-<td style="text-align: right;">2.3</td>
-<td style="text-align: right;">2.8</td>
-<td style="text-align: right;">6.0</td>
+<td style="text-align: right;">2.9</td>
+<td style="text-align: right;">3.6</td>
+<td style="text-align: right;">5.4</td>
 </tr>
 <tr>
 <td>orders -&gt; payments.capture [remote]</td>
-<td>1179</td>
-<td style="text-align: right;"></td>
-<td style="text-align: right;">1.2</td>
-<td style="text-align: right;">1.2</td>
-<td style="text-align: right;">1.5</td>
-<td style="text-align: right;">2.5</td>
-<td style="text-align: right;">11.9</td>
-</tr>
-<tr>
-<td>orders -&gt; notifications.send [local]</td>
-<td>1179</td>
-<td style="text-align: right;"></td>
-<td style="text-align: right;">1.2</td>
-<td style="text-align: right;">1.2</td>
-<td style="text-align: right;">2.3</td>
-<td style="text-align: right;">3.7</td>
-<td style="text-align: right;">4.2</td>
-</tr>
-<tr>
-<td>shipping -&gt; inventory.getStock [local]</td>
-<td>2440</td>
-<td style="text-align: right;"></td>
-<td style="text-align: right;">0.4</td>
-<td style="text-align: right;">0.3</td>
-<td style="text-align: right;">0.7</td>
-<td style="text-align: right;">0.8</td>
-<td style="text-align: right;">0.9</td>
-</tr>
-<tr>
-<td>pricing -&gt; customers.getCustomer [remote]</td>
-<td>808</td>
+<td>1473</td>
 <td style="text-align: right;"></td>
 <td style="text-align: right;">1.1</td>
-<td style="text-align: right;">0.9</td>
-<td style="text-align: right;">1.3</td>
-<td style="text-align: right;">2.7</td>
-<td style="text-align: right;">66.7</td>
-</tr>
-<tr>
-<td>orders -&gt; customers.getCustomer [remote]</td>
-<td>808</td>
-<td style="text-align: right;"></td>
-<td style="text-align: right;">0.9</td>
-<td style="text-align: right;">0.9</td>
-<td style="text-align: right;">1.1</td>
+<td style="text-align: right;">1.0</td>
+<td style="text-align: right;">1.7</td>
 <td style="text-align: right;">2.0</td>
-<td style="text-align: right;">4.9</td>
+<td style="text-align: right;">4.6</td>
 </tr>
 <tr>
-<td>notifications -&gt; customers.getCustomer [remote]</td>
-<td>556</td>
+<td>orders -&gt; shipping.quote [remote]</td>
+<td>1500</td>
 <td style="text-align: right;"></td>
 <td style="text-align: right;">1.0</td>
 <td style="text-align: right;">0.9</td>
-<td style="text-align: right;">2.1</td>
-<td style="text-align: right;">2.5</td>
+<td style="text-align: right;">1.9</td>
+<td style="text-align: right;">2.6</td>
+<td style="text-align: right;">5.4</td>
+</tr>
+<tr>
+<td>orders -&gt; notifications.send [local]</td>
+<td>1473</td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;">0.9</td>
+<td style="text-align: right;">0.8</td>
+<td style="text-align: right;">1.6</td>
+<td style="text-align: right;">3.0</td>
+<td style="text-align: right;">3.6</td>
+</tr>
+<tr>
+<td>pricing -&gt; customers.getCustomer [remote]</td>
+<td>969</td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;">1.0</td>
+<td style="text-align: right;">0.9</td>
+<td style="text-align: right;">1.6</td>
+<td style="text-align: right;">2.0</td>
+<td style="text-align: right;">3.6</td>
+</tr>
+<tr>
+<td>shipping -&gt; inventory.getStock [local]</td>
+<td>3018</td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;">0.3</td>
+<td style="text-align: right;">0.2</td>
+<td style="text-align: right;">0.5</td>
+<td style="text-align: right;">0.7</td>
 <td style="text-align: right;">3.0</td>
 </tr>
 <tr>
-<td>shipping -&gt; inventory.getReservation [local]</td>
-<td>1179</td>
+<td>orders -&gt; customers.getCustomer [remote]</td>
+<td>969</td>
 <td style="text-align: right;"></td>
-<td style="text-align: right;">0.4</td>
-<td style="text-align: right;">0.4</td>
+<td style="text-align: right;">0.7</td>
+<td style="text-align: right;">0.7</td>
+<td style="text-align: right;">1.2</td>
+<td style="text-align: right;">1.5</td>
+<td style="text-align: right;">2.5</td>
+</tr>
+<tr>
+<td>shipping -&gt; inventory.getReservation [local]</td>
+<td>1473</td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;">0.3</td>
+<td style="text-align: right;">0.3</td>
 <td style="text-align: right;">0.5</td>
 <td style="text-align: right;">0.6</td>
-<td style="text-align: right;">3.3</td>
+<td style="text-align: right;">1.5</td>
+</tr>
+<tr>
+<td>notifications -&gt; customers.getCustomer [remote]</td>
+<td>764</td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;">0.6</td>
+<td style="text-align: right;">0.5</td>
+<td style="text-align: right;">1.4</td>
+<td style="text-align: right;">2.0</td>
+<td style="text-align: right;">2.2</td>
 </tr>
 <tr>
 <td>payments -&gt; customers.getPaymentMethod [local]</td>
-<td>808</td>
+<td>969</td>
 <td style="text-align: right;"></td>
 <td style="text-align: right;">0.3</td>
 <td style="text-align: right;">0.3</td>
-<td style="text-align: right;">0.4</td>
 <td style="text-align: right;">0.5</td>
-<td style="text-align: right;">2.7</td>
+<td style="text-align: right;">0.6</td>
+<td style="text-align: right;">1.4</td>
 </tr>
 <tr>
 <td>pricing -&gt; catalog.getProduct [local]</td>
-<td>591</td>
+<td>664</td>
 <td style="text-align: right;"></td>
-<td style="text-align: right;">0.3</td>
-<td style="text-align: right;">0.3</td>
+<td style="text-align: right;">0.2</td>
+<td style="text-align: right;">0.2</td>
 <td style="text-align: right;">0.4</td>
 <td style="text-align: right;">0.5</td>
-<td style="text-align: right;">0.6</td>
+<td style="text-align: right;">1.2</td>
 </tr>
 <tr>
 <td>inventory -&gt; catalog.productExists [local]</td>
-<td>591</td>
+<td>664</td>
 <td style="text-align: right;"></td>
-<td style="text-align: right;">0.3</td>
-<td style="text-align: right;">0.3</td>
+<td style="text-align: right;">0.2</td>
+<td style="text-align: right;">0.2</td>
 <td style="text-align: right;">0.4</td>
 <td style="text-align: right;">0.4</td>
 <td style="text-align: right;">0.6</td>
 </tr>
 <tr>
 <td>orders -&gt; inventory.release [remote]</td>
-<td>21</td>
+<td>27</td>
 <td style="text-align: right;"></td>
-<td style="text-align: right;">2.9</td>
-<td style="text-align: right;">2.9</td>
-<td style="text-align: right;">3.8</td>
-<td style="text-align: right;">4.3</td>
-<td style="text-align: right;">4.3</td>
+<td style="text-align: right;">2.4</td>
+<td style="text-align: right;">2.2</td>
+<td style="text-align: right;">3.3</td>
+<td style="text-align: right;">3.7</td>
+<td style="text-align: right;">3.7</td>
 </tr>
 <tr>
 <td>pricing -&gt; catalog.getProduct [cache]</td>
-<td>1849</td>
+<td>2354</td>
 <td style="text-align: right;"></td>
 <td style="text-align: right;">0.0</td>
 <td style="text-align: right;">0.0</td>
-<td style="text-align: right;">0.1</td>
+<td style="text-align: right;">0.0</td>
 <td style="text-align: right;">0.1</td>
 <td style="text-align: right;">0.1</td>
 </tr>
 <tr>
 <td>inventory -&gt; catalog.productExists [cache]</td>
-<td>1849</td>
+<td>2354</td>
 <td style="text-align: right;"></td>
 <td style="text-align: right;">0.0</td>
 <td style="text-align: right;">0.0</td>
 <td style="text-align: right;">0.0</td>
 <td style="text-align: right;">0.0</td>
-<td style="text-align: right;">0.1</td>
+<td style="text-align: right;">2.7</td>
 </tr>
 <tr>
 <td>payments -&gt; customers.getPaymentMethod [cache]</td>
-<td>392</td>
+<td>531</td>
 <td style="text-align: right;"></td>
 <td style="text-align: right;">0.0</td>
 <td style="text-align: right;">0.0</td>
 <td style="text-align: right;">0.1</td>
 <td style="text-align: right;">0.1</td>
-<td style="text-align: right;">0.1</td>
+<td style="text-align: right;">0.2</td>
 </tr>
 <tr>
 <td>shipping -&gt; customers.getCustomer [cache]</td>
-<td>2379</td>
+<td>2973</td>
 <td style="text-align: right;"></td>
 <td style="text-align: right;">0.0</td>
 <td style="text-align: right;">0.0</td>
@@ -4295,17 +4332,17 @@
 </tr>
 <tr>
 <td>orders -&gt; customers.getCustomer [cache]</td>
-<td>392</td>
+<td>531</td>
 <td style="text-align: right;"></td>
 <td style="text-align: right;">0.0</td>
 <td style="text-align: right;">0.0</td>
 <td style="text-align: right;">0.0</td>
 <td style="text-align: right;">0.0</td>
-<td style="text-align: right;">0.1</td>
+<td style="text-align: right;">0.0</td>
 </tr>
 <tr>
 <td>notifications -&gt; customers.getCustomer [cache]</td>
-<td>623</td>
+<td>709</td>
 <td style="text-align: right;"></td>
 <td style="text-align: right;">0.0</td>
 <td style="text-align: right;">0.0</td>
@@ -4315,7 +4352,7 @@
 </tr>
 <tr>
 <td>pricing -&gt; customers.getCustomer [cache]</td>
-<td>392</td>
+<td>531</td>
 <td style="text-align: right;"></td>
 <td style="text-align: right;">0.0</td>
 <td style="text-align: right;">0.0</td>
@@ -4325,10 +4362,10 @@
 </tr>
 </tbody>
 </table>
-<p>By binding: cache 7876 calls, mean 0.02 ms, local 6788 calls, mean 0.51 ms, remote 9351 calls, mean 1.58 ms. 20.0 module-to-module calls per order.</p>
-<p>Raw samples: <code>.demo/perf/20261024T150139Z/split-dbs-parallel-off</code> (<code>orders.csv</code>, <code>calls.csv</code>, <code>summary.json</code>).</p>
+<p>By binding: cache 9983 calls, mean 0.01 ms, local 8261 calls, mean 0.39 ms, remote 11675 calls, mean 1.29 ms. 19.9 module-to-module calls per order.</p>
+<p>Raw samples: <code>.demo/perf/20261026T184505Z/split-dbs-parallel-off</code> (<code>orders.csv</code>, <code>calls.csv</code>, <code>summary.json</code>).</p>
 <h3 id="split-dbs-cache-on-parallel-quotes-on-async-outbox">split-dbs (cache on, parallel quotes on, async outbox)<a class="headerlink" href="#split-dbs-cache-on-parallel-quotes-on-async-outbox" title="Permanent link">&para;</a></h3>
-<p>1200 orders in 5.3 s = 226.7 orders/s; 1179 ok, 21 declined (expected), 0 failed.</p>
+<p>1500 orders in 5.9 s = 253.5 orders/s; 1473 ok, 27 declined (expected), 0 failed.</p>
 <h4 id="placeorder-round-trip-client-side-ms_3">placeOrder round trip (client side), ms<a class="headerlink" href="#placeorder-round-trip-client-side-ms_3" title="Permanent link">&para;</a></h4>
 <table>
 <thead>
@@ -4349,26 +4386,26 @@
 <tr>
 <td>placeOrder</td>
 <td>ok</td>
-<td style="text-align: right;">1179</td>
-<td style="text-align: right;">10.6</td>
-<td style="text-align: right;">17.7</td>
-<td style="text-align: right;">16.9</td>
-<td style="text-align: right;">24.1</td>
-<td style="text-align: right;">26.1</td>
-<td style="text-align: right;">29.2</td>
-<td style="text-align: right;">35.6</td>
+<td style="text-align: right;">1473</td>
+<td style="text-align: right;">29.7</td>
+<td style="text-align: right;">62.9</td>
+<td style="text-align: right;">61.1</td>
+<td style="text-align: right;">81.8</td>
+<td style="text-align: right;">87.9</td>
+<td style="text-align: right;">99.5</td>
+<td style="text-align: right;">115.4</td>
 </tr>
 <tr>
 <td>placeOrder</td>
 <td>declined</td>
-<td style="text-align: right;">21</td>
-<td style="text-align: right;">7.3</td>
-<td style="text-align: right;">12.1</td>
-<td style="text-align: right;">11.9</td>
-<td style="text-align: right;">17.9</td>
-<td style="text-align: right;">19.7</td>
-<td style="text-align: right;">20.4</td>
-<td style="text-align: right;">20.4</td>
+<td style="text-align: right;">27</td>
+<td style="text-align: right;">41.5</td>
+<td style="text-align: right;">61.2</td>
+<td style="text-align: right;">58.3</td>
+<td style="text-align: right;">79.2</td>
+<td style="text-align: right;">80.0</td>
+<td style="text-align: right;">86.2</td>
+<td style="text-align: right;">86.2</td>
 </tr>
 </tbody>
 </table>
@@ -4385,27 +4422,27 @@
 <tbody>
 <tr>
 <td>catalog.getProduct</td>
-<td>2440</td>
-<td style="text-align: right;">1849</td>
-<td style="text-align: right;">75.8%</td>
+<td>3018</td>
+<td style="text-align: right;">2354</td>
+<td style="text-align: right;">78.0%</td>
 </tr>
 <tr>
 <td>catalog.productExists</td>
-<td>2440</td>
-<td style="text-align: right;">1849</td>
-<td style="text-align: right;">75.8%</td>
+<td>3018</td>
+<td style="text-align: right;">2354</td>
+<td style="text-align: right;">78.0%</td>
 </tr>
 <tr>
 <td>customers.getCustomer</td>
-<td>5958</td>
-<td style="text-align: right;">2986</td>
-<td style="text-align: right;">50.1%</td>
+<td>7446</td>
+<td style="text-align: right;">3783</td>
+<td style="text-align: right;">50.8%</td>
 </tr>
 <tr>
 <td>customers.getPaymentMethod</td>
-<td>1200</td>
-<td style="text-align: right;">392</td>
-<td style="text-align: right;">32.7%</td>
+<td>1500</td>
+<td style="text-align: right;">531</td>
+<td style="text-align: right;">35.4%</td>
 </tr>
 </tbody>
 </table>
@@ -4426,198 +4463,198 @@
 </thead>
 <tbody>
 <tr>
-<td>orders -&gt; shipping.quote [remote]</td>
-<td>1200</td>
+<td>orders -&gt; inventory.reserve [remote]</td>
+<td>1500</td>
 <td style="text-align: right;"></td>
-<td style="text-align: right;">2.3</td>
-<td style="text-align: right;">2.3</td>
-<td style="text-align: right;">3.6</td>
-<td style="text-align: right;">5.1</td>
-<td style="text-align: right;">8.1</td>
+<td style="text-align: right;">1.9</td>
+<td style="text-align: right;">1.8</td>
+<td style="text-align: right;">2.9</td>
+<td style="text-align: right;">4.0</td>
+<td style="text-align: right;">7.9</td>
+</tr>
+<tr>
+<td>orders -&gt; shipping.quote [remote]</td>
+<td>1500</td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;">1.9</td>
+<td style="text-align: right;">1.8</td>
+<td style="text-align: right;">3.5</td>
+<td style="text-align: right;">4.4</td>
+<td style="text-align: right;">6.2</td>
 </tr>
 <tr>
 <td>orders -&gt; shipping.createShipment [remote]</td>
-<td>1179</td>
-<td style="text-align: right;"></td>
-<td style="text-align: right;">2.3</td>
-<td style="text-align: right;">2.2</td>
-<td style="text-align: right;">2.8</td>
-<td style="text-align: right;">4.1</td>
-<td style="text-align: right;">5.7</td>
-</tr>
-<tr>
-<td>orders -&gt; inventory.reserve [remote]</td>
-<td>1200</td>
-<td style="text-align: right;"></td>
-<td style="text-align: right;">2.0</td>
-<td style="text-align: right;">1.9</td>
-<td style="text-align: right;">2.7</td>
-<td style="text-align: right;">4.1</td>
-<td style="text-align: right;">8.9</td>
-</tr>
-<tr>
-<td>orders -&gt; pricing.quote [remote]</td>
-<td>1200</td>
+<td>1473</td>
 <td style="text-align: right;"></td>
 <td style="text-align: right;">1.9</td>
-<td style="text-align: right;">2.0</td>
-<td style="text-align: right;">2.8</td>
-<td style="text-align: right;">4.9</td>
-<td style="text-align: right;">8.1</td>
+<td style="text-align: right;">1.8</td>
+<td style="text-align: right;">2.9</td>
+<td style="text-align: right;">4.0</td>
+<td style="text-align: right;">5.3</td>
 </tr>
 <tr>
 <td>orders -&gt; payments.authorize [remote]</td>
-<td>1200</td>
-<td style="text-align: right;">21</td>
+<td>1500</td>
+<td style="text-align: right;">27</td>
 <td style="text-align: right;">1.7</td>
-<td style="text-align: right;">1.7</td>
-<td style="text-align: right;">2.3</td>
-<td style="text-align: right;">3.3</td>
-<td style="text-align: right;">8.8</td>
+<td style="text-align: right;">1.6</td>
+<td style="text-align: right;">2.8</td>
+<td style="text-align: right;">3.5</td>
+<td style="text-align: right;">8.0</td>
+</tr>
+<tr>
+<td>orders -&gt; pricing.quote [remote]</td>
+<td>1500</td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;">1.6</td>
+<td style="text-align: right;">1.5</td>
+<td style="text-align: right;">3.0</td>
+<td style="text-align: right;">3.8</td>
+<td style="text-align: right;">5.6</td>
 </tr>
 <tr>
 <td>orders -&gt; payments.capture [remote]</td>
-<td>1179</td>
+<td>1473</td>
 <td style="text-align: right;"></td>
 <td style="text-align: right;">1.2</td>
-<td style="text-align: right;">1.2</td>
-<td style="text-align: right;">1.6</td>
-<td style="text-align: right;">1.9</td>
-<td style="text-align: right;">4.5</td>
+<td style="text-align: right;">1.1</td>
+<td style="text-align: right;">1.8</td>
+<td style="text-align: right;">2.8</td>
+<td style="text-align: right;">6.0</td>
 </tr>
 <tr>
 <td>orders -&gt; notifications.send [local]</td>
-<td>1179</td>
+<td>1473</td>
 <td style="text-align: right;"></td>
-<td style="text-align: right;">1.2</td>
-<td style="text-align: right;">1.2</td>
-<td style="text-align: right;">2.3</td>
-<td style="text-align: right;">3.8</td>
-<td style="text-align: right;">4.8</td>
-</tr>
-<tr>
-<td>shipping -&gt; inventory.getStock [local]</td>
-<td>2440</td>
-<td style="text-align: right;"></td>
-<td style="text-align: right;">0.4</td>
-<td style="text-align: right;">0.4</td>
-<td style="text-align: right;">0.8</td>
-<td style="text-align: right;">0.8</td>
-<td style="text-align: right;">4.3</td>
-</tr>
-<tr>
-<td>orders -&gt; customers.getCustomer [remote]</td>
-<td>808</td>
-<td style="text-align: right;"></td>
-<td style="text-align: right;">1.0</td>
 <td style="text-align: right;">0.9</td>
-<td style="text-align: right;">1.2</td>
-<td style="text-align: right;">2.2</td>
-<td style="text-align: right;">4.5</td>
-</tr>
-<tr>
-<td>shipping -&gt; customers.getCustomer [remote]</td>
-<td>808</td>
-<td style="text-align: right;"></td>
-<td style="text-align: right;">1.0</td>
 <td style="text-align: right;">0.9</td>
-<td style="text-align: right;">1.2</td>
-<td style="text-align: right;">3.3</td>
-<td style="text-align: right;">5.4</td>
-</tr>
-<tr>
-<td>pricing -&gt; customers.getCustomer [remote]</td>
-<td>807</td>
-<td style="text-align: right;"></td>
-<td style="text-align: right;">1.0</td>
-<td style="text-align: right;">0.9</td>
-<td style="text-align: right;">1.2</td>
-<td style="text-align: right;">3.2</td>
-<td style="text-align: right;">5.2</td>
-</tr>
-<tr>
-<td>notifications -&gt; customers.getCustomer [remote]</td>
-<td>549</td>
-<td style="text-align: right;"></td>
-<td style="text-align: right;">1.0</td>
-<td style="text-align: right;">0.9</td>
-<td style="text-align: right;">2.2</td>
-<td style="text-align: right;">2.9</td>
-<td style="text-align: right;">3.5</td>
-</tr>
-<tr>
-<td>shipping -&gt; inventory.getReservation [local]</td>
-<td>1179</td>
-<td style="text-align: right;"></td>
-<td style="text-align: right;">0.4</td>
-<td style="text-align: right;">0.4</td>
-<td style="text-align: right;">0.5</td>
-<td style="text-align: right;">0.6</td>
-<td style="text-align: right;">0.8</td>
-</tr>
-<tr>
-<td>payments -&gt; customers.getPaymentMethod [local]</td>
-<td>808</td>
-<td style="text-align: right;"></td>
-<td style="text-align: right;">0.3</td>
-<td style="text-align: right;">0.3</td>
-<td style="text-align: right;">0.4</td>
-<td style="text-align: right;">0.5</td>
-<td style="text-align: right;">2.5</td>
-</tr>
-<tr>
-<td>inventory -&gt; catalog.productExists [local]</td>
-<td>591</td>
-<td style="text-align: right;"></td>
-<td style="text-align: right;">0.3</td>
-<td style="text-align: right;">0.3</td>
-<td style="text-align: right;">0.4</td>
-<td style="text-align: right;">0.5</td>
-<td style="text-align: right;">0.6</td>
-</tr>
-<tr>
-<td>pricing -&gt; catalog.getProduct [local]</td>
-<td>591</td>
-<td style="text-align: right;"></td>
-<td style="text-align: right;">0.3</td>
-<td style="text-align: right;">0.3</td>
-<td style="text-align: right;">0.4</td>
-<td style="text-align: right;">0.5</td>
-<td style="text-align: right;">0.6</td>
-</tr>
-<tr>
-<td>pricing -&gt; catalog.getProduct [cache]</td>
-<td>1849</td>
-<td style="text-align: right;"></td>
-<td style="text-align: right;">0.0</td>
-<td style="text-align: right;">0.0</td>
-<td style="text-align: right;">0.1</td>
-<td style="text-align: right;">0.1</td>
+<td style="text-align: right;">1.7</td>
+<td style="text-align: right;">2.8</td>
 <td style="text-align: right;">3.6</td>
 </tr>
 <tr>
-<td>orders -&gt; inventory.release [remote]</td>
-<td>21</td>
+<td>shipping -&gt; inventory.getStock [local]</td>
+<td>3018</td>
 <td style="text-align: right;"></td>
-<td style="text-align: right;">3.0</td>
-<td style="text-align: right;">3.0</td>
-<td style="text-align: right;">3.9</td>
-<td style="text-align: right;">3.9</td>
-<td style="text-align: right;">3.9</td>
+<td style="text-align: right;">0.3</td>
+<td style="text-align: right;">0.3</td>
+<td style="text-align: right;">0.7</td>
+<td style="text-align: right;">0.9</td>
+<td style="text-align: right;">2.5</td>
 </tr>
 <tr>
-<td>inventory -&gt; catalog.productExists [cache]</td>
-<td>1849</td>
+<td>pricing -&gt; customers.getCustomer [remote]</td>
+<td>969</td>
 <td style="text-align: right;"></td>
-<td style="text-align: right;">0.0</td>
+<td style="text-align: right;">1.0</td>
+<td style="text-align: right;">0.9</td>
+<td style="text-align: right;">1.7</td>
+<td style="text-align: right;">2.3</td>
+<td style="text-align: right;">4.6</td>
+</tr>
+<tr>
+<td>shipping -&gt; customers.getCustomer [remote]</td>
+<td>967</td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;">1.0</td>
+<td style="text-align: right;">0.9</td>
+<td style="text-align: right;">1.6</td>
+<td style="text-align: right;">2.2</td>
+<td style="text-align: right;">4.2</td>
+</tr>
+<tr>
+<td>orders -&gt; customers.getCustomer [remote]</td>
+<td>969</td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;">0.9</td>
+<td style="text-align: right;">0.8</td>
+<td style="text-align: right;">1.6</td>
+<td style="text-align: right;">2.1</td>
+<td style="text-align: right;">2.9</td>
+</tr>
+<tr>
+<td>shipping -&gt; inventory.getReservation [local]</td>
+<td>1473</td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;">0.4</td>
+<td style="text-align: right;">0.3</td>
+<td style="text-align: right;">0.5</td>
+<td style="text-align: right;">0.7</td>
+<td style="text-align: right;">1.9</td>
+</tr>
+<tr>
+<td>notifications -&gt; customers.getCustomer [remote]</td>
+<td>758</td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;">0.6</td>
+<td style="text-align: right;">0.5</td>
+<td style="text-align: right;">1.3</td>
+<td style="text-align: right;">2.0</td>
+<td style="text-align: right;">2.3</td>
+</tr>
+<tr>
+<td>payments -&gt; customers.getPaymentMethod [local]</td>
+<td>969</td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;">0.3</td>
+<td style="text-align: right;">0.3</td>
+<td style="text-align: right;">0.6</td>
+<td style="text-align: right;">0.7</td>
+<td style="text-align: right;">1.5</td>
+</tr>
+<tr>
+<td>inventory -&gt; catalog.productExists [local]</td>
+<td>664</td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;">0.3</td>
+<td style="text-align: right;">0.3</td>
+<td style="text-align: right;">0.5</td>
+<td style="text-align: right;">0.7</td>
+<td style="text-align: right;">2.3</td>
+</tr>
+<tr>
+<td>pricing -&gt; catalog.getProduct [local]</td>
+<td>664</td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;">0.3</td>
+<td style="text-align: right;">0.2</td>
+<td style="text-align: right;">0.4</td>
+<td style="text-align: right;">0.5</td>
+<td style="text-align: right;">0.8</td>
+</tr>
+<tr>
+<td>orders -&gt; inventory.release [remote]</td>
+<td>27</td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;">2.2</td>
+<td style="text-align: right;">2.1</td>
+<td style="text-align: right;">3.3</td>
+<td style="text-align: right;">3.4</td>
+<td style="text-align: right;">3.4</td>
+</tr>
+<tr>
+<td>pricing -&gt; catalog.getProduct [cache]</td>
+<td>2354</td>
+<td style="text-align: right;"></td>
 <td style="text-align: right;">0.0</td>
 <td style="text-align: right;">0.0</td>
 <td style="text-align: right;">0.0</td>
 <td style="text-align: right;">0.1</td>
+<td style="text-align: right;">0.2</td>
+</tr>
+<tr>
+<td>inventory -&gt; catalog.productExists [cache]</td>
+<td>2354</td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;">0.0</td>
+<td style="text-align: right;">0.0</td>
+<td style="text-align: right;">0.0</td>
+<td style="text-align: right;">0.0</td>
+<td style="text-align: right;">0.2</td>
 </tr>
 <tr>
 <td>payments -&gt; customers.getPaymentMethod [cache]</td>
-<td>392</td>
+<td>531</td>
 <td style="text-align: right;"></td>
 <td style="text-align: right;">0.0</td>
 <td style="text-align: right;">0.0</td>
@@ -4627,7 +4664,7 @@
 </tr>
 <tr>
 <td>shipping -&gt; customers.getCustomer [cache]</td>
-<td>1571</td>
+<td>2006</td>
 <td style="text-align: right;"></td>
 <td style="text-align: right;">0.0</td>
 <td style="text-align: right;">0.0</td>
@@ -4637,17 +4674,17 @@
 </tr>
 <tr>
 <td>orders -&gt; customers.getCustomer [cache]</td>
-<td>392</td>
+<td>531</td>
 <td style="text-align: right;"></td>
 <td style="text-align: right;">0.0</td>
 <td style="text-align: right;">0.0</td>
 <td style="text-align: right;">0.0</td>
 <td style="text-align: right;">0.0</td>
-<td style="text-align: right;">0.0</td>
+<td style="text-align: right;">0.1</td>
 </tr>
 <tr>
 <td>notifications -&gt; customers.getCustomer [cache]</td>
-<td>630</td>
+<td>715</td>
 <td style="text-align: right;"></td>
 <td style="text-align: right;">0.0</td>
 <td style="text-align: right;">0.0</td>
@@ -4657,7 +4694,7 @@
 </tr>
 <tr>
 <td>pricing -&gt; customers.getCustomer [cache]</td>
-<td>393</td>
+<td>531</td>
 <td style="text-align: right;"></td>
 <td style="text-align: right;">0.0</td>
 <td style="text-align: right;">0.0</td>
@@ -4667,10 +4704,10 @@
 </tr>
 </tbody>
 </table>
-<p>By binding: cache 7076 calls, mean 0.02 ms, local 6788 calls, mean 0.54 ms, remote 10151 calls, mean 1.65 ms. 20.0 module-to-module calls per order.</p>
-<p>Raw samples: <code>.demo/perf/20261024T150139Z/split-dbs-parallel-on</code> (<code>orders.csv</code>, <code>calls.csv</code>, <code>summary.json</code>).</p>
+<p>By binding: cache 9022 calls, mean 0.01 ms, local 8261 calls, mean 0.43 ms, remote 12636 calls, mean 1.46 ms. 19.9 module-to-module calls per order.</p>
+<p>Raw samples: <code>.demo/perf/20261026T184505Z/split-dbs-parallel-on</code> (<code>orders.csv</code>, <code>calls.csv</code>, <code>summary.json</code>).</p>
 <h3 id="microservices-macro-cache-on-parallel-quotes-off-async-outbox">microservices-macro (cache on, parallel quotes off, async outbox)<a class="headerlink" href="#microservices-macro-cache-on-parallel-quotes-off-async-outbox" title="Permanent link">&para;</a></h3>
-<p>1200 orders in 8.4 s = 143.0 orders/s; 1179 ok, 21 declined (expected), 0 failed.</p>
+<p>1500 orders in 10.9 s = 137.6 orders/s; 1473 ok, 27 declined (expected), 0 failed.</p>
 <h4 id="placeorder-round-trip-client-side-ms_4">placeOrder round trip (client side), ms<a class="headerlink" href="#placeorder-round-trip-client-side-ms_4" title="Permanent link">&para;</a></h4>
 <table>
 <thead>
@@ -4691,26 +4728,26 @@
 <tr>
 <td>placeOrder</td>
 <td>ok</td>
-<td style="text-align: right;">1179</td>
-<td style="text-align: right;">13.9</td>
-<td style="text-align: right;">28.0</td>
-<td style="text-align: right;">26.8</td>
-<td style="text-align: right;">37.9</td>
-<td style="text-align: right;">41.4</td>
-<td style="text-align: right;">50.0</td>
-<td style="text-align: right;">110.8</td>
+<td style="text-align: right;">1473</td>
+<td style="text-align: right;">50.8</td>
+<td style="text-align: right;">115.9</td>
+<td style="text-align: right;">108.6</td>
+<td style="text-align: right;">158.0</td>
+<td style="text-align: right;">175.6</td>
+<td style="text-align: right;">211.1</td>
+<td style="text-align: right;">247.1</td>
 </tr>
 <tr>
 <td>placeOrder</td>
 <td>declined</td>
-<td style="text-align: right;">21</td>
-<td style="text-align: right;">10.0</td>
-<td style="text-align: right;">20.6</td>
-<td style="text-align: right;">19.0</td>
-<td style="text-align: right;">30.0</td>
-<td style="text-align: right;">31.6</td>
-<td style="text-align: right;">47.0</td>
-<td style="text-align: right;">47.0</td>
+<td style="text-align: right;">27</td>
+<td style="text-align: right;">71.9</td>
+<td style="text-align: right;">106.5</td>
+<td style="text-align: right;">101.5</td>
+<td style="text-align: right;">137.9</td>
+<td style="text-align: right;">142.4</td>
+<td style="text-align: right;">217.8</td>
+<td style="text-align: right;">217.8</td>
 </tr>
 </tbody>
 </table>
@@ -4727,27 +4764,27 @@
 <tbody>
 <tr>
 <td>catalog.getProduct</td>
-<td>2440</td>
-<td style="text-align: right;">1848</td>
-<td style="text-align: right;">75.7%</td>
+<td>3018</td>
+<td style="text-align: right;">2345</td>
+<td style="text-align: right;">77.7%</td>
 </tr>
 <tr>
 <td>catalog.productExists</td>
-<td>2440</td>
-<td style="text-align: right;">1848</td>
-<td style="text-align: right;">75.7%</td>
+<td>3018</td>
+<td style="text-align: right;">2345</td>
+<td style="text-align: right;">77.7%</td>
 </tr>
 <tr>
 <td>customers.getCustomer</td>
-<td>5958</td>
-<td style="text-align: right;">2635</td>
-<td style="text-align: right;">44.2%</td>
+<td>7446</td>
+<td style="text-align: right;">3425</td>
+<td style="text-align: right;">46.0%</td>
 </tr>
 <tr>
 <td>customers.getPaymentMethod</td>
-<td>1200</td>
-<td style="text-align: right;">392</td>
-<td style="text-align: right;">32.7%</td>
+<td>1500</td>
+<td style="text-align: right;">531</td>
+<td style="text-align: right;">35.4%</td>
 </tr>
 </tbody>
 </table>
@@ -4769,177 +4806,187 @@
 <tbody>
 <tr>
 <td>orders -&gt; shipping.quote [remote]</td>
-<td>1200</td>
+<td>1500</td>
 <td style="text-align: right;"></td>
-<td style="text-align: right;">4.1</td>
-<td style="text-align: right;">3.8</td>
-<td style="text-align: right;">7.3</td>
-<td style="text-align: right;">8.9</td>
-<td style="text-align: right;">11.9</td>
+<td style="text-align: right;">4.2</td>
+<td style="text-align: right;">3.6</td>
+<td style="text-align: right;">9.1</td>
+<td style="text-align: right;">11.5</td>
+<td style="text-align: right;">63.8</td>
 </tr>
 <tr>
 <td>orders -&gt; shipping.createShipment [remote]</td>
-<td>1179</td>
+<td>1473</td>
 <td style="text-align: right;"></td>
-<td style="text-align: right;">3.3</td>
+<td style="text-align: right;">3.5</td>
 <td style="text-align: right;">3.2</td>
-<td style="text-align: right;">4.1</td>
-<td style="text-align: right;">5.0</td>
-<td style="text-align: right;">7.1</td>
+<td style="text-align: right;">5.6</td>
+<td style="text-align: right;">8.4</td>
+<td style="text-align: right;">12.7</td>
 </tr>
 <tr>
 <td>orders -&gt; pricing.quote [remote]</td>
-<td>1200</td>
+<td>1500</td>
 <td style="text-align: right;"></td>
-<td style="text-align: right;">2.8</td>
-<td style="text-align: right;">2.5</td>
-<td style="text-align: right;">4.7</td>
-<td style="text-align: right;">6.2</td>
-<td style="text-align: right;">54.7</td>
-</tr>
-<tr>
-<td>shipping -&gt; inventory.getStock [remote]</td>
-<td>2440</td>
-<td style="text-align: right;"></td>
-<td style="text-align: right;">1.3</td>
-<td style="text-align: right;">1.0</td>
-<td style="text-align: right;">2.5</td>
-<td style="text-align: right;">3.5</td>
-<td style="text-align: right;">4.9</td>
-</tr>
-<tr>
-<td>orders -&gt; notifications.send [remote]</td>
-<td>1179</td>
-<td style="text-align: right;"></td>
-<td style="text-align: right;">2.6</td>
-<td style="text-align: right;">2.4</td>
-<td style="text-align: right;">4.5</td>
-<td style="text-align: right;">6.4</td>
-<td style="text-align: right;">61.4</td>
+<td style="text-align: right;">3.1</td>
+<td style="text-align: right;">2.7</td>
+<td style="text-align: right;">6.6</td>
+<td style="text-align: right;">9.2</td>
+<td style="text-align: right;">12.5</td>
 </tr>
 <tr>
 <td>orders -&gt; payments.authorize [remote]</td>
-<td>1200</td>
-<td style="text-align: right;">21</td>
+<td>1500</td>
+<td style="text-align: right;">27</td>
+<td style="text-align: right;">3.0</td>
+<td style="text-align: right;">2.8</td>
+<td style="text-align: right;">5.3</td>
+<td style="text-align: right;">7.0</td>
+<td style="text-align: right;">12.1</td>
+</tr>
+<tr>
+<td>shipping -&gt; inventory.getStock [remote]</td>
+<td>3018</td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;">1.4</td>
+<td style="text-align: right;">0.9</td>
+<td style="text-align: right;">3.5</td>
+<td style="text-align: right;">4.8</td>
+<td style="text-align: right;">54.2</td>
+</tr>
+<tr>
+<td>orders -&gt; notifications.send [remote]</td>
+<td>1473</td>
+<td style="text-align: right;"></td>
 <td style="text-align: right;">2.6</td>
-<td style="text-align: right;">2.6</td>
-<td style="text-align: right;">3.6</td>
-<td style="text-align: right;">4.7</td>
-<td style="text-align: right;">60.8</td>
+<td style="text-align: right;">2.3</td>
+<td style="text-align: right;">5.5</td>
+<td style="text-align: right;">6.9</td>
+<td style="text-align: right;">9.5</td>
 </tr>
 <tr>
 <td>orders -&gt; inventory.reserve [remote]</td>
-<td>1200</td>
+<td>1500</td>
 <td style="text-align: right;"></td>
 <td style="text-align: right;">2.2</td>
 <td style="text-align: right;">2.1</td>
-<td style="text-align: right;">3.0</td>
-<td style="text-align: right;">3.9</td>
-<td style="text-align: right;">5.4</td>
+<td style="text-align: right;">3.5</td>
+<td style="text-align: right;">4.5</td>
+<td style="text-align: right;">8.9</td>
 </tr>
 <tr>
 <td>orders -&gt; payments.capture [remote]</td>
-<td>1179</td>
+<td>1473</td>
 <td style="text-align: right;"></td>
+<td style="text-align: right;">1.5</td>
 <td style="text-align: right;">1.4</td>
-<td style="text-align: right;">1.3</td>
-<td style="text-align: right;">1.7</td>
-<td style="text-align: right;">2.1</td>
-<td style="text-align: right;">56.9</td>
+<td style="text-align: right;">2.4</td>
+<td style="text-align: right;">3.2</td>
+<td style="text-align: right;">4.4</td>
 </tr>
 <tr>
 <td>shipping -&gt; inventory.getReservation [remote]</td>
-<td>1179</td>
+<td>1473</td>
 <td style="text-align: right;"></td>
 <td style="text-align: right;">1.1</td>
-<td style="text-align: right;">1.1</td>
-<td style="text-align: right;">1.4</td>
-<td style="text-align: right;">1.6</td>
-<td style="text-align: right;">4.6</td>
-</tr>
-<tr>
-<td>notifications -&gt; customers.getCustomer [remote]</td>
-<td>899</td>
-<td style="text-align: right;"></td>
-<td style="text-align: right;">1.2</td>
-<td style="text-align: right;">1.1</td>
-<td style="text-align: right;">2.0</td>
-<td style="text-align: right;">2.7</td>
-<td style="text-align: right;">3.1</td>
+<td style="text-align: right;">1.0</td>
+<td style="text-align: right;">1.7</td>
+<td style="text-align: right;">2.5</td>
+<td style="text-align: right;">5.6</td>
 </tr>
 <tr>
 <td>payments -&gt; customers.getPaymentMethod [remote]</td>
-<td>808</td>
+<td>969</td>
 <td style="text-align: right;"></td>
-<td style="text-align: right;">1.2</td>
-<td style="text-align: right;">1.1</td>
-<td style="text-align: right;">1.6</td>
-<td style="text-align: right;">1.9</td>
-<td style="text-align: right;">58.2</td>
-</tr>
-<tr>
-<td>pricing -&gt; customers.getCustomer [remote]</td>
-<td>808</td>
-<td style="text-align: right;"></td>
-<td style="text-align: right;">1.1</td>
-<td style="text-align: right;">1.0</td>
 <td style="text-align: right;">1.4</td>
-<td style="text-align: right;">1.7</td>
-<td style="text-align: right;">3.9</td>
-</tr>
-<tr>
-<td>orders -&gt; customers.getCustomer [remote]</td>
-<td>808</td>
-<td style="text-align: right;"></td>
-<td style="text-align: right;">1.0</td>
-<td style="text-align: right;">1.0</td>
-<td style="text-align: right;">1.4</td>
-<td style="text-align: right;">2.0</td>
-<td style="text-align: right;">5.5</td>
-</tr>
-<tr>
-<td>shipping -&gt; customers.getCustomer [remote]</td>
-<td>808</td>
-<td style="text-align: right;"></td>
-<td style="text-align: right;">1.0</td>
-<td style="text-align: right;">1.0</td>
 <td style="text-align: right;">1.3</td>
-<td style="text-align: right;">1.4</td>
-<td style="text-align: right;">3.6</td>
-</tr>
-<tr>
-<td>pricing -&gt; catalog.getProduct [remote]</td>
-<td>592</td>
-<td style="text-align: right;"></td>
-<td style="text-align: right;">1.3</td>
-<td style="text-align: right;">1.1</td>
-<td style="text-align: right;">1.7</td>
 <td style="text-align: right;">2.4</td>
-<td style="text-align: right;">51.2</td>
+<td style="text-align: right;">3.0</td>
+<td style="text-align: right;">5.6</td>
 </tr>
 <tr>
 <td>inventory -&gt; catalog.productExists [remote]</td>
-<td>592</td>
+<td>673</td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;">1.9</td>
+<td style="text-align: right;">1.7</td>
+<td style="text-align: right;">3.0</td>
+<td style="text-align: right;">4.0</td>
+<td style="text-align: right;">52.9</td>
+</tr>
+<tr>
+<td>notifications -&gt; customers.getCustomer [remote]</td>
+<td>1114</td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;">1.1</td>
+<td style="text-align: right;">1.0</td>
+<td style="text-align: right;">2.1</td>
+<td style="text-align: right;">3.0</td>
+<td style="text-align: right;">6.6</td>
+</tr>
+<tr>
+<td>pricing -&gt; customers.getCustomer [remote]</td>
+<td>969</td>
 <td style="text-align: right;"></td>
 <td style="text-align: right;">1.2</td>
-<td style="text-align: right;">1.2</td>
-<td style="text-align: right;">1.8</td>
+<td style="text-align: right;">1.1</td>
+<td style="text-align: right;">2.0</td>
 <td style="text-align: right;">2.6</td>
-<td style="text-align: right;">3.4</td>
+<td style="text-align: right;">8.8</td>
+</tr>
+<tr>
+<td>pricing -&gt; catalog.getProduct [remote]</td>
+<td>673</td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;">1.8</td>
+<td style="text-align: right;">1.6</td>
+<td style="text-align: right;">2.9</td>
+<td style="text-align: right;">4.0</td>
+<td style="text-align: right;">7.0</td>
+</tr>
+<tr>
+<td>orders -&gt; customers.getCustomer [remote]</td>
+<td>969</td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;">1.1</td>
+<td style="text-align: right;">0.9</td>
+<td style="text-align: right;">1.8</td>
+<td style="text-align: right;">2.5</td>
+<td style="text-align: right;">46.2</td>
+</tr>
+<tr>
+<td>shipping -&gt; customers.getCustomer [remote]</td>
+<td>969</td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;">1.0</td>
+<td style="text-align: right;">0.9</td>
+<td style="text-align: right;">1.9</td>
+<td style="text-align: right;">2.4</td>
+<td style="text-align: right;">3.1</td>
 </tr>
 <tr>
 <td>orders -&gt; inventory.release [remote]</td>
-<td>21</td>
+<td>27</td>
 <td style="text-align: right;"></td>
+<td style="text-align: right;">2.3</td>
+<td style="text-align: right;">2.3</td>
 <td style="text-align: right;">3.1</td>
-<td style="text-align: right;">2.8</td>
-<td style="text-align: right;">4.1</td>
-<td style="text-align: right;">5.6</td>
-<td style="text-align: right;">5.6</td>
+<td style="text-align: right;">3.9</td>
+<td style="text-align: right;">3.9</td>
 </tr>
 <tr>
 <td>inventory -&gt; catalog.productExists [cache]</td>
-<td>1848</td>
+<td>2345</td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;">0.0</td>
+<td style="text-align: right;">0.0</td>
+<td style="text-align: right;">0.0</td>
+<td style="text-align: right;">0.0</td>
+<td style="text-align: right;">0.1</td>
+</tr>
+<tr>
+<td>shipping -&gt; customers.getCustomer [cache]</td>
+<td>2004</td>
 <td style="text-align: right;"></td>
 <td style="text-align: right;">0.0</td>
 <td style="text-align: right;">0.0</td>
@@ -4949,27 +4996,17 @@
 </tr>
 <tr>
 <td>pricing -&gt; catalog.getProduct [cache]</td>
-<td>1848</td>
+<td>2345</td>
 <td style="text-align: right;"></td>
 <td style="text-align: right;">0.0</td>
 <td style="text-align: right;">0.0</td>
 <td style="text-align: right;">0.0</td>
 <td style="text-align: right;">0.0</td>
 <td style="text-align: right;">0.0</td>
-</tr>
-<tr>
-<td>shipping -&gt; customers.getCustomer [cache]</td>
-<td>1571</td>
-<td style="text-align: right;"></td>
-<td style="text-align: right;">0.0</td>
-<td style="text-align: right;">0.0</td>
-<td style="text-align: right;">0.0</td>
-<td style="text-align: right;">0.0</td>
-<td style="text-align: right;">0.1</td>
 </tr>
 <tr>
 <td>orders -&gt; customers.getCustomer [cache]</td>
-<td>392</td>
+<td>531</td>
 <td style="text-align: right;"></td>
 <td style="text-align: right;">0.0</td>
 <td style="text-align: right;">0.0</td>
@@ -4979,7 +5016,7 @@
 </tr>
 <tr>
 <td>payments -&gt; customers.getPaymentMethod [cache]</td>
-<td>392</td>
+<td>531</td>
 <td style="text-align: right;"></td>
 <td style="text-align: right;">0.0</td>
 <td style="text-align: right;">0.0</td>
@@ -4989,7 +5026,7 @@
 </tr>
 <tr>
 <td>pricing -&gt; customers.getCustomer [cache]</td>
-<td>392</td>
+<td>531</td>
 <td style="text-align: right;"></td>
 <td style="text-align: right;">0.0</td>
 <td style="text-align: right;">0.0</td>
@@ -4999,7 +5036,7 @@
 </tr>
 <tr>
 <td>notifications -&gt; customers.getCustomer [cache]</td>
-<td>280</td>
+<td>359</td>
 <td style="text-align: right;"></td>
 <td style="text-align: right;">0.0</td>
 <td style="text-align: right;">0.0</td>
@@ -5009,10 +5046,10 @@
 </tr>
 </tbody>
 </table>
-<p>By binding: cache 6723 calls, mean 0.01 ms, remote 17292 calls, mean 1.92 ms. 20.0 module-to-module calls per order.</p>
-<p>Raw samples: <code>.demo/perf/20261024T150139Z/microservices-macro-parallel-off</code> (<code>orders.csv</code>, <code>calls.csv</code>, <code>summary.json</code>).</p>
+<p>By binding: cache 8646 calls, mean 0.01 ms, remote 21273 calls, mean 2.07 ms. 19.9 module-to-module calls per order.</p>
+<p>Raw samples: <code>.demo/perf/20261026T184505Z/microservices-macro-parallel-off</code> (<code>orders.csv</code>, <code>calls.csv</code>, <code>summary.json</code>).</p>
 <h3 id="microservices-macro-cache-on-parallel-quotes-on-async-outbox">microservices-macro (cache on, parallel quotes on, async outbox)<a class="headerlink" href="#microservices-macro-cache-on-parallel-quotes-on-async-outbox" title="Permanent link">&para;</a></h3>
-<p>1200 orders in 7.1 s = 169.3 orders/s; 1179 ok, 21 declined (expected), 0 failed.</p>
+<p>1500 orders in 9.3 s = 161.3 orders/s; 1473 ok, 27 declined (expected), 0 failed.</p>
 <h4 id="placeorder-round-trip-client-side-ms_5">placeOrder round trip (client side), ms<a class="headerlink" href="#placeorder-round-trip-client-side-ms_5" title="Permanent link">&para;</a></h4>
 <table>
 <thead>
@@ -5033,26 +5070,26 @@
 <tr>
 <td>placeOrder</td>
 <td>ok</td>
-<td style="text-align: right;">1179</td>
-<td style="text-align: right;">12.7</td>
-<td style="text-align: right;">23.6</td>
-<td style="text-align: right;">22.7</td>
-<td style="text-align: right;">31.4</td>
-<td style="text-align: right;">34.0</td>
-<td style="text-align: right;">40.5</td>
-<td style="text-align: right;">88.6</td>
+<td style="text-align: right;">1473</td>
+<td style="text-align: right;">36.4</td>
+<td style="text-align: right;">98.9</td>
+<td style="text-align: right;">95.3</td>
+<td style="text-align: right;">130.5</td>
+<td style="text-align: right;">140.8</td>
+<td style="text-align: right;">167.6</td>
+<td style="text-align: right;">195.5</td>
 </tr>
 <tr>
 <td>placeOrder</td>
 <td>declined</td>
-<td style="text-align: right;">21</td>
-<td style="text-align: right;">9.1</td>
-<td style="text-align: right;">16.7</td>
-<td style="text-align: right;">17.0</td>
-<td style="text-align: right;">23.6</td>
-<td style="text-align: right;">29.8</td>
-<td style="text-align: right;">33.1</td>
-<td style="text-align: right;">33.1</td>
+<td style="text-align: right;">27</td>
+<td style="text-align: right;">58.8</td>
+<td style="text-align: right;">89.6</td>
+<td style="text-align: right;">89.1</td>
+<td style="text-align: right;">110.8</td>
+<td style="text-align: right;">139.2</td>
+<td style="text-align: right;">150.6</td>
+<td style="text-align: right;">150.6</td>
 </tr>
 </tbody>
 </table>
@@ -5069,27 +5106,27 @@
 <tbody>
 <tr>
 <td>catalog.getProduct</td>
-<td>2440</td>
-<td style="text-align: right;">1847</td>
-<td style="text-align: right;">75.7%</td>
+<td>3018</td>
+<td style="text-align: right;">2345</td>
+<td style="text-align: right;">77.7%</td>
 </tr>
 <tr>
 <td>catalog.productExists</td>
-<td>2440</td>
-<td style="text-align: right;">1847</td>
-<td style="text-align: right;">75.7%</td>
+<td>3018</td>
+<td style="text-align: right;">2345</td>
+<td style="text-align: right;">77.7%</td>
 </tr>
 <tr>
 <td>customers.getCustomer</td>
-<td>5958</td>
-<td style="text-align: right;">2637</td>
-<td style="text-align: right;">44.3%</td>
+<td>7446</td>
+<td style="text-align: right;">3416</td>
+<td style="text-align: right;">45.9%</td>
 </tr>
 <tr>
 <td>customers.getPaymentMethod</td>
-<td>1200</td>
-<td style="text-align: right;">392</td>
-<td style="text-align: right;">32.7%</td>
+<td>1500</td>
+<td style="text-align: right;">528</td>
+<td style="text-align: right;">35.2%</td>
 </tr>
 </tbody>
 </table>
@@ -5111,177 +5148,177 @@
 <tbody>
 <tr>
 <td>orders -&gt; shipping.quote [remote]</td>
-<td>1200</td>
+<td>1500</td>
 <td style="text-align: right;"></td>
-<td style="text-align: right;">4.3</td>
+<td style="text-align: right;">4.5</td>
 <td style="text-align: right;">3.9</td>
-<td style="text-align: right;">7.6</td>
 <td style="text-align: right;">9.6</td>
-<td style="text-align: right;">15.3</td>
+<td style="text-align: right;">13.2</td>
+<td style="text-align: right;">53.1</td>
 </tr>
 <tr>
 <td>orders -&gt; shipping.createShipment [remote]</td>
-<td>1179</td>
+<td>1473</td>
 <td style="text-align: right;"></td>
+<td style="text-align: right;">3.5</td>
 <td style="text-align: right;">3.3</td>
-<td style="text-align: right;">3.2</td>
-<td style="text-align: right;">4.2</td>
-<td style="text-align: right;">5.9</td>
-<td style="text-align: right;">8.5</td>
+<td style="text-align: right;">5.4</td>
+<td style="text-align: right;">6.4</td>
+<td style="text-align: right;">56.2</td>
 </tr>
 <tr>
 <td>orders -&gt; pricing.quote [remote]</td>
-<td>1200</td>
+<td>1500</td>
 <td style="text-align: right;"></td>
+<td style="text-align: right;">3.3</td>
 <td style="text-align: right;">2.9</td>
-<td style="text-align: right;">2.5</td>
-<td style="text-align: right;">4.9</td>
-<td style="text-align: right;">6.7</td>
-<td style="text-align: right;">66.3</td>
-</tr>
-<tr>
-<td>shipping -&gt; inventory.getStock [remote]</td>
-<td>2440</td>
-<td style="text-align: right;"></td>
-<td style="text-align: right;">1.3</td>
-<td style="text-align: right;">1.0</td>
-<td style="text-align: right;">2.6</td>
-<td style="text-align: right;">3.5</td>
-<td style="text-align: right;">5.1</td>
-</tr>
-<tr>
-<td>orders -&gt; notifications.send [remote]</td>
-<td>1179</td>
-<td style="text-align: right;"></td>
-<td style="text-align: right;">2.6</td>
-<td style="text-align: right;">2.3</td>
-<td style="text-align: right;">4.4</td>
-<td style="text-align: right;">6.6</td>
-<td style="text-align: right;">66.8</td>
+<td style="text-align: right;">6.8</td>
+<td style="text-align: right;">8.8</td>
+<td style="text-align: right;">13.1</td>
 </tr>
 <tr>
 <td>orders -&gt; payments.authorize [remote]</td>
-<td>1200</td>
-<td style="text-align: right;">21</td>
-<td style="text-align: right;">2.5</td>
-<td style="text-align: right;">2.5</td>
+<td>1500</td>
+<td style="text-align: right;">27</td>
+<td style="text-align: right;">3.0</td>
+<td style="text-align: right;">2.9</td>
+<td style="text-align: right;">5.2</td>
+<td style="text-align: right;">6.5</td>
+<td style="text-align: right;">11.9</td>
+</tr>
+<tr>
+<td>shipping -&gt; inventory.getStock [remote]</td>
+<td>3018</td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;">1.5</td>
+<td style="text-align: right;">1.0</td>
 <td style="text-align: right;">3.7</td>
-<td style="text-align: right;">4.8</td>
-<td style="text-align: right;">5.8</td>
+<td style="text-align: right;">5.1</td>
+<td style="text-align: right;">48.8</td>
+</tr>
+<tr>
+<td>orders -&gt; notifications.send [remote]</td>
+<td>1473</td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;">2.5</td>
+<td style="text-align: right;">2.2</td>
+<td style="text-align: right;">5.2</td>
+<td style="text-align: right;">6.8</td>
+<td style="text-align: right;">9.7</td>
 </tr>
 <tr>
 <td>orders -&gt; inventory.reserve [remote]</td>
-<td>1200</td>
+<td>1500</td>
 <td style="text-align: right;"></td>
-<td style="text-align: right;">2.3</td>
+<td style="text-align: right;">2.4</td>
 <td style="text-align: right;">2.2</td>
-<td style="text-align: right;">3.2</td>
-<td style="text-align: right;">4.1</td>
-<td style="text-align: right;">8.1</td>
+<td style="text-align: right;">3.8</td>
+<td style="text-align: right;">5.2</td>
+<td style="text-align: right;">53.2</td>
 </tr>
 <tr>
 <td>orders -&gt; payments.capture [remote]</td>
-<td>1179</td>
+<td>1473</td>
 <td style="text-align: right;"></td>
+<td style="text-align: right;">1.5</td>
 <td style="text-align: right;">1.4</td>
-<td style="text-align: right;">1.3</td>
-<td style="text-align: right;">1.8</td>
-<td style="text-align: right;">2.3</td>
-<td style="text-align: right;">7.8</td>
+<td style="text-align: right;">2.4</td>
+<td style="text-align: right;">3.0</td>
+<td style="text-align: right;">9.4</td>
 </tr>
 <tr>
 <td>shipping -&gt; inventory.getReservation [remote]</td>
-<td>1179</td>
+<td>1473</td>
 <td style="text-align: right;"></td>
 <td style="text-align: right;">1.1</td>
 <td style="text-align: right;">1.0</td>
-<td style="text-align: right;">1.4</td>
-<td style="text-align: right;">1.9</td>
-<td style="text-align: right;">4.3</td>
-</tr>
-<tr>
-<td>notifications -&gt; customers.getCustomer [remote]</td>
-<td>897</td>
-<td style="text-align: right;"></td>
-<td style="text-align: right;">1.1</td>
-<td style="text-align: right;">1.0</td>
-<td style="text-align: right;">2.0</td>
-<td style="text-align: right;">2.8</td>
-<td style="text-align: right;">4.0</td>
+<td style="text-align: right;">1.8</td>
+<td style="text-align: right;">2.7</td>
+<td style="text-align: right;">52.1</td>
 </tr>
 <tr>
 <td>payments -&gt; customers.getPaymentMethod [remote]</td>
-<td>808</td>
+<td>972</td>
 <td style="text-align: right;"></td>
-<td style="text-align: right;">1.2</td>
-<td style="text-align: right;">1.1</td>
-<td style="text-align: right;">1.6</td>
-<td style="text-align: right;">2.0</td>
-<td style="text-align: right;">3.2</td>
-</tr>
-<tr>
-<td>orders -&gt; customers.getCustomer [remote]</td>
-<td>808</td>
-<td style="text-align: right;"></td>
-<td style="text-align: right;">1.1</td>
-<td style="text-align: right;">1.1</td>
 <td style="text-align: right;">1.5</td>
-<td style="text-align: right;">2.0</td>
-<td style="text-align: right;">5.3</td>
-</tr>
-<tr>
-<td>pricing -&gt; customers.getCustomer [remote]</td>
-<td>808</td>
-<td style="text-align: right;"></td>
-<td style="text-align: right;">1.1</td>
-<td style="text-align: right;">1.0</td>
-<td style="text-align: right;">1.3</td>
-<td style="text-align: right;">1.6</td>
-<td style="text-align: right;">3.7</td>
-</tr>
-<tr>
-<td>shipping -&gt; customers.getCustomer [remote]</td>
-<td>808</td>
-<td style="text-align: right;"></td>
-<td style="text-align: right;">1.0</td>
-<td style="text-align: right;">1.0</td>
-<td style="text-align: right;">1.3</td>
-<td style="text-align: right;">1.6</td>
-<td style="text-align: right;">4.5</td>
+<td style="text-align: right;">1.4</td>
+<td style="text-align: right;">2.5</td>
+<td style="text-align: right;">3.3</td>
+<td style="text-align: right;">8.3</td>
 </tr>
 <tr>
 <td>inventory -&gt; catalog.productExists [remote]</td>
-<td>593</td>
+<td>673</td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;">2.0</td>
+<td style="text-align: right;">1.8</td>
+<td style="text-align: right;">3.5</td>
+<td style="text-align: right;">4.8</td>
+<td style="text-align: right;">9.7</td>
+</tr>
+<tr>
+<td>pricing -&gt; customers.getCustomer [remote]</td>
+<td>972</td>
 <td style="text-align: right;"></td>
 <td style="text-align: right;">1.3</td>
-<td style="text-align: right;">1.2</td>
-<td style="text-align: right;">1.9</td>
-<td style="text-align: right;">3.3</td>
-<td style="text-align: right;">3.6</td>
+<td style="text-align: right;">1.3</td>
+<td style="text-align: right;">2.1</td>
+<td style="text-align: right;">2.9</td>
+<td style="text-align: right;">7.1</td>
+</tr>
+<tr>
+<td>notifications -&gt; customers.getCustomer [remote]</td>
+<td>1114</td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;">1.1</td>
+<td style="text-align: right;">1.0</td>
+<td style="text-align: right;">2.1</td>
+<td style="text-align: right;">2.8</td>
+<td style="text-align: right;">5.9</td>
 </tr>
 <tr>
 <td>pricing -&gt; catalog.getProduct [remote]</td>
-<td>593</td>
+<td>673</td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;">1.8</td>
+<td style="text-align: right;">1.6</td>
+<td style="text-align: right;">3.0</td>
+<td style="text-align: right;">3.8</td>
+<td style="text-align: right;">5.1</td>
+</tr>
+<tr>
+<td>orders -&gt; customers.getCustomer [remote]</td>
+<td>972</td>
 <td style="text-align: right;"></td>
 <td style="text-align: right;">1.2</td>
 <td style="text-align: right;">1.1</td>
-<td style="text-align: right;">1.7</td>
-<td style="text-align: right;">2.6</td>
-<td style="text-align: right;">4.1</td>
+<td style="text-align: right;">2.1</td>
+<td style="text-align: right;">2.8</td>
+<td style="text-align: right;">6.2</td>
+</tr>
+<tr>
+<td>shipping -&gt; customers.getCustomer [remote]</td>
+<td>972</td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;">1.1</td>
+<td style="text-align: right;">1.1</td>
+<td style="text-align: right;">1.9</td>
+<td style="text-align: right;">2.4</td>
+<td style="text-align: right;">5.7</td>
 </tr>
 <tr>
 <td>orders -&gt; inventory.release [remote]</td>
-<td>21</td>
+<td>27</td>
 <td style="text-align: right;"></td>
-<td style="text-align: right;">2.9</td>
-<td style="text-align: right;">2.7</td>
-<td style="text-align: right;">3.9</td>
-<td style="text-align: right;">6.2</td>
-<td style="text-align: right;">6.2</td>
+<td style="text-align: right;">2.4</td>
+<td style="text-align: right;">2.2</td>
+<td style="text-align: right;">3.7</td>
+<td style="text-align: right;">4.2</td>
+<td style="text-align: right;">4.2</td>
 </tr>
 <tr>
 <td>inventory -&gt; catalog.productExists [cache]</td>
-<td>1847</td>
+<td>2345</td>
 <td style="text-align: right;"></td>
 <td style="text-align: right;">0.0</td>
 <td style="text-align: right;">0.0</td>
@@ -5291,7 +5328,7 @@
 </tr>
 <tr>
 <td>pricing -&gt; catalog.getProduct [cache]</td>
-<td>1847</td>
+<td>2345</td>
 <td style="text-align: right;"></td>
 <td style="text-align: right;">0.0</td>
 <td style="text-align: right;">0.0</td>
@@ -5301,37 +5338,27 @@
 </tr>
 <tr>
 <td>shipping -&gt; customers.getCustomer [cache]</td>
-<td>1571</td>
+<td>2001</td>
 <td style="text-align: right;"></td>
 <td style="text-align: right;">0.0</td>
 <td style="text-align: right;">0.0</td>
 <td style="text-align: right;">0.0</td>
 <td style="text-align: right;">0.0</td>
-<td style="text-align: right;">0.0</td>
+<td style="text-align: right;">0.1</td>
 </tr>
 <tr>
 <td>orders -&gt; customers.getCustomer [cache]</td>
-<td>392</td>
+<td>528</td>
 <td style="text-align: right;"></td>
 <td style="text-align: right;">0.0</td>
 <td style="text-align: right;">0.0</td>
 <td style="text-align: right;">0.0</td>
-<td style="text-align: right;">0.0</td>
+<td style="text-align: right;">0.1</td>
 <td style="text-align: right;">0.1</td>
 </tr>
 <tr>
 <td>payments -&gt; customers.getPaymentMethod [cache]</td>
-<td>392</td>
-<td style="text-align: right;"></td>
-<td style="text-align: right;">0.0</td>
-<td style="text-align: right;">0.0</td>
-<td style="text-align: right;">0.0</td>
-<td style="text-align: right;">0.1</td>
-<td style="text-align: right;">0.1</td>
-</tr>
-<tr>
-<td>notifications -&gt; customers.getCustomer [cache]</td>
-<td>282</td>
+<td>528</td>
 <td style="text-align: right;"></td>
 <td style="text-align: right;">0.0</td>
 <td style="text-align: right;">0.0</td>
@@ -5341,7 +5368,7 @@
 </tr>
 <tr>
 <td>pricing -&gt; customers.getCustomer [cache]</td>
-<td>392</td>
+<td>528</td>
 <td style="text-align: right;"></td>
 <td style="text-align: right;">0.0</td>
 <td style="text-align: right;">0.0</td>
@@ -5349,10 +5376,20 @@
 <td style="text-align: right;">0.0</td>
 <td style="text-align: right;">0.0</td>
 </tr>
+<tr>
+<td>notifications -&gt; customers.getCustomer [cache]</td>
+<td>359</td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;">0.0</td>
+<td style="text-align: right;">0.0</td>
+<td style="text-align: right;">0.0</td>
+<td style="text-align: right;">0.0</td>
+<td style="text-align: right;">0.1</td>
+</tr>
 </tbody>
 </table>
-<p>By binding: cache 6723 calls, mean 0.01 ms, remote 17292 calls, mean 1.94 ms. 20.0 module-to-module calls per order.</p>
-<p>Raw samples: <code>.demo/perf/20261024T150139Z/microservices-macro-parallel-on</code> (<code>orders.csv</code>, <code>calls.csv</code>, <code>summary.json</code>).</p>
+<p>By binding: cache 8634 calls, mean 0.01 ms, remote 21285 calls, mean 2.15 ms. 19.9 module-to-module calls per order.</p>
+<p>Raw samples: <code>.demo/perf/20261026T184505Z/microservices-macro-parallel-on</code> (<code>orders.csv</code>, <code>calls.csv</code>, <code>summary.json</code>).</p>
 <h2 id="notes">Notes<a class="headerlink" href="#notes" title="Permanent link">&para;</a></h2>
 <ul>
 <li>A cache is only as good as the key reuse inside its TTL: compare hit rates across profiles, and across run lengths.</li>

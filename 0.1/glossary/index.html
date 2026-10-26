@@ -1017,7 +1017,7 @@
   <span class="md-ellipsis">
     
   
-    Load and delivery speed
+    Follow-up delivery speed
   
 
     
@@ -1238,62 +1238,6 @@
     
   
     Outbox and events
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../performance/reports/load-4-clients/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    4 clients
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../performance/reports/load-16-clients/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    16 clients
   
 
     
@@ -2010,7 +1954,7 @@
 <dt>Boundary (logical and physical)</dt>
 <dd>A <em>logical</em> boundary is a module boundary the build enforces (contracts, schema, one-way dependencies). A <em>physical</em> boundary is a process, database instance or pipeline. A macro service has logical boundaries everywhere and physical ones only where they are needed. See <a href="../principles/#3-separate-logically-first-physically-only-when-forced">principles</a>.</dd>
 <dt>Boundary cost</dt>
-<dd>The calls per order that would cross a proposed boundary, multiplied by the extra cost of one remote call (about 1.1 to 1.3 ms on loopback here). A floor for the network part. See <a href="../principles/#6-place-modules-by-call-weight">place modules by call weight</a>.</dd>
+<dd>The calls per order that would cross a proposed boundary, multiplied by the extra cost of one remote call (about 1.0 to 1.7 ms on loopback here). A floor for the network part. See <a href="../principles/#6-place-modules-by-call-weight">place modules by call weight</a>.</dd>
 <dt>Call (module-to-module)</dt>
 <dd>One invocation of an <code>@RpcApi</code> method by another module. An order makes about 20.</dd>
 <dt>Closed loop</dt>

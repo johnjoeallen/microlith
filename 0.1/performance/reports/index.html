@@ -1022,7 +1022,7 @@
   <span class="md-ellipsis">
     
   
-    Load and delivery speed
+    Follow-up delivery speed
   
 
     
@@ -1258,62 +1258,6 @@
     
   
     Outbox and events
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="load-4-clients/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    4 clients
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="load-16-clients/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    16 clients
   
 
     
@@ -1844,28 +1788,18 @@ module-to-module call and its binding, cache hit rates). These are the reports b
 <tbody>
 <tr>
 <td><a href="modes-cache/">Modes, cache off and on</a></td>
-<td><code>--modes all --cache both --orders 1200 --warmup 200 --concurrency 4</code></td>
+<td><code>--modes all --cache both --orders 1500 --warmup 200 --concurrency 16</code></td>
 <td><a href="../modes/">the eight modes</a>, <a href="../switches/#result-cache">the cache</a></td>
 </tr>
 <tr>
 <td><a href="parallel/">Parallel quotes, remote-capable modes</a></td>
-<td><code>--modes loopback-http,split-dbs,microservices-macro --parallel both ...</code></td>
+<td><code>--modes loopback-http,split-dbs,microservices-macro --parallel both --orders 1500 --warmup 200 --concurrency 16</code></td>
 <td><a href="../switches/#parallel-quotes">parallel quotes</a></td>
 </tr>
 <tr>
 <td><a href="async-parallel/">Outbox and events, with and without parallel</a></td>
-<td><code>--modes modulith,groups,microservices --async both --parallel both ...</code></td>
+<td><code>--modes modulith,groups,microservices --async both --parallel both --orders 1500 --warmup 200 --concurrency 16</code></td>
 <td><a href="../switches/#follow-up-delivery-outbox-or-events">follow-up delivery</a>, <a href="../switches/#parallel-quotes">parallel quotes</a></td>
-</tr>
-<tr>
-<td><a href="load-4-clients/">4 clients, no tracing</a></td>
-<td><code>--modes modulith,groups,microservices --no-trace --orders 3000 --warmup 300 --concurrency 4</code></td>
-<td><a href="../load/">load</a></td>
-</tr>
-<tr>
-<td><a href="load-16-clients/">16 clients, no tracing</a></td>
-<td>same with <code>--concurrency 16</code></td>
-<td><a href="../load/">load</a></td>
 </tr>
 <tr>
 <td><a href="jvm-c1-2g/">JVM 2 GB, C1 and serial GC</a></td>
@@ -1884,8 +1818,10 @@ module-to-module call and its binding, cache hit rates). These are the reports b
 </tr>
 </tbody>
 </table>
+<p>The headline table and charts are the mean of five runs of <code>--modes all --cache on --orders 1500 --warmup 200 --concurrency 16</code>: the cache-on rows of the first report above and four further runs, generated with <code>scripts/jvm_report.py --reps</code>. Those four reports are not published (about 800 lines each).</p>
+<p>The two JVM reports below were made with the former demo flags and before the <code>VACUUM ANALYZE</code> step; see <a href="../jvm-settings/">JVM settings</a>.</p>
 <p>The delivery-speed test (978 orders placed flat out, then the time until every notification arrived) is a separate script run with
-<code>MODULES_ORDERS_ASYNC=outbox</code> and <code>=events</code>; its two result lines are on <a href="../load/#delivery-of-follow-ups">the load page</a>.</p>
+<code>MODULES_ORDERS_ASYNC=outbox</code> and <code>=events</code>; its two result lines are on <a href="../load/">the delivery page</a>.</p>
 <p>The tables and charts in this section are generated from the saved summaries of these runs by <code>scripts/perf_site.py</code>.</p>
 
 
