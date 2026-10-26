@@ -716,10 +716,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#macro-monolith" class="md-nav__link">
+  <a href="#macro-modulith" class="md-nav__link">
     <span class="md-ellipsis">
       
-        macro-monolith
+        macro-modulith
       
     </span>
   </a>
@@ -1906,10 +1906,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#macro-monolith" class="md-nav__link">
+  <a href="#macro-modulith" class="md-nav__link">
     <span class="md-ellipsis">
       
-        macro-monolith
+        macro-modulith
       
     </span>
   </a>
@@ -1981,10 +1981,11 @@ serialisation, an HTTP request.</p>
 <li><strong>Databases:</strong> eight schemas on one PostgreSQL instance, each with its own roles and its own connection pool.</li>
 <li><strong>Use it for:</strong> the lowest-cost baseline, and day-to-day development.</li>
 </ul>
-<h2 id="macro-monolith">macro-monolith<a class="headerlink" href="#macro-monolith" title="Permanent link">&para;</a></h2>
+<h2 id="macro-modulith">macro-modulith<a class="headerlink" href="#macro-modulith" title="Permanent link">&para;</a></h2>
 <ul>
-<li><strong>Run:</strong> <code>scripts/demo.sh macro-monolith start</code></li>
-<li><strong>What it is:</strong> the <em>configurable</em> jar (<code>app-macro</code>) with the <code>monolith</code> profile, which enables every module as <code>local</code>.</li>
+<li><strong>Run:</strong> <code>scripts/demo.sh macro-modulith start</code></li>
+<li><strong>What it is:</strong> the <em>configurable</em> jar (<code>app-macro</code>) with the <code>monolith</code> profile, which enables every module as <code>local</code>.
+  Every mode of this app is built from modules, so there is no genuine monolith here: this mode is a modulith (every deployment has all modules enabled) built from the configurable jar. The profile is still called <code>monolith</code>.</li>
 <li><strong>Why it exists:</strong> it proves that the macro jar, which can become any other shape, behaves the same as the fixed assembly when it is configured as a monolith.
   Its numbers should match <code>modulith</code>; they do (see <a href="../../performance/modes/">the measurements</a>).</li>
 </ul>

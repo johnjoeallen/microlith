@@ -1938,12 +1938,12 @@
 <td>every module in one process; the shape cannot be changed by configuration</td>
 </tr>
 <tr>
-<td><code>macro-monolith</code></td>
+<td><code>macro-modulith</code></td>
 <td><code>app-macro</code> (the configurable jar), profile <code>monolith</code></td>
 <td>1</td>
 <td>direct, in-process</td>
 <td>one instance</td>
-<td>the same all-local shape, built from the configurable jar; "monolith" here means <em>one process</em>, not an unstructured codebase</td>
+<td>the same all-local shape, built from the configurable jar; a modulith like <code>modulith</code>, but built from the configurable jar: every mode is built from modules, so there is no genuine monolith, and here each deployment has all modules enabled, in one process</td>
 </tr>
 <tr>
 <td><code>loopback-codec</code></td>
@@ -1996,7 +1996,7 @@
 </tbody>
 </table>
 <p>Every mode except <code>split-dbs</code> uses <strong>one PostgreSQL instance with one schema per module</strong>, even the eight-process modes: separate processes do not mean separate database servers. Where a module's data lives is a separate choice (its datasource URL), and any module or group can be pointed at its own instance without a code change; <code>split-dbs</code> is the mode that demonstrates it.</p>
-<p>Only the two loopback modes put a serialisation or network boundary between modules that share a process. <code>macro-monolith</code> does not. Every mode serves the orders entry point and the shop on port 9181.</p>
+<p>Only the two loopback modes put a serialisation or network boundary between modules that share a process. <code>macro-modulith</code> does not. Every mode serves the orders entry point and the shop on port 9181.</p>
 <h2 id="terms">Terms<a class="headerlink" href="#terms" title="Permanent link">&para;</a></h2>
 <dl>
 <dt><code>@Cached</code></dt>

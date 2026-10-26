@@ -2242,7 +2242,7 @@ boundary rules. The newer material (modes, features, performance) has its own pa
 scripts/demo.sh<span class="w"> </span>&lt;mode&gt;<span class="w"> </span>status<span class="w">     </span><span class="c1"># which processes are up</span>
 scripts/demo.sh<span class="w"> </span>&lt;mode&gt;<span class="w"> </span>stop<span class="w">       </span><span class="c1"># stop the processes, then PostgreSQL</span>
 </code></pre></div>
-<p>Modes: <code>modulith</code>, <code>macro-monolith</code>, <code>groups</code>, <code>microservices</code>, <code>microservices-macro</code>, <code>loopback-codec</code>, <code>loopback-http</code>, <code>split-dbs</code>.
+<p>Modes: <code>modulith</code>, <code>macro-modulith</code>, <code>groups</code>, <code>microservices</code>, <code>microservices-macro</code>, <code>loopback-codec</code>, <code>loopback-http</code>, <code>split-dbs</code>.
 Only one mode runs at a time; <code>start</code> refuses while another is running. Logs and PID files are under <code>.demo/</code>.</p>
 <p>The orders entry point and the shop are on <strong>9181</strong> in every mode:</p>
 <ul>
@@ -2413,7 +2413,7 @@ call<span class="w"> </span>happy-1<span class="w">      </span>cust-standard<sp
 <h2 id="running-the-demo-modes-stage-6">Running the demo modes (stage 6)<a class="headerlink" href="#running-the-demo-modes-stage-6" title="Permanent link">&para;</a></h2>
 <p>Needs a JDK, Docker, <code>curl</code> and <code>python3</code>. The jars are built on first use (<code>./mvnw -q -DskipTests package</code>).</p>
 <div class="highlight"><pre><span></span><code>scripts/db.sh<span class="w"> </span>up<span class="w">                       </span><span class="c1"># three PostgreSQL instances (A 5432, B 5433, C 5434), schemas and roles bootstrapped</span>
-scripts/demo.sh<span class="w"> </span>groups<span class="w"> </span>start<span class="w">             </span><span class="c1"># any mode: modulith macro-monolith groups microservices microservices-macro loopback-codec loopback-http split-dbs</span>
+scripts/demo.sh<span class="w"> </span>groups<span class="w"> </span>start<span class="w">             </span><span class="c1"># any mode: modulith macro-modulith groups microservices microservices-macro loopback-codec loopback-http split-dbs</span>
 scripts/smoke.sh<span class="w">                       </span><span class="c1"># the scenarios of section 16.5 + the expected binding on every edge + the merged call tree</span>
 scripts/trace.sh<span class="w"> </span>&lt;correlationId&gt;<span class="w">       </span><span class="c1"># the merged call tree of one order, across every running process</span>
 scripts/demo.sh<span class="w"> </span>groups<span class="w"> </span>status
@@ -2436,7 +2436,7 @@ scripts/demo-all.sh<span class="w">                    </span><span class="c1">#
 <td>all local</td>
 </tr>
 <tr>
-<td><code>macro-monolith</code></td>
+<td><code>macro-modulith</code></td>
 <td><code>app-macro</code> (<code>monolith</code>) on 9181</td>
 <td>all local</td>
 </tr>
@@ -2522,7 +2522,7 @@ example <code>pricing -&gt; catalog.getProduct [local] 1 ms ok</code>.</p>
 </tr>
 </tbody>
 </table>
-<div class="highlight"><pre><span></span><code>scripts/db.sh<span class="w"> </span>up<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>scripts/demo.sh<span class="w"> </span>macro-monolith<span class="w"> </span>start
+<div class="highlight"><pre><span></span><code>scripts/db.sh<span class="w"> </span>up<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>scripts/demo.sh<span class="w"> </span>macro-modulith<span class="w"> </span>start
 open<span class="w"> </span>http://127.0.0.1:9181/swagger-ui<span class="w">        </span><span class="c1"># pick "inventory", try inventory.getStock</span>
 curl<span class="w"> </span>-s<span class="w"> </span>localhost:9181/rpc/inventory/openapi.json<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">'.paths | keys'</span>
 </code></pre></div>

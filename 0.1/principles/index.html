@@ -2219,7 +2219,7 @@ sends <code>/rpc/orders</code> to one pool and <code>/rpc/pricing</code> to anot
 </tbody>
 </table>
 <p>What one deployable costs you, measured on this domain: version-skew pairs 0 (against 3 for three groups and 13 for eight services), one image and pipeline, one database instance, and
-<code>macro-monolith</code> at 98% of the throughput of <code>modulith</code>.</p>
+<code>macro-modulith</code> at 98% of the throughput of <code>modulith</code>.</p>
 <p>What it does <strong>not</strong> give you: no CPU or memory isolation between modules (one leaky module affects all), one classpath, and one release unit, so a bad commit reaches everything. The controls are
 per-module bulkheads and connection pools, timeouts, asynchronous follow-ups, the runtime switches, and canarying the whole unit. If a requirement needs real isolation, that is a physical
 force, and you act on that module or group alone.</p>

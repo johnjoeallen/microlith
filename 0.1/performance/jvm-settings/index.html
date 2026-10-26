@@ -2052,7 +2052,7 @@ They leave the shapes that cross a process boundary almost where they were. The 
 <td style="text-align: right;">53.9</td>
 </tr>
 <tr>
-<td>macro-monolith</td>
+<td>macro-modulith</td>
 <td>off</td>
 <td style="text-align: right;">305</td>
 <td style="text-align: right;">440</td>
@@ -2063,7 +2063,7 @@ They leave the shapes that cross a process boundary almost where they were. The 
 <td style="text-align: right;">55.1</td>
 </tr>
 <tr>
-<td>macro-monolith</td>
+<td>macro-modulith</td>
 <td>on</td>
 <td style="text-align: right;">339</td>
 <td style="text-align: right;">466</td>
@@ -2233,7 +2233,7 @@ They leave the shapes that cross a process boundary almost where they were. The 
 <td style="text-align: right;">464</td>
 </tr>
 <tr>
-<td>macro-monolith</td>
+<td>macro-modulith</td>
 <td style="text-align: right;">451</td>
 <td style="text-align: right;">467</td>
 <td style="text-align: right;">457</td>
@@ -2303,7 +2303,7 @@ They leave the shapes that cross a process boundary almost where they were. The 
 <td style="text-align: right;">32.4</td>
 </tr>
 <tr>
-<td>macro-monolith</td>
+<td>macro-modulith</td>
 <td style="text-align: right;">32.7</td>
 <td style="text-align: right;">32.3</td>
 <td style="text-align: right;">32.4</td>
@@ -2373,7 +2373,7 @@ They leave the shapes that cross a process boundary almost where they were. The 
 <td style="text-align: right;">68.7</td>
 </tr>
 <tr>
-<td>macro-monolith</td>
+<td>macro-modulith</td>
 <td style="text-align: right;">93.7</td>
 <td style="text-align: right;">54.1</td>
 <td style="text-align: right;">85.0</td>
@@ -2464,7 +2464,7 @@ They leave the shapes that cross a process boundary almost where they were. The 
 </ul>
 <h2 id="what-to-take-from-it">What to take from it<a class="headerlink" href="#what-to-take-from-it" title="Permanent link">&para;</a></h2>
 <ul>
-<li><strong>In-process shapes gain the most.</strong> <code>modulith</code>, <code>macro-monolith</code> and <code>loopback-codec</code> rise from about 305 to 440 orders/s (cache off) and from about 330 to 465 (cache on). Their p99 also
+<li><strong>In-process shapes gain the most.</strong> <code>modulith</code>, <code>macro-modulith</code> and <code>loopback-codec</code> rise from about 305 to 440 orders/s (cache off) and from about 330 to 465 (cache on). Their p99 also
   tightens, from about 160 ms to about 55 ms in most cases, which suggests the C1 runs' tails were compilation and collection pauses.</li>
 <li><strong>Process boundaries dominate once the JVM is fast.</strong> <code>microservices</code> and <code>microservices-macro</code> stay at about 140 (cache off) and 165 to 175 orders/s (cache on) under both settings: each order still pays about 20 calls
   over HTTP, and the code on either side of them was not the bottleneck.</li>

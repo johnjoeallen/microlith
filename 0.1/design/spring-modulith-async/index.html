@@ -2213,7 +2213,7 @@ code. Measured with <code>scripts/perf.sh --modes modulith,groups,microservices 
 </ol>
 <h2 id="suggested-spike">Suggested spike<a class="headerlink" href="#suggested-spike" title="Permanent link">&para;</a></h2>
 <p>On this branch: switch only the notification hand-off to an <code>@ApplicationModuleListener</code> with the JDBC registry in <code>modulith</code> and
-<code>macro-monolith</code> modes, behind a property, keep <code>OutboxRelay</code> for the split modes, and compare with <code>scripts/perf.sh --modes</code>
+<code>macro-modulith</code> modes, behind a property, keep <code>OutboxRelay</code> for the split modes, and compare with <code>scripts/perf.sh --modes</code>
 (including the failure behaviour when notifications is down). Separately, prototype D on <code>pricing.quote</code> + <code>shipping.quote</code> and measure.</p>
 
 
