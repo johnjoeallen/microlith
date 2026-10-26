@@ -92,8 +92,8 @@ nav:
       - Summary: performance/index.md
       - Method: performance/method.md
       - The eight modes: performance/modes.md
-      - Cache, parallel quotes and delivery: performance/switches.md
-      - Follow-up delivery speed: performance/load.md
+      - Cache and parallel quotes: performance/switches.md
+      - Follow-up delivery: performance/load.md
       - Wire formats (gzip, BSON): performance/wire-formats.md
       - JVM settings (heap, C2, GC): performance/jvm-settings.md
       - Raw reports:

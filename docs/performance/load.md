@@ -1,4 +1,23 @@
-# Delivery speed of follow-ups
+# Follow-up delivery: outbox or events
+
+## On the request path
+
+[Follow-ups](../features/follow-ups.md) (the confirmation message, the release of a reservation, the voiding of a payment) are made durable in the order's
+transaction and delivered afterwards, either by the **outbox** relay or as **Spring Modulith events**. On the request path:
+
+--8<-- "performance/_generated/async-chart.md"
+
+--8<-- "performance/_generated/async-table.md"
+
+**What it shows**
+
+* In one process the two are within noise (451 against 439 orders/s, outbox against events).
+* Events were **3 to 6% lower** in throughput in this run (in every mode) and the median order 4 to 7% higher. The cause was not investigated (the registry's
+  extra status updates and the asynchronous executor are candidates). It is a small cost, close to the run-to-run noise. Events run inside the same JVM as the orders, so the cost can be expected to grow with the order rate; the outbox moves that work to a table and a relay that can be tuned.
+* The p99 swings both ways (`modulith` 85.2 against 57.9 ms, `groups` 96.0 against 105.2) and is one slow stretch in one run; the p50 and p95 do not move with it.
+* Where the two really differ is **how quickly the follow-ups are delivered**, which a round-trip measurement cannot see. That is the next section.
+
+## Delivery speed
 
 The request path cannot show this, because follow-ups are delivered *after* the order returns. The test: place 978 orders flat out, then time how long until every
 confirmation message has actually arrived in the notifications module.
