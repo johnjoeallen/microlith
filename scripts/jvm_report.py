@@ -2,7 +2,7 @@
 """Table for docs/performance/jvm-settings.md from two saved perf runs that differ only in the JVM flags (Python 3 standard library only).
 
   jvm_report.py --c1 <stamp> --c2 <stamp> [--rerun <stamp>] [--out docs/performance/_generated]
-  jvm_report.py --matrix <file written by jvm_matrix.sh> [--out docs/performance/_generated]
+  jvm_report.py --matrix <file written by jvm_matrix.sh> [--small <stamp of the 4-client mode comparison>] [--out docs/performance/_generated]
 
 --rerun replaces the C2 runs of the modes it contains with those of a later rerun of just those modes (marked with a dagger in the table).
 
@@ -43,7 +43,7 @@ def keep(values):
     return [i for i, v in enumerate(values) if abs(v - med) <= max(2 * mad, 0.05 * med)]
 
 
-def matrix(path, out):
+def matrix(path, out, small=None):
     cfgs, data = [], {}
     for line in Path(path).read_text().split("\n"):
         if not line.strip():
@@ -89,6 +89,17 @@ def matrix(path, out):
     text["jvm-matrix-chart-latency.md"] = hbar("Round-trip latency by mode", f"milliseconds per order, {sub}; shorter is better",
                                                MODE_ORDER, [("p50", [overall[m]["p50"] for m in MODE_ORDER]),
                                                             ("p99", [overall[m]["p99"] for m in MODE_ORDER])], "ms", lambda v: f"{v:.1f}")
+    if small:  # the same modes with the demo-sized JVMs and 4 clients, next to the 16-client C2 means
+        base = {r["mode"]: r for r in runs(small) if r["cache"] == "on"}
+        both = f"result cache on; 4 clients with demo-sized JVMs (C1, serial GC) against 16 clients with C2 ({reps} runs x {len(cfgs)} configurations)"
+        text["jvm-matrix-chart-both-throughput.md"] = hbar(
+            "Throughput by mode", f"orders per second, {both}; longer is better", MODE_ORDER,
+            [("4 clients, small JVMs", [base[m]["ordersPerSecond"] for m in MODE_ORDER]),
+             ("16 clients, C2", [overall[m]["ops"] for m in MODE_ORDER])], "orders/s")
+        text["jvm-matrix-chart-both-latency.md"] = hbar(
+            "Median round trip by mode", f"milliseconds per order (p50), {both}; shorter is better", MODE_ORDER,
+            [("4 clients, small JVMs", [base[m]["roundTripMs"]["p50"] for m in MODE_ORDER]),
+             ("16 clients, C2", [overall[m]["p50"] for m in MODE_ORDER])], "ms", lambda v: f"{v:.1f}")
     for name, body in text.items():
         Path(out, name).write_text(body)
 
@@ -98,11 +109,12 @@ def main():
     p.add_argument("--c1")
     p.add_argument("--c2")
     p.add_argument("--matrix")
+    p.add_argument("--small", help="stamp of the 4-client small-JVM mode comparison, for the combined charts (with --matrix)")
     p.add_argument("--rerun")
     p.add_argument("--out", default=str(ROOT / "docs" / "performance" / "_generated"))
     a = p.parse_args()
     if a.matrix:
-        return matrix(a.matrix, a.out)
+        return matrix(a.matrix, a.out, a.small)
     c1, c2 = runs(a.c1), runs(a.c2)
     redone = set()
     if a.rerun:

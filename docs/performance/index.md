@@ -44,10 +44,10 @@ Realistic workload, result cache on, parallel quotes on, 16 concurrent clients, 
 | `microservices` | 171 | 37% | 90.4 ms | 166, 22.7 ms |
 | `microservices-macro` | 170 | 37% | 90.0 ms | 178, 21.5 ms |
 
-The median is higher than in the right-hand column because 16 clients queue behind each other; it is not the time one order takes alone. The last column is the
+The two settings differ in clients *and* JVM, so the chart compares setups, not the effect of one factor. The median is higher in the 16-client runs because the clients queue behind each other; it is not the time one order takes alone. The last column is the
 [mode comparison](modes.md), run with the demo-sized JVMs (320 MB heap, C1-only JIT, serial GC) and four clients, which is the run the per-call latencies and the call counts come from.
 
---8<-- "performance/_generated/jvm-matrix-chart-throughput.md"
+--8<-- "performance/_generated/jvm-matrix-chart-both-throughput.md"
 
 ## How to read this, and what to take from it
 

@@ -30,7 +30,7 @@ is built. See [start small and let boundaries appear](principles.md#4-start-smal
 
 Same code, same tests, same workload, eight deployment shapes ([the measurements](performance/modes.md)). The chart and the table are the mean of 20 runs per mode with C2 JVMs and 16 clients ([headline numbers](performance/index.md#headline-numbers)); the call counts below are from the small-JVM, four-client comparison:
 
---8<-- "performance/_generated/jvm-matrix-chart-throughput.md"
+--8<-- "performance/_generated/jvm-matrix-chart-both-throughput.md"
 
 | | One unit (`modulith`) | Three groups | Eight services |
 | --- | --- | --- | --- |
