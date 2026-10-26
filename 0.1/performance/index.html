@@ -1947,12 +1947,12 @@ three optional features win back. Everything is measured on one machine with a d
 <ul>
 <li>
 <p><strong>The boundary is cheap. The network is not.</strong></p>
-<p>In one process, going through the API costs nothing measurable. Serialising every call costs 7% of the throughput, an HTTP hop to yourself 29%,
-three processes 33%, eight services about half.</p>
+<p>In one process, going through the API costs nothing measurable. Serialising every call costs 3% of the throughput, an HTTP hop to yourself 29%,
+three processes 42%, eight services 62%.</p>
 </li>
 <li>
 <p><strong>One artifact, no penalty.</strong></p>
-<p>The configurable macro jar performs like the dedicated assemblies: <code>macro-modulith</code> is within 2% of <code>modulith</code>, <code>microservices-macro</code>
+<p>The configurable macro jar performs like the dedicated assemblies: <code>macro-modulith</code> is within 1% of <code>modulith</code>, <code>microservices-macro</code>
 within noise of <code>microservices</code>, and <code>split-dbs</code> equals <code>groups</code>.</p>
 </li>
 <li>
@@ -1967,9 +1967,8 @@ in the modes where calls are remote, and nothing in a single process (+2%).</p>
 </ul>
 </div>
 <h2 id="headline-numbers">Headline numbers<a class="headerlink" href="#headline-numbers" title="Permanent link">&para;</a></h2>
-<p>Four concurrent clients, realistic workload, result cache on, parallel quotes on. Full tables on <a href="modes/">the next page</a>.</p>
-<figure class="viz"><figcaption><strong>Throughput by mode</strong><span>orders per second, 4 clients, result cache on; longer is better</span></figcaption><svg viewBox="0 0 760 320" role="img" aria-label="Throughput by mode: orders per second, 4 clients, result cache on; longer is better"><line class="grid" x1="143.4" y1="6" x2="143.4" y2="294"/><text class="tick" x="143.4" y="312" text-anchor="middle">0</text><line class="grid" x1="281.5" y1="6" x2="281.5" y2="294"/><text class="tick" x="281.5" y="312" text-anchor="middle">100</text><line class="grid" x1="419.7" y1="6" x2="419.7" y2="294"/><text class="tick" x="419.7" y="312" text-anchor="middle">200</text><line class="grid" x1="557.8" y1="6" x2="557.8" y2="294"/><text class="tick" x="557.8" y="312" text-anchor="middle">300</text><line class="grid" x1="696.0" y1="6" x2="696.0" y2="294"/><text class="tick" x="696.0" y="312" text-anchor="middle">400</text><line class="axis" x1="143.39999999999998" y1="6" x2="143.39999999999998" y2="294"/><g class="row"><title>modulith: orders/s 336 orders/s</title><rect class="hit" x="0" y="6" width="760" height="36"/><text class="cat" x="135.39999999999998" y="28.0" text-anchor="end">modulith</text><path class="mark s1" d="M143.4,14.0h460.8a4.0,4.0 0 0 1 4.0,4.0v12.0a4.0,4.0 0 0 1 -4.0,4.0h-460.8z"><title>orders/s: 336 orders/s</title></path><text class="val" x="614.2" y="28.0">336</text></g><g class="row"><title>macro-modulith: orders/s 331 orders/s</title><rect class="hit" x="0" y="42" width="760" height="36"/><text class="cat" x="135.39999999999998" y="64.0" text-anchor="end">macro-modulith</text><path class="mark s1" d="M143.4,50.0h453.0a4.0,4.0 0 0 1 4.0,4.0v12.0a4.0,4.0 0 0 1 -4.0,4.0h-453.0z"><title>orders/s: 331 orders/s</title></path><text class="val" x="606.4" y="64.0">331</text></g><g class="row"><title>loopback-codec: orders/s 314 orders/s</title><rect class="hit" x="0" y="78" width="760" height="36"/><text class="cat" x="135.39999999999998" y="100.0" text-anchor="end">loopback-codec</text><path class="mark s1" d="M143.4,86.0h429.7a4.0,4.0 0 0 1 4.0,4.0v12.0a4.0,4.0 0 0 1 -4.0,4.0h-429.7z"><title>orders/s: 314 orders/s</title></path><text class="val" x="583.1" y="100.0">314</text></g><g class="row"><title>loopback-http: orders/s 238 orders/s</title><rect class="hit" x="0" y="114" width="760" height="36"/><text class="cat" x="135.39999999999998" y="136.0" text-anchor="end">loopback-http</text><path class="mark s1" d="M143.4,122.0h324.6a4.0,4.0 0 0 1 4.0,4.0v12.0a4.0,4.0 0 0 1 -4.0,4.0h-324.6z"><title>orders/s: 238 orders/s</title></path><text class="val" x="478.0" y="136.0">238</text></g><g class="row"><title>groups: orders/s 225 orders/s</title><rect class="hit" x="0" y="150" width="760" height="36"/><text class="cat" x="135.39999999999998" y="172.0" text-anchor="end">groups</text><path class="mark s1" d="M143.4,158.0h307.0a4.0,4.0 0 0 1 4.0,4.0v12.0a4.0,4.0 0 0 1 -4.0,4.0h-307.0z"><title>orders/s: 225 orders/s</title></path><text class="val" x="460.4" y="172.0">225</text></g><g class="row"><title>split-dbs: orders/s 230 orders/s</title><rect class="hit" x="0" y="186" width="760" height="36"/><text class="cat" x="135.39999999999998" y="208.0" text-anchor="end">split-dbs</text><path class="mark s1" d="M143.4,194.0h314.0a4.0,4.0 0 0 1 4.0,4.0v12.0a4.0,4.0 0 0 1 -4.0,4.0h-314.0z"><title>orders/s: 230 orders/s</title></path><text class="val" x="467.4" y="208.0">230</text></g><g class="row"><title>microservices: orders/s 166 orders/s</title><rect class="hit" x="0" y="222" width="760" height="36"/><text class="cat" x="135.39999999999998" y="244.0" text-anchor="end">microservices</text><path class="mark s1" d="M143.4,230.0h224.7a4.0,4.0 0 0 1 4.0,4.0v12.0a4.0,4.0 0 0 1 -4.0,4.0h-224.7z"><title>orders/s: 166 orders/s</title></path><text class="val" x="378.1" y="244.0">166</text></g><g class="row"><title>microservices-macro: orders/s 178 orders/s</title><rect class="hit" x="0" y="258" width="760" height="36"/><text class="cat" x="135.39999999999998" y="280.0" text-anchor="end">microservices-macro</text><path class="mark s1" d="M143.4,266.0h242.5a4.0,4.0 0 0 1 4.0,4.0v12.0a4.0,4.0 0 0 1 -4.0,4.0h-242.5z"><title>orders/s: 178 orders/s</title></path><text class="val" x="395.9" y="280.0">178</text></g></svg><details class="viz-data"><summary>Show the numbers</summary><table><thead><tr><th></th><th>orders/s (orders/s)</th></tr></thead><tbody><tr><td>modulith</td><td>336</td></tr><tr><td>macro-modulith</td><td>331</td></tr><tr><td>loopback-codec</td><td>314</td></tr><tr><td>loopback-http</td><td>238</td></tr><tr><td>groups</td><td>225</td></tr><tr><td>split-dbs</td><td>230</td></tr><tr><td>microservices</td><td>166</td></tr><tr><td>microservices-macro</td><td>178</td></tr></tbody></table></details></figure>
-
+<p>Realistic workload, result cache on, parallel quotes on, 16 concurrent clients, JVMs with the full C2 JIT. The figures are means over 20 runs per mode: 1 GB and 2 GB heaps, serial and parallel GC, five repetitions each
+(<a href="jvm-settings/#heap-size-and-collector-repeated">how they were run</a>). Heap and collector make no measurable difference to throughput or median, so one row per mode is enough.</p>
 <table>
 <thead>
 <tr>
@@ -1977,59 +1976,72 @@ in the modes where calls are remote, and nothing in a single process (+2%).</p>
 <th style="text-align: right;">Orders/s</th>
 <th style="text-align: right;">Share of <code>modulith</code></th>
 <th style="text-align: right;">Median order (p50)</th>
+<th style="text-align: right;">Small JVMs, 4 clients: orders/s, p50</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td><code>modulith</code></td>
-<td style="text-align: right;">336</td>
+<td style="text-align: right;">457</td>
 <td style="text-align: right;">100%</td>
-<td style="text-align: right;">11.6 ms</td>
+<td style="text-align: right;">32.5 ms</td>
+<td style="text-align: right;">336, 11.6 ms</td>
 </tr>
 <tr>
 <td><code>macro-modulith</code></td>
-<td style="text-align: right;">331</td>
-<td style="text-align: right;">98%</td>
-<td style="text-align: right;">11.6 ms</td>
+<td style="text-align: right;">462</td>
+<td style="text-align: right;">101%</td>
+<td style="text-align: right;">32.4 ms</td>
+<td style="text-align: right;">331, 11.6 ms</td>
 </tr>
 <tr>
 <td><code>loopback-codec</code></td>
-<td style="text-align: right;">314</td>
-<td style="text-align: right;">93%</td>
-<td style="text-align: right;">12.4 ms</td>
+<td style="text-align: right;">444</td>
+<td style="text-align: right;">97%</td>
+<td style="text-align: right;">33.3 ms</td>
+<td style="text-align: right;">314, 12.4 ms</td>
 </tr>
 <tr>
 <td><code>loopback-http</code></td>
-<td style="text-align: right;">238</td>
+<td style="text-align: right;">325</td>
 <td style="text-align: right;">71%</td>
-<td style="text-align: right;">16.3 ms</td>
+<td style="text-align: right;">45.8 ms</td>
+<td style="text-align: right;">238, 16.3 ms</td>
 </tr>
 <tr>
 <td><code>groups</code></td>
-<td style="text-align: right;">225</td>
-<td style="text-align: right;">67%</td>
-<td style="text-align: right;">17.4 ms</td>
+<td style="text-align: right;">263</td>
+<td style="text-align: right;">58%</td>
+<td style="text-align: right;">58.5 ms</td>
+<td style="text-align: right;">225, 17.4 ms</td>
 </tr>
 <tr>
 <td><code>split-dbs</code></td>
-<td style="text-align: right;">230</td>
-<td style="text-align: right;">68%</td>
-<td style="text-align: right;">16.7 ms</td>
+<td style="text-align: right;">266</td>
+<td style="text-align: right;">58%</td>
+<td style="text-align: right;">57.5 ms</td>
+<td style="text-align: right;">230, 16.7 ms</td>
 </tr>
 <tr>
 <td><code>microservices</code></td>
-<td style="text-align: right;">166</td>
-<td style="text-align: right;">49%</td>
-<td style="text-align: right;">22.7 ms</td>
+<td style="text-align: right;">172</td>
+<td style="text-align: right;">38%</td>
+<td style="text-align: right;">90.4 ms</td>
+<td style="text-align: right;">166, 22.7 ms</td>
 </tr>
 <tr>
 <td><code>microservices-macro</code></td>
-<td style="text-align: right;">178</td>
-<td style="text-align: right;">53%</td>
-<td style="text-align: right;">21.5 ms</td>
+<td style="text-align: right;">170</td>
+<td style="text-align: right;">37%</td>
+<td style="text-align: right;">90.0 ms</td>
+<td style="text-align: right;">178, 21.5 ms</td>
 </tr>
 </tbody>
 </table>
+<p>The median is higher than in the right-hand column because 16 clients queue behind each other; it is not the time one order takes alone. The last column is the
+<a href="modes/">mode comparison</a>, run with the demo-sized JVMs (320 MB heap, C1-only JIT, serial GC) and four clients, which is the run the chart below, the per-call latencies and the call counts come from.</p>
+<figure class="viz"><figcaption><strong>Throughput by mode</strong><span>orders per second, 4 clients, result cache on; longer is better</span></figcaption><svg viewBox="0 0 760 320" role="img" aria-label="Throughput by mode: orders per second, 4 clients, result cache on; longer is better"><line class="grid" x1="143.4" y1="6" x2="143.4" y2="294"/><text class="tick" x="143.4" y="312" text-anchor="middle">0</text><line class="grid" x1="281.5" y1="6" x2="281.5" y2="294"/><text class="tick" x="281.5" y="312" text-anchor="middle">100</text><line class="grid" x1="419.7" y1="6" x2="419.7" y2="294"/><text class="tick" x="419.7" y="312" text-anchor="middle">200</text><line class="grid" x1="557.8" y1="6" x2="557.8" y2="294"/><text class="tick" x="557.8" y="312" text-anchor="middle">300</text><line class="grid" x1="696.0" y1="6" x2="696.0" y2="294"/><text class="tick" x="696.0" y="312" text-anchor="middle">400</text><line class="axis" x1="143.39999999999998" y1="6" x2="143.39999999999998" y2="294"/><g class="row"><title>modulith: orders/s 336 orders/s</title><rect class="hit" x="0" y="6" width="760" height="36"/><text class="cat" x="135.39999999999998" y="28.0" text-anchor="end">modulith</text><path class="mark s1" d="M143.4,14.0h460.8a4.0,4.0 0 0 1 4.0,4.0v12.0a4.0,4.0 0 0 1 -4.0,4.0h-460.8z"><title>orders/s: 336 orders/s</title></path><text class="val" x="614.2" y="28.0">336</text></g><g class="row"><title>macro-modulith: orders/s 331 orders/s</title><rect class="hit" x="0" y="42" width="760" height="36"/><text class="cat" x="135.39999999999998" y="64.0" text-anchor="end">macro-modulith</text><path class="mark s1" d="M143.4,50.0h453.0a4.0,4.0 0 0 1 4.0,4.0v12.0a4.0,4.0 0 0 1 -4.0,4.0h-453.0z"><title>orders/s: 331 orders/s</title></path><text class="val" x="606.4" y="64.0">331</text></g><g class="row"><title>loopback-codec: orders/s 314 orders/s</title><rect class="hit" x="0" y="78" width="760" height="36"/><text class="cat" x="135.39999999999998" y="100.0" text-anchor="end">loopback-codec</text><path class="mark s1" d="M143.4,86.0h429.7a4.0,4.0 0 0 1 4.0,4.0v12.0a4.0,4.0 0 0 1 -4.0,4.0h-429.7z"><title>orders/s: 314 orders/s</title></path><text class="val" x="583.1" y="100.0">314</text></g><g class="row"><title>loopback-http: orders/s 238 orders/s</title><rect class="hit" x="0" y="114" width="760" height="36"/><text class="cat" x="135.39999999999998" y="136.0" text-anchor="end">loopback-http</text><path class="mark s1" d="M143.4,122.0h324.6a4.0,4.0 0 0 1 4.0,4.0v12.0a4.0,4.0 0 0 1 -4.0,4.0h-324.6z"><title>orders/s: 238 orders/s</title></path><text class="val" x="478.0" y="136.0">238</text></g><g class="row"><title>groups: orders/s 225 orders/s</title><rect class="hit" x="0" y="150" width="760" height="36"/><text class="cat" x="135.39999999999998" y="172.0" text-anchor="end">groups</text><path class="mark s1" d="M143.4,158.0h307.0a4.0,4.0 0 0 1 4.0,4.0v12.0a4.0,4.0 0 0 1 -4.0,4.0h-307.0z"><title>orders/s: 225 orders/s</title></path><text class="val" x="460.4" y="172.0">225</text></g><g class="row"><title>split-dbs: orders/s 230 orders/s</title><rect class="hit" x="0" y="186" width="760" height="36"/><text class="cat" x="135.39999999999998" y="208.0" text-anchor="end">split-dbs</text><path class="mark s1" d="M143.4,194.0h314.0a4.0,4.0 0 0 1 4.0,4.0v12.0a4.0,4.0 0 0 1 -4.0,4.0h-314.0z"><title>orders/s: 230 orders/s</title></path><text class="val" x="467.4" y="208.0">230</text></g><g class="row"><title>microservices: orders/s 166 orders/s</title><rect class="hit" x="0" y="222" width="760" height="36"/><text class="cat" x="135.39999999999998" y="244.0" text-anchor="end">microservices</text><path class="mark s1" d="M143.4,230.0h224.7a4.0,4.0 0 0 1 4.0,4.0v12.0a4.0,4.0 0 0 1 -4.0,4.0h-224.7z"><title>orders/s: 166 orders/s</title></path><text class="val" x="378.1" y="244.0">166</text></g><g class="row"><title>microservices-macro: orders/s 178 orders/s</title><rect class="hit" x="0" y="258" width="760" height="36"/><text class="cat" x="135.39999999999998" y="280.0" text-anchor="end">microservices-macro</text><path class="mark s1" d="M143.4,266.0h242.5a4.0,4.0 0 0 1 4.0,4.0v12.0a4.0,4.0 0 0 1 -4.0,4.0h-242.5z"><title>orders/s: 178 orders/s</title></path><text class="val" x="395.9" y="280.0">178</text></g></svg><details class="viz-data"><summary>Show the numbers</summary><table><thead><tr><th></th><th>orders/s (orders/s)</th></tr></thead><tbody><tr><td>modulith</td><td>336</td></tr><tr><td>macro-modulith</td><td>331</td></tr><tr><td>loopback-codec</td><td>314</td></tr><tr><td>loopback-http</td><td>238</td></tr><tr><td>groups</td><td>225</td></tr><tr><td>split-dbs</td><td>230</td></tr><tr><td>microservices</td><td>166</td></tr><tr><td>microservices-macro</td><td>178</td></tr></tbody></table></details></figure>
+
 <h2 id="how-to-read-this-and-what-to-take-from-it">How to read this, and what to take from it<a class="headerlink" href="#how-to-read-this-and-what-to-take-from-it" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
@@ -2040,11 +2052,11 @@ in the modes where calls are remote, and nothing in a single process (+2%).</p>
 </thead>
 <tbody>
 <tr>
-<td><strong>Splitting costs roughly 1 ms per call between processes, on one machine.</strong> With about 20 calls per order that is the whole difference between 11.6 ms and 22.7 ms.</td>
+<td><strong>Splitting costs roughly 1 ms per call between processes, on one machine.</strong> With about 20 calls per order that is the whole difference between 11.6 ms and 22.7 ms (small JVMs, 4 clients).</td>
 <td><a href="modes/#where-the-time-goes">per-call latency</a></td>
 </tr>
 <tr>
-<td><strong>Group the chatty parts.</strong> <code>groups</code> keeps 40% of the calls that reach a module local and is about 35% faster than eight services (225 against 166 orders/s).</td>
+<td><strong>Group the chatty parts.</strong> <code>groups</code> keeps 40% of the calls that reach a module local and is about 53% faster than eight services (263 against 172 orders/s).</td>
 <td><a href="modes/">modes</a></td>
 </tr>
 <tr>
@@ -2063,8 +2075,8 @@ in the modes where calls are remote, and nothing in a single process (+2%).</p>
 </table>
 <div class="admonition warning">
 <p class="admonition-title">Treat the absolute figures with care</p>
-<p>One machine, demo-sized JVMs (320 MB heap, C1-only JIT, serial GC; <a href="jvm-settings/">bigger JVMs</a> make the in-process shapes up to 59% faster), cheap calls and loopback networking with no TLS, authentication or proxies. Compare the <em>shapes with each other</em>; do not
-quote 336 orders per second as a capacity. A real network, TLS and any gateway or mesh make the split shapes cost <em>more</em> than shown. The <a href="method/">method page</a> lists
+<p>One machine, 1 or 2 GB JVMs with C2 (the demo's own JVMs are smaller and slower; see <a href="jvm-settings/">JVM settings</a>), cheap calls and loopback networking with no TLS, authentication or proxies. Compare the <em>shapes with each other</em>; do not
+quote 457 orders per second as a capacity. A real network, TLS and any gateway or mesh make the split shapes cost <em>more</em> than shown. The <a href="method/">method page</a> lists
 what the measurements do and do not say.</p>
 </div>
 
