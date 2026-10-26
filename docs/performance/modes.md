@@ -3,9 +3,11 @@
 Same code, same API, same tests, same workload, and (except `split-dbs`) the **same single PostgreSQL instance**: the eight-process modes share one database server, so the comparison measures the cost of the process boundary, not of separate databases. Four concurrent clients, 1,200 measured orders per run, result cache on, parallel quotes on,
 follow-ups through the outbox ([method](method.md)).
 
---8<-- "performance/_generated/modes-throughput.md"
+The charts add the 16-client C2 means from the [JVM settings page](jvm-settings.md) beside this run; the tables and the per-call figures below are this four-client run only.
 
---8<-- "performance/_generated/modes-latency.md"
+--8<-- "performance/_generated/jvm-matrix-chart-both-throughput.md"
+
+--8<-- "performance/_generated/jvm-matrix-chart-both-latency.md"
 
 ## All numbers
 
