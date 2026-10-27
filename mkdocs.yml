@@ -101,6 +101,7 @@ nav:
           - Modes, cache off and on: performance/reports/modes-cache.md
           - Parallel quotes: performance/reports/parallel.md
           - Outbox and events: performance/reports/async-parallel.md
+          - Shared and split databases: performance/reports/dbs.md
           - Wire formats, realistic orders: performance/reports/wire-small.md
           - Wire formats, 40 lines: performance/reports/wire-lines40.md
           - Wire formats, 150 lines: performance/reports/wire-lines150.md
