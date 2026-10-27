@@ -94,14 +94,21 @@ nav:
       - The eight modes: performance/modes.md
       - Cache and parallel quotes: performance/switches.md
       - Follow-up delivery: performance/load.md
+      - Every combination: performance/matrix.md
       - Wire formats (gzip, BSON): performance/wire-formats.md
       - JVM settings (heap, C2, GC): performance/jvm-settings.md
       - Raw reports:
           - Overview: performance/reports.md
           - Modes, cache off and on: performance/reports/modes-cache.md
-          - Parallel quotes: performance/reports/parallel.md
-          - Outbox and events: performance/reports/async-parallel.md
-          - Shared and split databases: performance/reports/dbs.md
+          - Full matrix:
+              - modulith: performance/reports/matrix/modulith.md
+              - macro-modulith: performance/reports/matrix/macro-modulith.md
+              - loopback-codec: performance/reports/matrix/loopback-codec.md
+              - loopback-http: performance/reports/matrix/loopback-http.md
+              - groups: performance/reports/matrix/groups.md
+              - split-dbs: performance/reports/matrix/split-dbs.md
+              - microservices: performance/reports/matrix/microservices.md
+              - microservices-macro: performance/reports/matrix/microservices-macro.md
           - Wire formats, realistic orders: performance/reports/wire-small.md
           - Wire formats, 40 lines: performance/reports/wire-lines40.md
           - Wire formats, 150 lines: performance/reports/wire-lines150.md

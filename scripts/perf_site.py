@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """Builds the tables and charts of the documentation's performance pages from saved perf runs (Python 3 standard library only).
 
-  perf_site.py --modes <stamp> --parallel <stamp> --switches <stamp> --drain <log> [--out ...]
+  perf_site.py --modes <stamp> --matrix <dir> --drain <log> [--out ...]
 
-Each <stamp> is a directory under .demo/perf/ written by scripts/perf.sh. The pages include the generated files (pymdownx.snippets), so
+Each <stamp> is a directory under .demo/perf/ written by scripts/perf.sh; --modes gives the baseline table (cache on, parallel on, outbox) and --matrix a directory
+with one perf.sh invocation per mode sub-directory, run with every switch combination (--cache both --parallel both --async both --dbs both). The pages include the generated files (pymdownx.snippets), so
 the numbers on the site are the numbers in the saved summaries, never retyped.
 """
 import argparse
@@ -19,10 +20,14 @@ MODE_ORDER = ["modulith", "macro-modulith", "loopback-codec", "loopback-http", "
 
 
 def load(stamp):
-    """The runs of one perf.sh --modes invocation, with their cache / parallel / async labels (comparison.json)."""
-    runs = json.loads((PERF / stamp / "comparison.json").read_text())
+    """The runs of one perf.sh --modes invocation, with their cache / parallel / async / dbs labels (comparison.json). A directory without a
+    comparison.json of its own is a set of invocations (one sub-directory each) and is merged."""
+    own = PERF / stamp / "comparison.json"
+    files = [own] if own.exists() else sorted((PERF / stamp).glob("*/comparison.json"))
+    runs = [r for f in files for r in json.loads(f.read_text())]
     for r in runs:
         r.setdefault("async", "outbox")
+        r.setdefault("dbs", "split" if r.get("mode") == "split-dbs" else "shared")
         if r.get("mode") == "macro-monolith":  # runs saved before the rename
             r["mode"] = "macro-modulith"
     return [r for r in runs if "roundTripMs" in r]
@@ -153,63 +158,72 @@ def modes_fragments(runs, out):
     order = [e for e, _ in edges.most_common(12)]
     rows = [[f"{e}", *[f"{base[m]['edges'][e]['mean']:.2f}" if e in base[m]["edges"] else "-" for m in shown]] for e in order]
     (out / "calls-table.md").write_text(md_table(["Call (mean ms, all bindings)", *[f"{m}" for m in shown]], rows))
-    # cache effect over all modes
-    rows, cats, off, on = [], [], [], []
-    for m in MODE_ORDER:
-        a, b = pick(runs, mode=m, cache="off"), pick(runs, mode=m, cache="on")
-        if not (a and b):
-            continue
-        cats.append(m)
-        off.append(a["ordersPerSecond"])
-        on.append(b["ordersPerSecond"])
-        ra, rb = a["roundTripMs"], b["roundTripMs"]
-        rows.append([f"{m}", nice(a["ordersPerSecond"]), nice(b["ordersPerSecond"]), change(a["ordersPerSecond"], b["ordersPerSecond"]),
-                     f"{ra['p50']:.1f}", f"{rb['p50']:.1f}", change(ra["p50"], rb["p50"]), f"{ra['p99']:.1f}", f"{rb['p99']:.1f}", change(ra["p99"], rb["p99"])])
-    (out / "cache-table.md").write_text(md_table(["Mode", "orders/s off", "on", "Δ", "p50 off", "on", "Δ", "p99 off", "on", "Δ"], rows))
-    (out / "cache-chart.md").write_text(hbar("Result cache: throughput", f"orders per second, {c}; larger is better", cats,
-                                             [("cache off", off), ("cache on", on)], "orders/s"))
-    methods = sorted({k for r in runs if r.get("cache") == "on" for k in r.get("cacheHitRate", {})})
-    shown = [m for m in MODE_ORDER if pick(runs, mode=m, cache="on") and pick(runs, mode=m, cache="on").get("cacheHitRate")]
-    rows = [[f"{k}", *[f"{pick(runs, mode=m, cache='on')['cacheHitRate'][k]['rate']:.0%}" if k in pick(runs, mode=m, cache='on')["cacheHitRate"] else "-"
-                         for m in shown]] for k in methods]
-    (out / "cache-hits.md").write_text(md_table(["Cached method", *[f"{m}" for m in shown]], rows))
     return base
 
 
-def effect_fragments(parallel_runs, switch_runs, out):
-    c = clients(parallel_runs)
-    """Parallel quotes (off to on) for every mode we have both for; async (outbox to events) from the switch run."""
-    rows, cats, off, on = [], [], [], []
-    pool = parallel_runs + switch_runs
-    for m in MODE_ORDER:
-        a = pick(pool, mode=m, parallel="off", cache="on", **{"async": "outbox"})
-        b = pick(pool, mode=m, parallel="on", cache="on", **{"async": "outbox"})
-        if not (a and b):
-            continue
-        cats.append(m)
-        off.append(a["ordersPerSecond"])
-        on.append(b["ordersPerSecond"])
+DEFAULTS = {"cache": "on", "parallel": "on", "async": "outbox"}
+
+
+def std(runs, mode, **over):
+    """The run of a mode with the default switches (cache on, parallel quotes on, outbox, shared databases; split-dbs is always split),
+    with the switches named in `over` changed."""
+    want = {**DEFAULTS, "dbs": "split" if mode == "split-dbs" else "shared", **over}
+    return pick(runs, mode=mode, **want)
+
+
+def effect_rows(runs, dimension, before, after, modes=MODE_ORDER, **over):
+    """(mode, run with the switch at `before`, run with it at `after`) for the modes that have both."""
+    rows = []
+    for m in modes:
+        a, b = std(runs, m, **{**over, dimension: before}), std(runs, m, **{**over, dimension: after})
+        if a and b:
+            rows.append((m, a, b))
+    return rows
+
+
+def effect_table(pairs, before, after, name):
+    rows = []
+    for m, a, b in pairs:
         ra, rb = a["roundTripMs"], b["roundTripMs"]
         rows.append([f"{m}", nice(a["ordersPerSecond"]), nice(b["ordersPerSecond"]), change(a["ordersPerSecond"], b["ordersPerSecond"]),
                      f"{ra['p50']:.1f}", f"{rb['p50']:.1f}", change(ra["p50"], rb["p50"]), f"{ra['p99']:.1f}", f"{rb['p99']:.1f}", change(ra["p99"], rb["p99"])])
-    (out / "parallel-table.md").write_text(md_table(["Mode", "orders/s off", "on", "Δ", "p50 off", "on", "Δ", "p99 off", "on", "Δ"], rows))
-    (out / "parallel-chart.md").write_text(hbar("Parallel quotes: throughput", f"orders per second, {c}; larger is better", cats,
-                                                [("sequential", off), ("parallel", on)], "orders/s"))
-    rows, cats, ob, ev = [], [], [], []
-    for m in MODE_ORDER:
-        a = pick(switch_runs, mode=m, parallel="on", **{"async": "outbox"})
-        b = pick(switch_runs, mode=m, parallel="on", **{"async": "events"})
-        if not (a and b):
-            continue
-        cats.append(m)
-        ob.append(a["ordersPerSecond"])
-        ev.append(b["ordersPerSecond"])
-        ra, rb = a["roundTripMs"], b["roundTripMs"]
-        rows.append([f"{m}", nice(a["ordersPerSecond"]), nice(b["ordersPerSecond"]), change(a["ordersPerSecond"], b["ordersPerSecond"]),
-                     f"{ra['p50']:.1f}", f"{rb['p50']:.1f}", change(ra["p50"], rb["p50"]), f"{ra['p99']:.1f}", f"{rb['p99']:.1f}", change(ra["p99"], rb["p99"])])
-    (out / "async-table.md").write_text(md_table(["Mode", "orders/s outbox", "events", "Δ", "p50 outbox", "events", "Δ", "p99 outbox", "events", "Δ"], rows))
-    (out / "async-chart.md").write_text(hbar("Follow-up delivery: throughput", f"orders per second, {clients(switch_runs)}; larger is better", cats,
-                                             [("outbox", ob), ("events", ev)], "orders/s"))
+    return md_table(["Mode", f"orders/s {before}", after, "Δ", f"p50 {before}", after, "Δ", f"p99 {before}", after, "Δ"], rows)
+
+
+def matrix_fragments(runs, out):
+    """The effect of each switch (the others at their defaults) and every combination, from one run of each."""
+    c = clients(runs)
+    for name, dim, before, after, labels, extra in (("cache", "cache", "off", "on", ("cache off", "cache on"), {}),
+                                                    ("parallel", "parallel", "off", "on", ("sequential", "parallel"), {}),
+                                                    ("async", "async", "outbox", "events", ("outbox", "events"), {}),
+                                                    ("dbs", "dbs", "shared", "split", ("one instance", "one per unit"), {})):
+        modes = [m for m in MODE_ORDER if m not in ("split-dbs",)] if dim == "dbs" else MODE_ORDER
+        if dim == "dbs":
+            modes = ["groups", "microservices", "microservices-macro"]
+        pairs = effect_rows(runs, dim, before, after, modes)
+        (out / f"{name}-table.md").write_text(effect_table(pairs, before, after, name))
+        title = {"cache": "Result cache", "parallel": "Parallel quotes", "async": "Follow-up delivery", "dbs": "Databases"}[name]
+        (out / f"{name}-chart.md").write_text(hbar(f"{title}: throughput", f"orders per second, {c}; larger is better", [m for m, _, _ in pairs],
+                                                   [(labels[0], [a["ordersPerSecond"] for _, a, _ in pairs]),
+                                                    (labels[1], [b["ordersPerSecond"] for _, _, b in pairs])], "orders/s"))
+    on = {m: std(runs, m) for m in MODE_ORDER}
+    methods = sorted({k for r in on.values() if r for k in r.get("cacheHitRate", {})})
+    shown = [m for m in MODE_ORDER if on[m] and on[m].get("cacheHitRate")]
+    rows = [[f"{k}", *[f"{on[m]['cacheHitRate'][k]['rate']:.0%}" if k in on[m]["cacheHitRate"] else "-" for m in shown]] for k in methods]
+    (out / "cache-hits.md").write_text(md_table(["Cached method", *[f"{m}" for m in shown]], rows))
+    # every combination: one row per (databases, cache, parallel quotes, follow-ups), one column per mode
+    for name, value in (("throughput", lambda r: nice(r["ordersPerSecond"])), ("p50", lambda r: f"{r['roundTripMs']['p50']:.1f}")):
+        rows = []
+        for dbs in ("shared", "split"):
+            for cache in ("on", "off"):
+                for parallel in ("on", "off"):
+                    for asynchronous in ("outbox", "events"):
+                        cells = []
+                        for m in MODE_ORDER:
+                            r = pick(runs, mode=m, cache=cache, parallel=parallel, dbs=dbs, **{"async": asynchronous})
+                            cells.append(value(r) if r else "-")
+                        rows.append([dbs, cache, parallel, asynchronous, *cells])
+        (out / f"matrix-{name}.md").write_text(md_table(["Databases", "Cache", "Parallel", "Follow-ups", *MODE_ORDER], rows, left=4))
 
 
 def drain_fragments(log, out):
@@ -233,7 +247,7 @@ def drain_fragments(log, out):
 
 def main():
     p = argparse.ArgumentParser()
-    for k in ("modes", "parallel", "switches"):
+    for k in ("modes", "matrix"):
         p.add_argument(f"--{k}", required=True)
     p.add_argument("--drain", required=True)
     p.add_argument("--out", default=str(ROOT / "docs" / "performance" / "_generated"))
@@ -241,7 +255,7 @@ def main():
     out = Path(a.out)
     out.mkdir(parents=True, exist_ok=True)
     base = modes_fragments(load(a.modes), out)
-    effect_fragments(load(a.parallel), load(a.switches), out)
+    matrix_fragments(load(a.matrix), out)
     drain_fragments(a.drain, out)
     print("wrote", len(list(out.glob("*.md"))), "fragments to", out)
 

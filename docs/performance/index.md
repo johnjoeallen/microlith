@@ -23,7 +23,7 @@ three optional features win back. Everything is measured on one machine with a d
 
 -   **Two features win a good part back.**
 
-    A result cache adds 6 to 19% throughput in the split modes (3 to 6% in one process). Running three independent reads in parallel adds 8 to 17%
+    A result cache adds 5 to 18% throughput in the split modes (3 to 5% in one process). Running three independent reads in parallel adds 4 to 16%
     in the modes where calls are remote, and nothing in a single process.
 
 </div>
@@ -45,7 +45,7 @@ The median is not the time one order takes alone: with 16 clients that each wait
 | --- | --- |
 | **Splitting costs roughly 1 to 1.7 ms per call between processes, on one machine.** With about 20 calls per order that is most of the difference in time per order between one process and eight services. | [per-call latency](modes.md#where-the-time-goes) |
 | **Group the chatty parts.** `groups` keeps 40% of the calls that reach a module local and is about 55% faster than eight services (247 against 159 orders/s). | [modes](modes.md) |
-| **Use the cache for reference data, and parallel reads where hops are real.** Both are off-switches, so they can be measured on your own workload. | [cache, parallel quotes](switches.md) |
+| **Use the cache for reference data, and parallel reads where hops are real.** Both are off-switches, so they can be measured on your own workload. | [cache, parallel quotes](switches.md), [every combination](matrix.md) |
 | **The follow-up mechanism does not affect the request path, but it decides how fast background work drains.** Outbox and events perform alike on an order; the outbox delivered about 20 notifications a second, events delivered immediately. | [delivery speed](load.md) |
 
 !!! warning "Treat the absolute figures with care"

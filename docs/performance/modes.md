@@ -51,15 +51,13 @@ that do the most work.
 
 ## One database instance or one per deployable unit
 
-Everything above ran on one shared PostgreSQL instance. `--dbs split` gives every deployable unit its own instance, which is three for `groups` and eight for the services ([how](../running.md)). The same load, with the result cache on:
+Everything above ran on one shared PostgreSQL instance. `--dbs split` gives every deployable unit its own instance, which is three for `groups` and eight for the services ([how](../running.md)); the one-process modes have one unit, so nothing changes for them. The same load, cache on, parallel quotes on, outbox ([the full matrix](matrix.md) has the other combinations, which agree):
 
-| Mode | Shared: orders/s, p50 | Split: orders/s, p50 | Change in orders/s |
-| --- | ---: | ---: | ---: |
-| `groups` (3 instances) | 250, 61.7 ms | 253, 62.5 ms | +1% |
-| `microservices` (8 instances) | 161, 94.6 ms | 159, 96.3 ms | -1% |
-| `microservices-macro` (8 instances) | 159, 96.2 ms | 158, 95.7 ms | -1% |
+--8<-- "performance/_generated/dbs-chart.md"
 
-One run per cell, so these are within noise: on this machine, with the database servers sharing the same CPUs and memory and the same loopback, giving each unit its own server cost nothing measurable. A real split adds what one machine cannot show: network latency to each database, and a server per service to provision, secure, back up and size. Treat it as a floor ([where the evidence stops](../case.md#where-the-evidence-stops)). [Raw report](reports/dbs.md).
+--8<-- "performance/_generated/dbs-table.md"
+
+One run per cell, so these are within noise: on this machine, with the database servers sharing the same CPUs and memory and the same loopback, giving each unit its own server cost nothing measurable. A real split adds what one machine cannot show: network latency to each database, and a server per service to provision, secure, back up and size. Treat it as a floor ([where the evidence stops](../case.md#where-the-evidence-stops)).
 
 ## Choosing
 

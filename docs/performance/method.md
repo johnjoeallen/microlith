@@ -60,8 +60,7 @@ A call served by the [result cache](../features/cache.md) is recorded as its own
 
 ```bash
 scripts/perf.sh --modes all --cache both --orders 1500 --warmup 200 --concurrency 16         # the mode comparison
-scripts/perf.sh --modes loopback-http,split-dbs,microservices-macro --parallel both ...      # parallel quotes
-scripts/perf.sh --modes modulith,groups,microservices --async both --parallel both ...       # delivery and parallel
+scripts/perf.sh --modes <mode> --cache both --parallel both --async both --dbs both ...      # every combination of the switches, once per mode
 scripts/perf.sh --modes all --cache on ...                                                   # repeated 5 times for the headline means
 ```
 

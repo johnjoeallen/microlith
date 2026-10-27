@@ -11,10 +11,10 @@ transaction and delivered afterwards, either by the **outbox** relay or as **Spr
 
 **What it shows**
 
-* In one process the two are within noise (451 against 439 orders/s, outbox against events).
-* Events were **3 to 6% lower** in throughput in this run (in every mode) and the median order 4 to 7% higher. The cause was not investigated (the registry's
+* In one process the two are within noise (450 against 433 orders/s, outbox against events).
+* Events were **2 to 7% lower** in throughput in seven of the eight modes (`macro-modulith` shows +1%, which is noise) and the median order 0 to 7% higher. The cause was not investigated (the registry's
   extra status updates and the asynchronous executor are candidates). It is a small cost, close to the run-to-run noise. Events run inside the same JVM as the orders, so the cost can be expected to grow with the order rate; the outbox moves that work to a table and a relay that can be tuned.
-* The p99 swings both ways (`modulith` 85.2 against 57.9 ms, `groups` 96.0 against 105.2) and is one slow stretch in one run; the p50 and p95 do not move with it.
+* The p99 is noisy in single runs (+1 to +12% here, but 85.2 against 57.9 ms in an earlier run of the same configuration); the p50 and p95 move less.
 * Where the two really differ is **how quickly the follow-ups are delivered**, which a round-trip measurement cannot see. That is the next section.
 
 ## Delivery speed

@@ -40,7 +40,7 @@ Same code, same tests, same workload, eight deployment shapes ([the measurements
 | Version-skew pairs to keep compatible | 0 | 3 | 13 |
 | Processes to run, patch and be on call for | 1 | 3 | 8 |
 
-Each call between processes costs about 1.0 to 1.7 ms more than a local one (about 0.5 ms), and an order makes about 20 calls. Cache and parallel reads win part of it back (+6 to 19% and +8 to 17% in the split modes), but those are mitigations
+Each call between processes costs about 1.0 to 1.7 ms more than a local one (about 0.5 ms), and an order makes about 20 calls. Cache and parallel reads win part of it back (+5 to 18% and +4 to 16% in the split modes), but those are mitigations
 of a cost the team chose to take on. All three columns used the same single PostgreSQL instance (see [where the evidence stops](#where-the-evidence-stops)). For a single team that coordinates perfectly well, the benefit side of that bargain is mostly options it does not yet need.
 
 ### 3. Microservices mainly buy team independence; one team has no use for it yet
