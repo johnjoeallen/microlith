@@ -1278,6 +1278,34 @@
   
   
     <li class="md-nav__item">
+      <a href="dbs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Shared and split databases
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="wire-small/" class="md-nav__link">
         
   
@@ -1800,6 +1828,11 @@ module-to-module call and its binding, cache hit rates). These are the reports b
 <td><a href="async-parallel/">Outbox and events, with and without parallel</a></td>
 <td><code>--modes modulith,groups,microservices --async both --parallel both --orders 1500 --warmup 200 --concurrency 16</code></td>
 <td><a href="../load/#on-the-request-path">follow-up delivery</a>, <a href="../switches/#parallel-quotes">parallel quotes</a></td>
+</tr>
+<tr>
+<td><a href="dbs/">Shared and split databases</a></td>
+<td><code>--modes groups,microservices,microservices-macro --dbs both --cache on --orders 1500 --warmup 200 --concurrency 16</code></td>
+<td><a href="../modes/#one-database-instance-or-one-per-deployable-unit">one instance or one per unit</a></td>
 </tr>
 <tr>
 <td><a href="jvm-c1-2g/">JVM 2 GB, C1 and serial GC</a></td>

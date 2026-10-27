@@ -1080,6 +1080,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#one-database-instance-or-one-per-deployable-unit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        One database instance or one per deployable unit
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#choosing" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1365,6 +1376,34 @@
     
   
     Outbox and events
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reports/dbs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Shared and split databases
   
 
     
@@ -1931,6 +1970,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#one-database-instance-or-one-per-deployable-unit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        One database instance or one per deployable unit
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#choosing" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2271,6 +2321,39 @@ a call between modules in the same process is <code>local</code>; the other bind
 <p>Read across a row: <code>orders -&gt; shipping.quote</code> takes 0.70 ms inside one process and 4.69 ms between eight services. Reading down the table shows that a "local"
 call is not free either: even in <code>modulith</code> each call is one database query, which is why the expensive rows (quote, create shipment, reserve) are the ones
 that do the most work.</p>
+<h2 id="one-database-instance-or-one-per-deployable-unit">One database instance or one per deployable unit<a class="headerlink" href="#one-database-instance-or-one-per-deployable-unit" title="Permanent link">&para;</a></h2>
+<p>Everything above ran on one shared PostgreSQL instance. <code>--dbs split</code> gives every deployable unit its own instance, which is three for <code>groups</code> and eight for the services (<a href="../../running/">how</a>). The same load, with the result cache on:</p>
+<table>
+<thead>
+<tr>
+<th>Mode</th>
+<th style="text-align: right;">Shared: orders/s, p50</th>
+<th style="text-align: right;">Split: orders/s, p50</th>
+<th style="text-align: right;">Change in orders/s</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>groups</code> (3 instances)</td>
+<td style="text-align: right;">250, 61.7 ms</td>
+<td style="text-align: right;">253, 62.5 ms</td>
+<td style="text-align: right;">+1%</td>
+</tr>
+<tr>
+<td><code>microservices</code> (8 instances)</td>
+<td style="text-align: right;">161, 94.6 ms</td>
+<td style="text-align: right;">159, 96.3 ms</td>
+<td style="text-align: right;">-1%</td>
+</tr>
+<tr>
+<td><code>microservices-macro</code> (8 instances)</td>
+<td style="text-align: right;">159, 96.2 ms</td>
+<td style="text-align: right;">158, 95.7 ms</td>
+<td style="text-align: right;">-1%</td>
+</tr>
+</tbody>
+</table>
+<p>One run per cell, so these are within noise: on this machine, with the database servers sharing the same CPUs and memory and the same loopback, giving each unit its own server cost nothing measurable. A real split adds what one machine cannot show: network latency to each database, and a server per service to provision, secure, back up and size. Treat it as a floor (<a href="../../case/#where-the-evidence-stops">where the evidence stops</a>). <a href="../reports/dbs/">Raw report</a>.</p>
 <h2 id="choosing">Choosing<a class="headerlink" href="#choosing" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
