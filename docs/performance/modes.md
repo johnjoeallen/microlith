@@ -1,6 +1,6 @@
 # The eight modes compared
 
-Same code, same API, same tests, same workload, and (except `split-dbs`) the **same single PostgreSQL instance**: the eight-process modes share one database server, so the comparison measures the cost of the process boundary, not of separate databases. Sixteen concurrent clients, 1,500 measured orders per run, result cache on, parallel quotes on,
+Same code, same API, same tests, same workload, and (except `split-dbs`) the **same single PostgreSQL instance**: the eight-process modes share one database server, so the comparison measures the cost of the process boundary, not of separate databases. Separate instances per deployable unit are compared [at the end of this page](#one-database-instance-or-one-per-deployable-unit). Sixteen concurrent clients, 1,500 measured orders per run, result cache on, parallel quotes on,
 follow-ups through the outbox, a `VACUUM ANALYZE` after the warm-up ([method](method.md)). The charts and the first table are means over 5 runs; the table under "All numbers" is the first of those runs, which also holds the call counts.
 
 --8<-- "performance/_generated/headline-chart-throughput.md"
@@ -51,7 +51,7 @@ that do the most work.
 
 ## One database instance or one per deployable unit
 
-Everything above ran on one shared PostgreSQL instance. `--dbs split` gives every deployable unit its own instance, which is three for `groups` and eight for the services ([how](../running.md)); the one-process modes have one unit, so nothing changes for them. The same load, cache on, parallel quotes on, outbox ([the full matrix](matrix.md) has the other combinations, which agree):
+The tables and charts above are the **shared** layout: one PostgreSQL instance with a schema per module. Every mode that has more than one deployable unit was also run with **split** databases (`--dbs split`), where each unit has its own instance: three for `groups` and eight for the services ([how](../running.md)). The one-process modes have a single unit, so they have no split run. The comparison below is cache on, parallel quotes on, outbox; the [full matrix](matrix.md) has both layouts in every combination of the other switches (24 pairs: split was between 7% below and 5% above shared, 1% below at the median):
 
 --8<-- "performance/_generated/dbs-chart.md"
 
