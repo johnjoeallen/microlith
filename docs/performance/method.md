@@ -66,4 +66,4 @@ scripts/perf.sh --modes all --cache on ...                                      
 ```
 
 Each run writes a timestamped markdown report with the modes side by side, plus the raw samples, to `.demo/perf/<timestamp>/`. The tables and charts
-on these pages are generated from those saved summaries by `scripts/perf_site.py`, never typed by hand.
+on these pages are generated from those saved summaries by `scripts/perf_site.py` (modes, cache, parallel, follow-ups) and `scripts/jvm_report.py` (the headline means and the JVM study), never typed by hand. The prose around them quotes their numbers by hand, so re-read it when you regenerate.

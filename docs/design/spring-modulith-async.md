@@ -1,6 +1,6 @@
 # Discussion: Spring Modulith async calls and events
 
-Status: for discussion, nothing is decided. Branch `discuss/spring-modulith-async`.
+Status: historical. This was written for discussion on the branch `discuss/spring-modulith-async`; parallel quotes and the switchable follow-up delivery it led to are now on `main` (see [parallel quotes](../features/parallel.md) and [follow-up delivery](../features/follow-ups.md)). Its measurements are from 4-client runs on the former small JVMs and are not the numbers on the performance pages.
 
 ## Where we are
 

@@ -122,32 +122,31 @@ Pool metrics: `macro.db.pool.connections{module,state}` and `macro.db.pool.timeo
 ```bash
 java -jar apps/app-modulith/target/app-modulith-0.1.0-SNAPSHOT.jar --spring.profiles.active=demo --rpc.server.enabled=true
 curl -s -X POST localhost:9181/rpc/orders -H 'Content-Type: application/json' \
-  -d '{"jsonrpc":"2.0","method":"orders.placeOrder","params":{"request":{"requestId":"m-1","customerId":"cust-1","sku":"sku-1","quantity":2}},"id":1}'
+  -d '{"jsonrpc":"2.0","method":"orders.placeOrder","params":{"requestId":"m-1","customerId":"cust-standard","lines":[{"sku":"sku-widget","quantity":2}]},"id":1}'
 ```
 
 (`app-modulith` serves no RPC by default; the override is only there so you can use curl.)
 
-### Shape 2: two processes, two PostgreSQL instances (orders on A, inventory on B)
+### Shape 2: eight services
+
+`orders.placeOrder` needs seven other modules, so a split run starts all of them (`scripts/demo.sh microservices start`, or by hand, one
+`app-<module>-service` jar per module). Each service's `application.yml` already points at the default ports of the others.
 
 ```bash
-java -jar apps/app-inventory-service/target/app-inventory-service-0.1.0-SNAPSHOT.jar --spring.profiles.active=demo &   # :9184, instance B
-java -jar apps/app-orders-service/target/app-orders-service-0.1.0-SNAPSHOT.jar &                                     # :9181, instance A
+scripts/demo.sh microservices start        # :9181 orders ... :9188 notifications
 curl -s -X POST localhost:9181/rpc/orders -H 'Content-Type: application/json' \
-  -d '{"jsonrpc":"2.0","method":"orders.placeOrder","params":{"request":{"requestId":"s-1","customerId":"cust-1","sku":"sku-1","quantity":2}},"id":1}'
+  -d '{"jsonrpc":"2.0","method":"orders.placeOrder","params":{"requestId":"s-1","customerId":"cust-standard","lines":[{"sku":"sku-widget","quantity":2}]},"id":1}'
 ```
 
-## Two services, raw JSON-RPC and the alias (stage 3)
+## Raw JSON-RPC and the alias (stage 3)
 
 ```bash
-java -jar apps/app-inventory-service/target/app-inventory-service-0.1.0-SNAPSHOT.jar &   # :9184
-java -jar apps/app-orders-service/target/app-orders-service-0.1.0-SNAPSHOT.jar &         # :9181, calls inventory over JSON-RPC
-
-# raw JSON-RPC 2.0 envelope (orders calls inventory over HTTP)
+# raw JSON-RPC 2.0 envelope (orders calls the other services over HTTP)
 curl -s -X POST localhost:9181/rpc/orders -H 'Content-Type: application/json' \
-  -d '{"jsonrpc":"2.0","method":"orders.placeOrder","params":{"request":{"requestId":"req-1","customerId":"cust-1","sku":"sku-1","quantity":2}},"id":1}'
+  -d '{"jsonrpc":"2.0","method":"orders.placeOrder","params":{"requestId":"req-1","customerId":"cust-standard","lines":[{"sku":"sku-widget","quantity":2}]},"id":1}'
 
 # convenience alias: bare params in, bare result out (HTTP status carries errors)
-curl -s -X POST localhost:9184/rpc/inventory/getStock -H 'Content-Type: application/json' -d '{"sku":"sku-1"}'
+curl -s -X POST localhost:9184/rpc/inventory/getStock -H 'Content-Type: application/json' -d '{"sku":"sku-widget"}'
 ```
 
 `app-modulith` serves no RPC (`rpc.server.enabled=false`); `app-macro` runs all modules (`monolith` profile by default).

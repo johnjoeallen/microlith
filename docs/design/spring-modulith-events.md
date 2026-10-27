@@ -1,6 +1,6 @@
 # Spring Modulith events instead of the hand-built outbox
 
-Branches `spike/spring-modulith-events` (replaces the outbox) and `spike/switchable-async` (keeps both, `modules.orders.async=outbox|events`, default `outbox`). The events model is Spring Modulith 2.1.2's own:
+Status: historical; both branches are now merged into `main` (see [follow-up delivery](../features/follow-ups.md)), and the measurements below are 4-client runs on the former small JVMs, not the numbers on the performance pages. Branches `spike/spring-modulith-events` (replaces the outbox) and `spike/switchable-async` (keeps both, `modules.orders.async=outbox|events`, default `outbox`). The events model is Spring Modulith 2.1.2's own:
 domain events, the **event publication registry**, and asynchronous transactional listeners. Everything else (the synchronous saga,
 `@RpcApi` calls, per-module schemas and roles) is unchanged.
 

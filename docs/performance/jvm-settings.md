@@ -4,8 +4,7 @@ The demo's default JVM is now `-Xmx2g -XX:+UseParallelGC` with the full JIT; thi
 [mode comparison](modes.md) on the 128 GB, 32-CPU test machine with 16 concurrent clients, with the earlier small JVMs (`-Xmx320m`, C1-only JIT, serial GC) and with larger ones, to see how much of the result is the JVM settings rather than the architecture.
 These runs were made before the `VACUUM ANALYZE` step was added to the measurements, so their absolute numbers are a few percent different from the [headline numbers](index.md#headline-numbers).
 
-**Short answer.** Giving each JVM more memory changes nothing measurable (1 GB and 2 GB agree, over five repetitions each); letting the JIT use C2 does most of the work, and the parallel collector adds a little throughput and a clearly better 99th percentile. Together they make the **in-process shapes 37 to 59% faster**,
-They leave the shapes that cross a process boundary almost where they were. The ordering of the shapes is unchanged, but the gap between the monolith and eight services widens from about 2.0x to 2.8x.
+**Short answer.** Giving each JVM more memory changes nothing measurable (1 GB and 2 GB agree, over five repetitions each); letting the JIT use C2 does most of the work, and the parallel collector adds a little throughput and a clearly better 99th percentile. Together they make the **in-process shapes 37 to 61% faster**. They leave the shapes that cross a process boundary almost where they were. The ordering of the shapes is unchanged, but the gap between the monolith and eight services widens from about 2.0x to 2.8x.
 
 ## What was run
 
@@ -45,10 +44,10 @@ Mean 99th percentile round trip, ms:
 --8<-- "performance/_generated/jvm-matrix-dropped.md"
 
 * **Heap size makes no measurable difference.** 1 GB and 2 GB agree within the noise for every mode and collector, so 1 GB is enough for these JVMs at this load.
-* **The collector barely moves throughput.** Parallel is ahead of serial by 0 to 7%, most visibly on the in-process modes (`modulith` 437 against 470 at 1 GB). Medians are identical.
+* **The collector barely moves throughput.** Parallel is ahead of serial by 0 to 8%, most visibly on the in-process modes (`modulith` 437 against 470 at 1 GB). Medians are identical.
 * **The collector shows in the tail.** The 99th percentile is lower with the parallel collector in almost every row, for example 52 against 144 ms for `modulith` at 1 GB and 167 against 198 ms for `microservices` at 2 GB. The serial collector's
   stop-the-world pauses are a likely cause, but pauses were not measured, and the means include a few slow runs, so treat the size of the gap as indicative.
-* **So the earlier jump was the JIT.** Most of the 37 to 59% gain in the first comparison therefore came from C2, not from the collector or the heap.
+* **So the earlier jump was the JIT.** Most of the 37 to 61% gain in the first comparison therefore came from C2, not from the collector or the heap.
 * The raw reports of the 20 runs are not published (about 800 lines each); the stamps are in `.demo/jvm-matrix.txt` of the run.
 
 ## What to take from it

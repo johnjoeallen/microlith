@@ -50,4 +50,4 @@ The sequential code is still there when it is off.
 It removes waiting, not work, so it helps where calls are slow (a network hop) and does little where they are free (an in-process call).
 [The measurements](../performance/switches.md#parallel-quotes) show exactly that. It does not make the machine do less: at saturation the gain shrinks.
 
-Where it lives: `platform/rpc-api` (`Parallel`), `OrdersService`; it is on the branch `discuss/spring-modulith-async` and in `spike/switchable-async`.
+Where it lives: `platform/rpc-api` (`Parallel`), `OrdersService`; it is on `main`.

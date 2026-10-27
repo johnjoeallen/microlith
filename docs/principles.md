@@ -105,7 +105,7 @@ A new team should not begin with "how many services do we need?". Separate on ev
 | Operability | can the team run N deployables and be on call for them? | one |
 
 **Cut by capability and by what must stay consistent, never by technical layer.** A layered split (an API service, a business service, a data service) makes every feature a coordinated release.
-As an extrapolation from the measured per-hop cost (a lower bound on one machine), the demo's 20 calls per order each routed through two extra layer services would be about 60 hops, roughly +70 ms, against about +11 ms measured for the business-aligned split.
+As an extrapolation from the measured per-hop cost (a lower bound on one machine), the demo's 20 calls per order each routed through two extra layer services would be about 60 hops, roughly +70 ms, against about +10 ms for the business-aligned `groups` split (8.4 crossing calls × 1.2 ms).
 
 **Boundaries can appear organically.** Start with one module, or a few, and split as seams show up. For that to be cheap:
 
@@ -162,7 +162,7 @@ it is one.
 
 The measurements show it. Keeping the chatty chains inside one process in `groups` cut the remote calls per order from 14.2 (eight services) to 8.4, and recovered 55% of the throughput (247 against 159 orders/s, 16 clients).
 
-**Cost of a boundary.** Calls per order that would cross a boundary around each candidate, from the module call counts of one run. Each crossing call costs about 1.0 to 1.7 ms extra here (remote 1.5 to 2.2 ms against local about 0.5 ms; the table below uses 1.2 ms), **on loopback, with no TLS, authentication or proxies, so a floor**, against the
+**Cost of a boundary.** Calls per order that would cross a boundary around each candidate, from the module call counts of one run (the 16-client `microservices` run, cache off). Each crossing call costs about 1.0 to 1.7 ms extra here (remote 1.5 to 2.2 ms against local about 0.5 ms; the table below uses 1.2 ms), **on loopback, with no TLS, authentication or proxies, so a floor**, against the
 about 20 calls of every order, which cost about 0.5 ms each in one process.
 
 | If you split out... | Crossing calls/order | About +ms per order | Notes |
@@ -170,9 +170,9 @@ about 20 calls of every order, which cost about 0.5 ms each in one process.
 | `notifications` | 2.0 | about 0 | already asynchronous, off the request path |
 | `payments` | 3.0 | +3.6 | also the strongest compliance reason |
 | `pricing` | 4.0 | +4.8 | |
-| `catalog` | 4.1 | +4.9 | cached reads, so less in practice |
+| `catalog` | 4.0 | +4.8 | cached reads, so less in practice |
 | `customers` | 6.0 | +7.2 | five consumers; about half the calls are cache hits |
-| `inventory` | 6.1 | +7.3 | chatty with `shipping` |
+| `inventory` | 6.0 | +7.2 | chatty with `shipping` |
 | `shipping` with `inventory` | 7.0 | +8.4 | the chain stays inside |
 
 **The best grouping, computed.** Every way of partitioning the 8 modules (4,140 of them) was scored by the calls per order crossing a boundary, and the minimum kept for each number of deployables:
@@ -180,11 +180,11 @@ about 20 calls of every order, which cost about 0.5 ms each in one process.
 | Deployables | Fewest remote calls/order, raw (cache off) | After the cache |
 | --- | --- | --- |
 | 1 | 0 | 0 |
-| 2 | 2.0 (`notifications` alone) | 1.0 (`catalog` alone) |
-| 3 | 4.9 (`notifications`, `payments`, the rest) | 2.7 (`catalog`, `pricing`, the rest) |
-| 4 | 8.0 | 4.4 |
-| 8 | 20.0 | 14.4 |
-| demo `groups` (front, fulfilment, accounts) | **10.9** | **8.8** |
+| 2 | 2.0 (`notifications` alone) | 0.9 (`catalog` alone) |
+| 3 | 4.9 (`notifications`, `payments`, the rest) | 2.5 (`catalog`, `pricing`, the rest) |
+| 4 | 8.0 | 4.3 |
+| 8 | 19.9 | 14.2 |
+| demo `groups` (front, fulfilment, accounts) | **10.9** | **8.7** |
 
 Reading it:
 

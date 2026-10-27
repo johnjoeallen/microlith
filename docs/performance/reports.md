@@ -14,9 +14,10 @@ module-to-module call and its binding, cache hit rates). These are the reports b
 
 The headline table and charts are the mean of five runs of `--modes all --cache on --orders 1500 --warmup 200 --concurrency 16`: the cache-on rows of the first report above and four further runs, generated with `scripts/jvm_report.py --reps`. Those four reports are not published (about 800 lines each).
 
-The two JVM reports below were made with the former demo flags and before the `VACUUM ANALYZE` step; see [JVM settings](jvm-settings.md).
+The three JVM reports above were made with the former demo flags and before the `VACUUM ANALYZE` step; see [JVM settings](jvm-settings.md).
 
-The delivery-speed test (978 orders placed flat out, then the time until every notification arrived) is a separate script run with
-`MODULES_ORDERS_ASYNC=outbox` and `=events`; its two result lines are on [the delivery page](load.md).
+The delivery-speed test (978 orders placed flat out, then the time until every notification arrived) was run with `MODULES_ORDERS_ASYNC=outbox` and `=events`
+by an ad-hoc script that is not in the repository, so `scripts/perf.sh` cannot repeat it; its two result lines are on [the delivery page](load.md). It predates the 2 GB parallel-GC default
+and the `VACUUM ANALYZE` step.
 
-The tables and charts in this section are generated from the saved summaries of these runs by `scripts/perf_site.py`.
+The tables and charts in this section are generated from the saved summaries of these runs by `scripts/perf_site.py` and `scripts/jvm_report.py`.

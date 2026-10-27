@@ -83,10 +83,10 @@ fan-out, three-deep chains and diamonds, which makes it a useful stand-in for re
 | Read the original design | [Design document](design/macro-service.md) |
 
 !!! info "Which code this site describes"
-    The site documents the branch it was built from. The core (eight modes, the `@RpcApi` model, persistence, the saga, the load driver and the
-    `@Cached` result cache) is on `main`. Parallel quotes and the switchable follow-up delivery (outbox or Spring Modulith events) were developed on
-    the branches `discuss/spring-modulith-async` and `spike/spring-modulith-events` and are combined in `spike/switchable-async`; the
-    [feature pages](features/follow-ups.md) say which is which.
+    Everything described here is on `main`: the eight modes, the `@RpcApi` model, persistence, the saga, the load driver, the `@Cached` result cache,
+    parallel quotes and the switchable follow-up delivery (outbox or Spring Modulith events). The branches `discuss/spring-modulith-async`,
+    `spike/spring-modulith-events` and `spike/switchable-async`, where the last two features were developed, are merged; the
+    [design notes](design/spring-modulith-events.md) keep their history.
 
 !!! note "Stack"
     Java 25, Spring Boot 4.1, Spring Modulith 2.1, PostgreSQL, Maven. Everything runs on localhost with PostgreSQL in Docker.

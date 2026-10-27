@@ -30,8 +30,8 @@ graph TD
 
 | Part | What it is |
 | --- | --- |
-| `platform/rpc-api` | `@RpcApi`, `@Idempotent`, `@Cached`, the exception hierarchy. No Spring dependency. |
-| `platform/rpc-spring-boot-starter` | Server dispatch (`/rpc/<module>`), client proxies, transports, the boundary interceptor, the result cache, the `Parallel` helper. |
+| `platform/rpc-api` | `@RpcApi`, `@Idempotent`, `@Cached`, the `Parallel` helper, the exception hierarchy. No Spring dependency. |
+| `platform/rpc-spring-boot-starter` | Server dispatch (`/rpc/<module>`), client proxies, transports, the boundary interceptor, the result cache layer. |
 | `platform/module-support` | `@ModuleService`/`@ModuleComponent`/`@ModuleConfiguration` (a bean exists only if its module is enabled), per-module datasource, JPA and Flyway. |
 | `platform/demo-support` | Demo profile only: topology, call tracing, fault switches, the shop page. |
 | `platform/rpc-docs` | OpenAPI 3.1 and OpenRPC documents generated from the interfaces. |

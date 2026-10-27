@@ -3,6 +3,7 @@
 
   jvm_report.py --c1 <stamp> --c2 <stamp> [--rerun <stamp>] [--out docs/performance/_generated]
   jvm_report.py --matrix <file written by jvm_matrix.sh>  [--out docs/performance/_generated]
+  jvm_report.py --reps <stamp>,<stamp>,...  [--out ...]   headline table and charts: mean of repeated all-mode runs, cache on
 
 --rerun replaces the C2 runs of the modes it contains with those of a later rerun of just those modes (marked with a dagger in the table).
 
@@ -104,6 +105,7 @@ def headline(stamps, out):
     lines = ["| Mode | Orders/s | Share of `modulith` | Median order (p50) | p99 |", "| --- | ---: | ---: | ---: | ---: |"]
     lines += [f"| `{m}` | {c['ops']:.0f} | {c['ops'] / ref * 100:.0f}% | {c['p50']:.1f} ms | {c['p99']:.1f} ms |" for m, c in cells.items()]
     sub = f"16 clients, result cache on, mean of {n} runs"
+    Path(out).mkdir(parents=True, exist_ok=True)
     Path(out, "headline-table.md").write_text("\n".join(lines) + "\n")
     Path(out, "headline-dropped.md").write_text(f"{dropped} of {n * len(cells)} mode runs were dropped as outliers.\n")
     Path(out, "headline-chart-throughput.md").write_text(hbar("Throughput by mode", f"orders per second, {sub}; larger is better", MODE_ORDER,

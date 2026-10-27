@@ -92,7 +92,7 @@ The default is the macro service as one unit. Deviate, per module and with a rec
 | --- | --- | --- |
 | Boundary decisions | all at once, with the least information | made as seams appear |
 | If a boundary is wrong | a cross-service migration | a refactor |
-| Runtime cost on day one | about 2× latency, half the throughput (this domain) | baseline |
+| Runtime cost on day one | about 2.8× the median latency, about a third of the throughput (this domain) | baseline |
 | Operational surface | N pipelines, N on-call surfaces | one |
 | Version skew | grows with the edges | none inside the unit |
 | Can it become independent services? | it already is | yes, by configuration, from the same artifact |
@@ -143,7 +143,7 @@ Review:       every <n> sprints, with the boundary metrics
 * **Cheap calls.** The demo's calls are one primary-key query each, so the network share of an order is larger than in services that do real work per call. This pushes the other way, and is why the relative cost measured here may overstate
   what a heavy-calls domain would see. The two effects are real and run in opposite directions; measure your own journeys.
 * **One domain and one workload.** The demo's order flow and its order mix; a different domain or mix gives different call counts and different weights.
-* **One run per configuration.** Differences below about 5% are noise; the parallel and cache effects shown are well above it, the outbox-versus-events difference is not.
+* **Run-to-run noise.** The headline figures are means of 5 runs per mode; the cache, parallel and follow-up comparisons are single runs. Differences below about 5% are noise: the cache and parallel effects in the split modes are well above it, the outbox-versus-events difference is not.
 * **No long-term operation.** The measurements do not cover on-call load, incidents or a growing team. Those arguments come from the design and from the sprawl scenario, not from data.
 * **Parked work.** A few things the argument leans on are practices rather than shipped features: the cheap-module generator, the boundary-cost tool and a published-versus-internal API marker are in the [parked ideas](principles.md#parked-ideas).
 * **A default is not a ban.** The claim is that microservices-first needs the analysis, not that it is never right.

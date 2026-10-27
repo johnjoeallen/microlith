@@ -60,4 +60,4 @@ Beyond speed, the two behave differently under load:
 * **Events run entirely inside the JVM.** Delivery happens on the application's own executor, so the follow-up work grows with the order rate and loads the same JVM that is serving
   the orders. They deliver immediately when there is headroom, but they give no way to smooth a burst other than sizing the process.
 
-Where it lives: the outbox is on `main`; the events variant is on `spike/spring-modulith-events`; the switch is on `spike/switchable-async`.
+Where it lives: `modules/orders/orders-impl` (`FollowUps`, `OutboxFollowUps`, `EventFollowUps`, `OutboxRelay`, `OrderEventRedelivery`); all of it is on `main`.

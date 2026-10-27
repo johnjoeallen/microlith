@@ -19,7 +19,7 @@ transaction and delivered afterwards, either by the **outbox** relay or as **Spr
 
 ## Delivery speed
 
-The request path cannot show this, because follow-ups are delivered *after* the order returns. The test: place 978 orders flat out, then time how long until every
+The request path cannot show this, because follow-ups are delivered *after* the order returns. This test is older than the 16-client runs: it used the former small demo JVMs, ran before the `VACUUM ANALYZE` step and is not part of `scripts/perf.sh`, but the result is a property of the relay, not of the machine. The test: place 978 orders flat out, then time how long until every
 confirmation message has actually arrived in the notifications module.
 
 --8<-- "performance/_generated/drain-chart.md"

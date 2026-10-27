@@ -51,23 +51,23 @@ Thick arrows cross a process boundary (JSON-RPC over HTTP); thin ones are direct
 
 ```mermaid
 graph LR
-  O[orders :9181] ==> K[catalog :9182]
-  O ==> P[pricing :9183]
+  O[orders :9181] ==> P[pricing :9183]
   O ==> I[inventory :9184]
   O ==> C[customers :9185]
   O ==> Y[payments :9186]
   O ==> S[shipping :9187]
   O ==> N[notifications :9188]
+  P ==> K[catalog :9182]
 ```
 
-(Only orders' edges are drawn; every other edge is also a remote call.)
+(Orders' edges, plus pricing → catalog as an example; every other edge is also a remote call.)
 
 * **Run:** `scripts/demo.sh microservices start`
 * **Database:** one PostgreSQL instance (port 5432) with a schema per module. Each service has its own schema, roles and connection pool, but they share the one database server.
 * **What it is:** eight separate jars, `app-<module>-service`, generated from one template (`scripts/new-service-app.sh`). Each contains only its own
   implementation plus the `-api` artifacts of the modules it calls, which an enforcer rule checks.
 * **Why it exists:** it is the conventional microservice shape, so every comparison has an honest reference point.
-* **Cost:** eight JVMs and every one of the 17 to 20 calls per order is a network hop.
+* **Cost:** eight JVMs, and every call that the cache does not answer (about 14 of the 20 per order, with the cache on) is a network hop.
 
 ## microservices-macro
 

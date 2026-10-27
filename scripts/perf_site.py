@@ -144,11 +144,6 @@ def modes_fragments(runs, out):
                      f"{rt['p99']:.1f}", f"{r['callsPerOrder']:.1f}", calls])
     (out / "modes-table.md").write_text(md_table(
         ["Mode", "Orders/s", "vs modulith", "p50 ms", "p95 ms", "p99 ms", "Calls/order", "Calls by binding (mean latency)"], rows, last_left=True))
-    (out / "modes-throughput.md").write_text(hbar("Throughput by mode", f"orders per second, {c}, result cache on; larger is better",
-                                                  list(base), [("orders/s", [r["ordersPerSecond"] for r in base.values()])], "orders/s"))
-    (out / "modes-latency.md").write_text(hbar("Round-trip latency by mode", f"milliseconds per order, {c}; smaller is better",
-                                               list(base), [("p50", [r["roundTripMs"]["p50"] for r in base.values()]),
-                                                            ("p99", [r["roundTripMs"]["p99"] for r in base.values()])], "ms", lambda v: f"{v:.1f}"))
     # where the time goes: mean ms per module-to-module call
     shown = [m for m in ("modulith", "loopback-codec", "loopback-http", "groups", "microservices") if m in base]
     edges = collections.Counter()
