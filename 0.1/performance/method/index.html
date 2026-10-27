@@ -2030,7 +2030,7 @@ scripts/perf.sh<span class="w"> </span>--modes<span class="w"> </span>modulith,g
 scripts/perf.sh<span class="w"> </span>--modes<span class="w"> </span>all<span class="w"> </span>--cache<span class="w"> </span>on<span class="w"> </span>...<span class="w">                                                   </span><span class="c1"># repeated 5 times for the headline means</span>
 </code></pre></div>
 <p>Each run writes a timestamped markdown report with the modes side by side, plus the raw samples, to <code>.demo/perf/&lt;timestamp&gt;/</code>. The tables and charts
-on these pages are generated from those saved summaries by <code>scripts/perf_site.py</code>, never typed by hand.</p>
+on these pages are generated from those saved summaries by <code>scripts/perf_site.py</code> (modes, cache, parallel, follow-ups) and <code>scripts/jvm_report.py</code> (the headline means and the JVM study), never typed by hand. The prose around them quotes their numbers by hand, so re-read it when you regenerate.</p>
 
 
 

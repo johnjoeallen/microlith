@@ -1965,7 +1965,7 @@ of this relay (a larger batch would close most of the gap), not a limit of the p
 <li><strong>Events run entirely inside the JVM.</strong> Delivery happens on the application's own executor, so the follow-up work grows with the order rate and loads the same JVM that is serving
   the orders. They deliver immediately when there is headroom, but they give no way to smooth a burst other than sizing the process.</li>
 </ul>
-<p>Where it lives: the outbox is on <code>main</code>; the events variant is on <code>spike/spring-modulith-events</code>; the switch is on <code>spike/switchable-async</code>.</p>
+<p>Where it lives: <code>modules/orders/orders-impl</code> (<code>FollowUps</code>, <code>OutboxFollowUps</code>, <code>EventFollowUps</code>, <code>OutboxRelay</code>, <code>OrderEventRedelivery</code>); all of it is on <code>main</code>.</p>
 
 
 

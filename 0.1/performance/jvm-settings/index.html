@@ -1931,8 +1931,7 @@
 <p>The demo's default JVM is now <code>-Xmx2g -XX:+UseParallelGC</code> with the full JIT; this page shows how that default was chosen. It repeats the
 <a href="../modes/">mode comparison</a> on the 128 GB, 32-CPU test machine with 16 concurrent clients, with the earlier small JVMs (<code>-Xmx320m</code>, C1-only JIT, serial GC) and with larger ones, to see how much of the result is the JVM settings rather than the architecture.
 These runs were made before the <code>VACUUM ANALYZE</code> step was added to the measurements, so their absolute numbers are a few percent different from the <a href="../#headline-numbers">headline numbers</a>.</p>
-<p><strong>Short answer.</strong> Giving each JVM more memory changes nothing measurable (1 GB and 2 GB agree, over five repetitions each); letting the JIT use C2 does most of the work, and the parallel collector adds a little throughput and a clearly better 99th percentile. Together they make the <strong>in-process shapes 37 to 59% faster</strong>,
-They leave the shapes that cross a process boundary almost where they were. The ordering of the shapes is unchanged, but the gap between the monolith and eight services widens from about 2.0x to 2.8x.</p>
+<p><strong>Short answer.</strong> Giving each JVM more memory changes nothing measurable (1 GB and 2 GB agree, over five repetitions each); letting the JIT use C2 does most of the work, and the parallel collector adds a little throughput and a clearly better 99th percentile. Together they make the <strong>in-process shapes 37 to 61% faster</strong>. They leave the shapes that cross a process boundary almost where they were. The ordering of the shapes is unchanged, but the gap between the monolith and eight services widens from about 2.0x to 2.8x.</p>
 <h2 id="what-was-run">What was run<a class="headerlink" href="#what-was-run" title="Permanent link">&para;</a></h2>
 <p>Both runs: <code>scripts/perf.sh --modes all --cache both --orders 1500 --warmup 200 --concurrency 16</code>, one run per configuration, differing only in <code>DEMO_JAVA_OPTS</code>.</p>
 <table>
@@ -2401,10 +2400,10 @@ They leave the shapes that cross a process boundary almost where they were. The 
 </table>
 <ul>
 <li><strong>Heap size makes no measurable difference.</strong> 1 GB and 2 GB agree within the noise for every mode and collector, so 1 GB is enough for these JVMs at this load.</li>
-<li><strong>The collector barely moves throughput.</strong> Parallel is ahead of serial by 0 to 7%, most visibly on the in-process modes (<code>modulith</code> 437 against 470 at 1 GB). Medians are identical.</li>
+<li><strong>The collector barely moves throughput.</strong> Parallel is ahead of serial by 0 to 8%, most visibly on the in-process modes (<code>modulith</code> 437 against 470 at 1 GB). Medians are identical.</li>
 <li><strong>The collector shows in the tail.</strong> The 99th percentile is lower with the parallel collector in almost every row, for example 52 against 144 ms for <code>modulith</code> at 1 GB and 167 against 198 ms for <code>microservices</code> at 2 GB. The serial collector's
   stop-the-world pauses are a likely cause, but pauses were not measured, and the means include a few slow runs, so treat the size of the gap as indicative.</li>
-<li><strong>So the earlier jump was the JIT.</strong> Most of the 37 to 59% gain in the first comparison therefore came from C2, not from the collector or the heap.</li>
+<li><strong>So the earlier jump was the JIT.</strong> Most of the 37 to 61% gain in the first comparison therefore came from C2, not from the collector or the heap.</li>
 <li>The raw reports of the 20 runs are not published (about 800 lines each); the stamps are in <code>.demo/jvm-matrix.txt</code> of the run.</li>
 </ul>
 <h2 id="what-to-take-from-it">What to take from it<a class="headerlink" href="#what-to-take-from-it" title="Permanent link">&para;</a></h2>

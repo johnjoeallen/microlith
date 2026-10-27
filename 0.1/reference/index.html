@@ -1691,10 +1691,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#shape-2-two-processes-two-postgresql-instances-orders-on-a-inventory-on-b" class="md-nav__link">
+  <a href="#shape-2-eight-services" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Shape 2: two processes, two PostgreSQL instances (orders on A, inventory on B)
+        Shape 2: eight services
       
     </span>
   </a>
@@ -1707,10 +1707,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#two-services-raw-json-rpc-and-the-alias-stage-3" class="md-nav__link">
+  <a href="#raw-json-rpc-and-the-alias-stage-3" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Two services, raw JSON-RPC and the alias (stage 3)
+        Raw JSON-RPC and the alias (stage 3)
       
     </span>
   </a>
@@ -2055,10 +2055,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#shape-2-two-processes-two-postgresql-instances-orders-on-a-inventory-on-b" class="md-nav__link">
+  <a href="#shape-2-eight-services" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Shape 2: two processes, two PostgreSQL instances (orders on A, inventory on B)
+        Shape 2: eight services
       
     </span>
   </a>
@@ -2071,10 +2071,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#two-services-raw-json-rpc-and-the-alias-stage-3" class="md-nav__link">
+  <a href="#raw-json-rpc-and-the-alias-stage-3" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Two services, raw JSON-RPC and the alias (stage 3)
+        Raw JSON-RPC and the alias (stage 3)
       
     </span>
   </a>
@@ -2268,25 +2268,23 @@ Pool metrics: <code>macro.db.pool.connections{module,state}</code> and <code>mac
 <h3 id="shape-1-one-process-one-postgresql">Shape 1: one process, one PostgreSQL<a class="headerlink" href="#shape-1-one-process-one-postgresql" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code>java<span class="w"> </span>-jar<span class="w"> </span>apps/app-modulith/target/app-modulith-0.1.0-SNAPSHOT.jar<span class="w"> </span>--spring.profiles.active<span class="o">=</span>demo<span class="w"> </span>--rpc.server.enabled<span class="o">=</span><span class="nb">true</span>
 curl<span class="w"> </span>-s<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>localhost:9181/rpc/orders<span class="w"> </span>-H<span class="w"> </span><span class="s1">'Content-Type: application/json'</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-d<span class="w"> </span><span class="s1">'{"jsonrpc":"2.0","method":"orders.placeOrder","params":{"request":{"requestId":"m-1","customerId":"cust-1","sku":"sku-1","quantity":2}},"id":1}'</span>
+<span class="w">  </span>-d<span class="w"> </span><span class="s1">'{"jsonrpc":"2.0","method":"orders.placeOrder","params":{"requestId":"m-1","customerId":"cust-standard","lines":[{"sku":"sku-widget","quantity":2}]},"id":1}'</span>
 </code></pre></div>
 <p>(<code>app-modulith</code> serves no RPC by default; the override is only there so you can use curl.)</p>
-<h3 id="shape-2-two-processes-two-postgresql-instances-orders-on-a-inventory-on-b">Shape 2: two processes, two PostgreSQL instances (orders on A, inventory on B)<a class="headerlink" href="#shape-2-two-processes-two-postgresql-instances-orders-on-a-inventory-on-b" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code>java<span class="w"> </span>-jar<span class="w"> </span>apps/app-inventory-service/target/app-inventory-service-0.1.0-SNAPSHOT.jar<span class="w"> </span>--spring.profiles.active<span class="o">=</span>demo<span class="w"> </span><span class="p">&amp;</span><span class="w">   </span><span class="c1"># :9184, instance B</span>
-java<span class="w"> </span>-jar<span class="w"> </span>apps/app-orders-service/target/app-orders-service-0.1.0-SNAPSHOT.jar<span class="w"> </span><span class="p">&amp;</span><span class="w">                                     </span><span class="c1"># :9181, instance A</span>
+<h3 id="shape-2-eight-services">Shape 2: eight services<a class="headerlink" href="#shape-2-eight-services" title="Permanent link">&para;</a></h3>
+<p><code>orders.placeOrder</code> needs seven other modules, so a split run starts all of them (<code>scripts/demo.sh microservices start</code>, or by hand, one
+<code>app-&lt;module&gt;-service</code> jar per module). Each service's <code>application.yml</code> already points at the default ports of the others.</p>
+<div class="highlight"><pre><span></span><code>scripts/demo.sh<span class="w"> </span>microservices<span class="w"> </span>start<span class="w">        </span><span class="c1"># :9181 orders ... :9188 notifications</span>
 curl<span class="w"> </span>-s<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>localhost:9181/rpc/orders<span class="w"> </span>-H<span class="w"> </span><span class="s1">'Content-Type: application/json'</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-d<span class="w"> </span><span class="s1">'{"jsonrpc":"2.0","method":"orders.placeOrder","params":{"request":{"requestId":"s-1","customerId":"cust-1","sku":"sku-1","quantity":2}},"id":1}'</span>
+<span class="w">  </span>-d<span class="w"> </span><span class="s1">'{"jsonrpc":"2.0","method":"orders.placeOrder","params":{"requestId":"s-1","customerId":"cust-standard","lines":[{"sku":"sku-widget","quantity":2}]},"id":1}'</span>
 </code></pre></div>
-<h2 id="two-services-raw-json-rpc-and-the-alias-stage-3">Two services, raw JSON-RPC and the alias (stage 3)<a class="headerlink" href="#two-services-raw-json-rpc-and-the-alias-stage-3" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code>java<span class="w"> </span>-jar<span class="w"> </span>apps/app-inventory-service/target/app-inventory-service-0.1.0-SNAPSHOT.jar<span class="w"> </span><span class="p">&amp;</span><span class="w">   </span><span class="c1"># :9184</span>
-java<span class="w"> </span>-jar<span class="w"> </span>apps/app-orders-service/target/app-orders-service-0.1.0-SNAPSHOT.jar<span class="w"> </span><span class="p">&amp;</span><span class="w">         </span><span class="c1"># :9181, calls inventory over JSON-RPC</span>
-
-<span class="c1"># raw JSON-RPC 2.0 envelope (orders calls inventory over HTTP)</span>
+<h2 id="raw-json-rpc-and-the-alias-stage-3">Raw JSON-RPC and the alias (stage 3)<a class="headerlink" href="#raw-json-rpc-and-the-alias-stage-3" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><span class="c1"># raw JSON-RPC 2.0 envelope (orders calls the other services over HTTP)</span>
 curl<span class="w"> </span>-s<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>localhost:9181/rpc/orders<span class="w"> </span>-H<span class="w"> </span><span class="s1">'Content-Type: application/json'</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-d<span class="w"> </span><span class="s1">'{"jsonrpc":"2.0","method":"orders.placeOrder","params":{"request":{"requestId":"req-1","customerId":"cust-1","sku":"sku-1","quantity":2}},"id":1}'</span>
+<span class="w">  </span>-d<span class="w"> </span><span class="s1">'{"jsonrpc":"2.0","method":"orders.placeOrder","params":{"requestId":"req-1","customerId":"cust-standard","lines":[{"sku":"sku-widget","quantity":2}]},"id":1}'</span>
 
 <span class="c1"># convenience alias: bare params in, bare result out (HTTP status carries errors)</span>
-curl<span class="w"> </span>-s<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>localhost:9184/rpc/inventory/getStock<span class="w"> </span>-H<span class="w"> </span><span class="s1">'Content-Type: application/json'</span><span class="w"> </span>-d<span class="w"> </span><span class="s1">'{"sku":"sku-1"}'</span>
+curl<span class="w"> </span>-s<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>localhost:9184/rpc/inventory/getStock<span class="w"> </span>-H<span class="w"> </span><span class="s1">'Content-Type: application/json'</span><span class="w"> </span>-d<span class="w"> </span><span class="s1">'{"sku":"sku-widget"}'</span>
 </code></pre></div>
 <p><code>app-modulith</code> serves no RPC (<code>rpc.server.enabled=false</code>); <code>app-macro</code> runs all modules (<code>monolith</code> profile by default).
 Bindings per target module: <code>modules.&lt;name&gt;.binding</code> = <code>local</code> | <code>loopback-codec</code> | <code>loopback-http</code> | <code>remote</code>.</p>

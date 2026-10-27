@@ -2269,7 +2269,7 @@ a periodic <code>microservices-macro</code> run in staging proves the full split
 </tbody>
 </table>
 <p><strong>Cut by capability and by what must stay consistent, never by technical layer.</strong> A layered split (an API service, a business service, a data service) makes every feature a coordinated release.
-As an extrapolation from the measured per-hop cost (a lower bound on one machine), the demo's 20 calls per order each routed through two extra layer services would be about 60 hops, roughly +70 ms, against about +11 ms measured for the business-aligned split.</p>
+As an extrapolation from the measured per-hop cost (a lower bound on one machine), the demo's 20 calls per order each routed through two extra layer services would be about 60 hops, roughly +70 ms, against about +10 ms for the business-aligned <code>groups</code> split (8.4 crossing calls × 1.2 ms).</p>
 <p><strong>Boundaries can appear organically.</strong> Start with one module, or a few, and split as seams show up. For that to be cheap:</p>
 <ul>
 <li>Inside a module, keep package-by-feature <strong>slices</strong> that are cycle-free, talk to each other through a small interface, and share no tables, so promoting a slice to a module later is mechanical.</li>
@@ -2360,7 +2360,7 @@ it is one.</p>
 </div>
 </div>
 <p>The measurements show it. Keeping the chatty chains inside one process in <code>groups</code> cut the remote calls per order from 14.2 (eight services) to 8.4, and recovered 55% of the throughput (247 against 159 orders/s, 16 clients).</p>
-<p><strong>Cost of a boundary.</strong> Calls per order that would cross a boundary around each candidate, from the module call counts of one run. Each crossing call costs about 1.0 to 1.7 ms extra here (remote 1.5 to 2.2 ms against local about 0.5 ms; the table below uses 1.2 ms), <strong>on loopback, with no TLS, authentication or proxies, so a floor</strong>, against the
+<p><strong>Cost of a boundary.</strong> Calls per order that would cross a boundary around each candidate, from the module call counts of one run (the 16-client <code>microservices</code> run, cache off). Each crossing call costs about 1.0 to 1.7 ms extra here (remote 1.5 to 2.2 ms against local about 0.5 ms; the table below uses 1.2 ms), <strong>on loopback, with no TLS, authentication or proxies, so a floor</strong>, against the
 about 20 calls of every order, which cost about 0.5 ms each in one process.</p>
 <table>
 <thead>
@@ -2392,8 +2392,8 @@ about 20 calls of every order, which cost about 0.5 ms each in one process.</p>
 </tr>
 <tr>
 <td><code>catalog</code></td>
-<td>4.1</td>
-<td>+4.9</td>
+<td>4.0</td>
+<td>+4.8</td>
 <td>cached reads, so less in practice</td>
 </tr>
 <tr>
@@ -2404,8 +2404,8 @@ about 20 calls of every order, which cost about 0.5 ms each in one process.</p>
 </tr>
 <tr>
 <td><code>inventory</code></td>
-<td>6.1</td>
-<td>+7.3</td>
+<td>6.0</td>
+<td>+7.2</td>
 <td>chatty with <code>shipping</code></td>
 </tr>
 <tr>
@@ -2434,27 +2434,27 @@ about 20 calls of every order, which cost about 0.5 ms each in one process.</p>
 <tr>
 <td>2</td>
 <td>2.0 (<code>notifications</code> alone)</td>
-<td>1.0 (<code>catalog</code> alone)</td>
+<td>0.9 (<code>catalog</code> alone)</td>
 </tr>
 <tr>
 <td>3</td>
 <td>4.9 (<code>notifications</code>, <code>payments</code>, the rest)</td>
-<td>2.7 (<code>catalog</code>, <code>pricing</code>, the rest)</td>
+<td>2.5 (<code>catalog</code>, <code>pricing</code>, the rest)</td>
 </tr>
 <tr>
 <td>4</td>
 <td>8.0</td>
-<td>4.4</td>
+<td>4.3</td>
 </tr>
 <tr>
 <td>8</td>
-<td>20.0</td>
-<td>14.4</td>
+<td>19.9</td>
+<td>14.2</td>
 </tr>
 <tr>
 <td>demo <code>groups</code> (front, fulfilment, accounts)</td>
 <td><strong>10.9</strong></td>
-<td><strong>8.8</strong></td>
+<td><strong>8.7</strong></td>
 </tr>
 </tbody>
 </table>

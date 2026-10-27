@@ -2238,7 +2238,7 @@ and failed on its own:</p>
 </tr>
 <tr>
 <td>Runtime cost on day one</td>
-<td>about 2× latency, half the throughput (this domain)</td>
+<td>about 2.8× the median latency, about a third of the throughput (this domain)</td>
 <td>baseline</td>
 </tr>
 <tr>
@@ -2335,7 +2335,7 @@ Review:       every &lt;n&gt; sprints, with the boundary metrics
 <li><strong>Cheap calls.</strong> The demo's calls are one primary-key query each, so the network share of an order is larger than in services that do real work per call. This pushes the other way, and is why the relative cost measured here may overstate
   what a heavy-calls domain would see. The two effects are real and run in opposite directions; measure your own journeys.</li>
 <li><strong>One domain and one workload.</strong> The demo's order flow and its order mix; a different domain or mix gives different call counts and different weights.</li>
-<li><strong>One run per configuration.</strong> Differences below about 5% are noise; the parallel and cache effects shown are well above it, the outbox-versus-events difference is not.</li>
+<li><strong>Run-to-run noise.</strong> The headline figures are means of 5 runs per mode; the cache, parallel and follow-up comparisons are single runs. Differences below about 5% are noise: the cache and parallel effects in the split modes are well above it, the outbox-versus-events difference is not.</li>
 <li><strong>No long-term operation.</strong> The measurements do not cover on-call load, incidents or a growing team. Those arguments come from the design and from the sprawl scenario, not from data.</li>
 <li><strong>Parked work.</strong> A few things the argument leans on are practices rather than shipped features: the cheap-module generator, the boundary-cost tool and a published-versus-internal API marker are in the <a href="../principles/#parked-ideas">parked ideas</a>.</li>
 <li><strong>A default is not a ban.</strong> The claim is that microservices-first needs the analysis, not that it is never right.</li>

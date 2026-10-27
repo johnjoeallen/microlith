@@ -1925,7 +1925,7 @@
 
 
 <h1 id="spring-modulith-events-instead-of-the-hand-built-outbox">Spring Modulith events instead of the hand-built outbox<a class="headerlink" href="#spring-modulith-events-instead-of-the-hand-built-outbox" title="Permanent link">&para;</a></h1>
-<p>Branches <code>spike/spring-modulith-events</code> (replaces the outbox) and <code>spike/switchable-async</code> (keeps both, <code>modules.orders.async=outbox|events</code>, default <code>outbox</code>). The events model is Spring Modulith 2.1.2's own:
+<p>Status: historical; both branches are now merged into <code>main</code> (see <a href="../../features/follow-ups/">follow-up delivery</a>), and the measurements below are 4-client runs on the former small JVMs, not the numbers on the performance pages. Branches <code>spike/spring-modulith-events</code> (replaces the outbox) and <code>spike/switchable-async</code> (keeps both, <code>modules.orders.async=outbox|events</code>, default <code>outbox</code>). The events model is Spring Modulith 2.1.2's own:
 domain events, the <strong>event publication registry</strong>, and asynchronous transactional listeners. Everything else (the synchronous saga,
 <code>@RpcApi</code> calls, per-module schemas and roles) is unchanged.</p>
 <h2 id="what-was-built">What was built<a class="headerlink" href="#what-was-built" title="Permanent link">&para;</a></h2>

@@ -1948,21 +1948,21 @@
 </ul>
 <h2 id="microservices">microservices<a class="headerlink" href="#microservices" title="Permanent link">&para;</a></h2>
 <pre class="mermaid"><code>graph LR
-  O[orders :9181] ==&gt; K[catalog :9182]
-  O ==&gt; P[pricing :9183]
+  O[orders :9181] ==&gt; P[pricing :9183]
   O ==&gt; I[inventory :9184]
   O ==&gt; C[customers :9185]
   O ==&gt; Y[payments :9186]
   O ==&gt; S[shipping :9187]
-  O ==&gt; N[notifications :9188]</code></pre>
-<p>(Only orders' edges are drawn; every other edge is also a remote call.)</p>
+  O ==&gt; N[notifications :9188]
+  P ==&gt; K[catalog :9182]</code></pre>
+<p>(Orders' edges, plus pricing → catalog as an example; every other edge is also a remote call.)</p>
 <ul>
 <li><strong>Run:</strong> <code>scripts/demo.sh microservices start</code></li>
 <li><strong>Database:</strong> one PostgreSQL instance (port 5432) with a schema per module. Each service has its own schema, roles and connection pool, but they share the one database server.</li>
 <li><strong>What it is:</strong> eight separate jars, <code>app-&lt;module&gt;-service</code>, generated from one template (<code>scripts/new-service-app.sh</code>). Each contains only its own
   implementation plus the <code>-api</code> artifacts of the modules it calls, which an enforcer rule checks.</li>
 <li><strong>Why it exists:</strong> it is the conventional microservice shape, so every comparison has an honest reference point.</li>
-<li><strong>Cost:</strong> eight JVMs and every one of the 17 to 20 calls per order is a network hop.</li>
+<li><strong>Cost:</strong> eight JVMs, and every call that the cache does not answer (about 14 of the 20 per order, with the cache on) is a network hop.</li>
 </ul>
 <h2 id="microservices-macro">microservices-macro<a class="headerlink" href="#microservices-macro" title="Permanent link">&para;</a></h2>
 <ul>

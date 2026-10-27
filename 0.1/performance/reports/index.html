@@ -1819,10 +1819,11 @@ module-to-module call and its binding, cache hit rates). These are the reports b
 </tbody>
 </table>
 <p>The headline table and charts are the mean of five runs of <code>--modes all --cache on --orders 1500 --warmup 200 --concurrency 16</code>: the cache-on rows of the first report above and four further runs, generated with <code>scripts/jvm_report.py --reps</code>. Those four reports are not published (about 800 lines each).</p>
-<p>The two JVM reports below were made with the former demo flags and before the <code>VACUUM ANALYZE</code> step; see <a href="../jvm-settings/">JVM settings</a>.</p>
-<p>The delivery-speed test (978 orders placed flat out, then the time until every notification arrived) is a separate script run with
-<code>MODULES_ORDERS_ASYNC=outbox</code> and <code>=events</code>; its two result lines are on <a href="../load/">the delivery page</a>.</p>
-<p>The tables and charts in this section are generated from the saved summaries of these runs by <code>scripts/perf_site.py</code>.</p>
+<p>The three JVM reports above were made with the former demo flags and before the <code>VACUUM ANALYZE</code> step; see <a href="../jvm-settings/">JVM settings</a>.</p>
+<p>The delivery-speed test (978 orders placed flat out, then the time until every notification arrived) was run with <code>MODULES_ORDERS_ASYNC=outbox</code> and <code>=events</code>
+by an ad-hoc script that is not in the repository, so <code>scripts/perf.sh</code> cannot repeat it; its two result lines are on <a href="../load/">the delivery page</a>. It predates the 2 GB parallel-GC default
+and the <code>VACUUM ANALYZE</code> step.</p>
+<p>The tables and charts in this section are generated from the saved summaries of these runs by <code>scripts/perf_site.py</code> and <code>scripts/jvm_report.py</code>.</p>
 
 
 

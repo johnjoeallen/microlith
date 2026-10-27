@@ -2013,7 +2013,7 @@
 
 
 <h1 id="discussion-spring-modulith-async-calls-and-events">Discussion: Spring Modulith async calls and events<a class="headerlink" href="#discussion-spring-modulith-async-calls-and-events" title="Permanent link">&para;</a></h1>
-<p>Status: for discussion, nothing is decided. Branch <code>discuss/spring-modulith-async</code>.</p>
+<p>Status: historical. This was written for discussion on the branch <code>discuss/spring-modulith-async</code>; parallel quotes and the switchable follow-up delivery it led to are now on <code>main</code> (see <a href="../../features/parallel/">parallel quotes</a> and <a href="../../features/follow-ups/">follow-up delivery</a>). Its measurements are from 4-client runs on the former small JVMs and are not the numbers on the performance pages.</p>
 <h2 id="where-we-are">Where we are<a class="headerlink" href="#where-we-are" title="Permanent link">&para;</a></h2>
 <ul>
 <li>Modules talk only through <code>@RpcApi</code> interfaces: a direct call in-process, JSON-RPC when split. Request/reply, one transport model.</li>
