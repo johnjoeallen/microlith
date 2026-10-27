@@ -12,17 +12,18 @@ scripts/demo.sh modulith status
 scripts/demo.sh modulith stop         # stops the processes, then PostgreSQL
 ```
 
-Three switches can be set when starting (they are ordinary properties, so environment variables and config files work too):
+Four switches can be set when starting (they are ordinary properties, so environment variables and config files work too):
 
 | Option | Values | What it does |
 | --- | --- | --- |
 | `--async` | `outbox` (default), `events` | how orders delivers its follow-ups: the [outbox relay or Spring Modulith events](features/follow-ups.md) |
 | `--cache` | `on` (default), `off` | the [`@Cached` result cache](features/cache.md) |
 | `--parallel` | `on` (default), `off` | the [parallel customer check and quotes](features/parallel.md) |
+| `--dbs` | `shared` (default), `split` | `shared`: one PostgreSQL instance with a schema per module. `split`: every deployable unit gets its own instance, so the layout follows the mode: `groups` 3 (A 5432 for `front`, B 5433 for `fulfilment`, C 5434 for `accounts`), `microservices` and `microservices-macro` 8 (one per module, ports 5432 to 5439). A one-process mode is one unit, so it stays on one instance. `split-dbs` is `groups --dbs split` |
 
 ```bash
 scripts/demo.sh groups start --async events --cache off --parallel off
-scripts/demo.sh groups status         # mode: groups   (async=events cache=off parallel=off)
+scripts/demo.sh groups status         # mode: groups   (async=events cache=off parallel=off wire=json dbs=shared)
 ```
 
 `start` resets PostgreSQL to a clean, freshly initialised state every time (schemas and roles from `docs/db/bootstrap.sql`, migrations and demo data
@@ -69,6 +70,9 @@ scripts/perf.sh --modes groups,microservices --cache both --duration 120 --warmu
 
 # every switch: cache, parallel quotes, follow-up delivery
 scripts/perf.sh --modes modulith,groups,microservices --cache both --parallel both --async both
+
+# one shared PostgreSQL instance against one instance per deployable unit (both = shared and split)
+scripts/perf.sh --modes groups,microservices --dbs both
 ```
 
 Each run writes a timestamped markdown report with the modes side by side to `.demo/perf/<timestamp>/`. How the numbers are produced is in

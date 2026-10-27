@@ -1,16 +1,20 @@
 #!/usr/bin/env bash
 # Runs one demo mode on this machine. Gives every start clean, freshly initialised databases (scripts/db.sh reset) and builds the jars on first use.
 #
-#   scripts/demo.sh <mode> start [--async outbox|events] [--cache on|off] [--parallel on|off] [--wire json|gzip|bson|bson-gzip]
+#   scripts/demo.sh <mode> start [--async outbox|events] [--cache on|off] [--parallel on|off] [--wire json|gzip|bson|bson-gzip] [--dbs shared|split]
 #   scripts/demo.sh <mode> stop|status
 #
 # options (start only; each overrides the environment variable named here, which still works):
 #   --async outbox|events   how orders delivers its follow-ups: outbox relay (default) or Spring Modulith events   (MODULES_ORDERS_ASYNC)
 #   --cache on|off          the @Cached result cache, default on                                                    (RPC_CACHE_ENABLED)
 #   --parallel on|off       orders runs the customer check and the two quotes in parallel, default on               (MODULES_ORDERS_PARALLEL_QUOTES)
+#   --dbs shared|split      shared: one PostgreSQL instance with a schema per module (default). split: every deployable unit gets its own instance, so
+#                           the layout follows the mode: groups 3 (front on A 5432, fulfilment on B 5433, accounts on C 5434), microservices and
+#                           microservices-macro 8 (orders 5432, catalog 5433, customers 5434, pricing 5435, inventory 5436, payments 5437,
+#                           shipping 5438, notifications 5439); a one-process mode is one unit, so one instance   (DEMO_DBS)
 #   --wire json|gzip|bson|bson-gzip   how HTTP calls between processes encode the JSON-RPC envelope, default json (RPC_CLIENT_WIRE); HTTP bindings only
 #
-# modes: modulith  macro-modulith  groups  microservices  microservices-macro  loopback-codec  loopback-http  split-dbs
+# modes: modulith  macro-modulith  groups  microservices  microservices-macro  loopback-codec  loopback-http  split-dbs (= groups --dbs split)
 #
 # 'start' wipes and re-creates PostgreSQL (schemas and roles from docs/db/bootstrap.sql; the app migrates and seeds on boot),
 # so every run begins clean. 'stop' stops the processes and then PostgreSQL.
@@ -19,14 +23,14 @@ set -euo pipefail
 source "$(dirname "$0")/_common.sh"
 
 mode="${1:-}"; action="${2:-}"
-opt_async=""; opt_cache=""; opt_parallel=""; opt_wire=""
+opt_async=""; opt_cache=""; opt_parallel=""; opt_wire=""; opt_dbs=""
 modules=(orders catalog pricing inventory customers payments shipping notifications)
 declare -A port=([orders]=9181 [catalog]=9182 [pricing]=9183 [inventory]=9184 [customers]=9185 [payments]=9186 [shipping]=9187 [notifications]=9188)
 java_opts="${DEMO_JAVA_OPTS:--Xmx2g -XX:+UseParallelGC}"
 
 usage() {
   echo "usage: $0 <modulith|macro-modulith|groups|microservices|microservices-macro|loopback-codec|loopback-http|split-dbs> start [options] | stop | status" >&2
-  echo "options (start only): --async outbox|events   --cache on|off   --parallel on|off   --wire json|gzip|bson|bson-gzip" >&2
+  echo "options (start only): --async outbox|events   --cache on|off   --parallel on|off   --wire json|gzip|bson|bson-gzip   --dbs shared|split" >&2
   exit 2
 }
 [ -n "$mode" ] && [ -n "$action" ] || usage
@@ -40,6 +44,7 @@ while [ $# -gt 0 ]; do
     --async)    [ "$2" = outbox ] || [ "$2" = events ] || { echo "--async must be outbox or events, not '$2'" >&2; usage; }; opt_async="$2" ;;
     --cache)    [ "$2" = on ] || [ "$2" = off ] || { echo "--cache must be on or off, not '$2'" >&2; usage; }; opt_cache="$2" ;;
     --wire)     case "$2" in json|gzip|bson|bson-gzip) opt_wire="$2" ;; *) echo "--wire must be json, gzip, bson or bson-gzip, not '$2'" >&2; usage ;; esac ;;
+    --dbs)      case "$2" in shared|split) opt_dbs="$2" ;; *) echo "--dbs must be shared or split, not '$2'" >&2; usage ;; esac ;;
     --parallel) [ "$2" = on ] || [ "$2" = off ] || { echo "--parallel must be on or off, not '$2'" >&2; usage; }; opt_parallel="$2" ;;
     *) echo "unknown option '$1'" >&2; usage ;;
   esac
@@ -50,11 +55,33 @@ onoff() { [ "$1" = on ] && echo true || echo false; }
 [ -z "$opt_cache" ] || export RPC_CACHE_ENABLED="$(onoff "$opt_cache")"
 [ -z "$opt_parallel" ] || export MODULES_ORDERS_PARALLEL_QUOTES="$(onoff "$opt_parallel")"
 [ -z "$opt_wire" ] || export RPC_CLIENT_WIRE="$opt_wire"
+dbs="${opt_dbs:-${DEMO_DBS:-shared}}"
+case "$dbs" in shared|split) ;; *) echo "DEMO_DBS must be shared or split, not '$dbs'" >&2; usage ;; esac
+[ "$mode" != split-dbs ] || dbs=split            # split-dbs is groups with split databases
+# split databases: every deployable unit of the mode gets its own PostgreSQL instance, so the layout follows the deployment. Environment
+# variables override the datasource of every app, so this works for all of them. A one-process mode is one unit: one instance, as shared.
+db_instances=1
+if [ "$dbs" = split ]; then
+  declare -A instance_port
+  case "$mode" in
+    groups|split-dbs)
+      instance_port=([orders]=5432 [notifications]=5432 [catalog]=5433 [pricing]=5433 [inventory]=5433 [shipping]=5433 [customers]=5434 [payments]=5434)
+      db_instances=3 ;;
+    microservices|microservices-macro)
+      instance_port=([orders]=5432 [catalog]=5433 [customers]=5434 [pricing]=5435 [inventory]=5436 [payments]=5437 [shipping]=5438 [notifications]=5439)
+      db_instances=8 ;;
+    *) [ "$action" != start ] || echo "note: $mode is one deployable unit, so --dbs split means one PostgreSQL instance, as shared" >&2
+       dbs=shared ;;
+  esac
+  for m in "${!instance_port[@]}"; do
+    export "MODULES_${m^^}_DATASOURCE_URL=jdbc:postgresql://localhost:${instance_port[$m]}/macro"
+  done
+fi
 # the settings in effect, as shown by 'status' (options, else the environment, else the defaults)
 settings() {
-  printf 'async=%s cache=%s parallel=%s wire=%s' "${MODULES_ORDERS_ASYNC:-outbox}" \
+  printf 'async=%s cache=%s parallel=%s wire=%s dbs=%s' "${MODULES_ORDERS_ASYNC:-outbox}" \
     "$([ "${RPC_CACHE_ENABLED:-true}" = false ] && echo off || echo on)" \
-    "$([ "${MODULES_ORDERS_PARALLEL_QUOTES:-true}" = false ] && echo off || echo on)" "${RPC_CLIENT_WIRE:-json}"
+    "$([ "${MODULES_ORDERS_PARALLEL_QUOTES:-true}" = false ] && echo off || echo on)" "${RPC_CLIENT_WIRE:-json}" "$dbs"
 }
 
 # the processes of a mode: "<name> <jar-app> <port> <profiles>"
@@ -66,7 +93,7 @@ plan() {
     loopback-codec) echo "macro app-macro 9181 loopback-codec,demo" ;;
     loopback-http)  echo "macro app-macro 9181 loopback-http,demo" ;;
     groups)         echo "front app-macro 9181 front,demo"; echo "fulfilment app-macro 9182 fulfilment,demo"; echo "accounts app-macro 9183 accounts,demo" ;;
-    split-dbs)      echo "front app-macro 9181 front,split-dbs,demo"; echo "fulfilment app-macro 9182 fulfilment,split-dbs,demo"; echo "accounts app-macro 9183 accounts,split-dbs,demo" ;;
+    split-dbs)      echo "front app-macro 9181 front,demo"; echo "fulfilment app-macro 9182 fulfilment,demo"; echo "accounts app-macro 9183 accounts,demo" ;;
     microservices)       for m in "${modules[@]}"; do echo "$m app-$m-service ${port[$m]} demo"; done ;;
     microservices-macro) for m in "${modules[@]}"; do echo "$m app-macro ${port[$m]} $m,demo"; done ;;
     *) usage ;;
@@ -80,7 +107,7 @@ ready() { curl -fs "http://127.0.0.1:$1/actuator/health/readiness" 2>/dev/null |
 start() {
   [ -e "$demo_dir/mode" ] && { echo "a demo is already running (mode $(cat "$demo_dir/mode")); run: $0 $(cat "$demo_dir/mode") stop" >&2; exit 1; }
   ensure_built
-  "$root/scripts/db.sh" reset
+  "$root/scripts/db.sh" reset $([ "$db_instances" = 8 ] && echo per-module)
   mkdir -p "$demo_dir/logs"; : > "$demo_dir/processes"
   echo "$mode" > "$demo_dir/mode"
   settings > "$demo_dir/settings"
@@ -122,7 +149,7 @@ stop() {
 
 stop_all() {
   stop
-  $compose stop >/dev/null 2>&1 && echo "PostgreSQL stopped"
+  $compose_all stop >/dev/null 2>&1 && echo "PostgreSQL stopped"
 }
 
 status() {

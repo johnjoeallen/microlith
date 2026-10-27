@@ -1,8 +1,10 @@
-# Three PostgreSQL instances for the local demo (section 16.3 of the design).
+# PostgreSQL instances for the local demo (section 16.3 of the design).
 # A (5432) is the shared instance; B (5433) and C (5434) are the extra instances for split databases.
+# D to H (5435 to 5439) are started only with the profile 'per-module' (--dbs per-module), which gives every module its own instance.
 # Every instance gets the per-module schemas and roles from docs/db/bootstrap.sql on first start.
 #   docker compose -f docker-compose.demo.yml up -d
-#   docker compose -f docker-compose.demo.yml down -v      # also wipes the data
+#   docker compose -f docker-compose.demo.yml --profile per-module up -d      # all eight
+#   docker compose -f docker-compose.demo.yml --profile per-module down -v    # also wipes the data
 x-postgres: &postgres
   image: postgres:17-alpine
   environment:
@@ -27,3 +29,23 @@ services:
   pg-c:
     <<: *postgres
     ports: ["5434:5432"]
+  pg-d:
+    <<: *postgres
+    profiles: ["per-module"]
+    ports: ["5435:5432"]
+  pg-e:
+    <<: *postgres
+    profiles: ["per-module"]
+    ports: ["5436:5432"]
+  pg-f:
+    <<: *postgres
+    profiles: ["per-module"]
+    ports: ["5437:5432"]
+  pg-g:
+    <<: *postgres
+    profiles: ["per-module"]
+    ports: ["5438:5432"]
+  pg-h:
+    <<: *postgres
+    profiles: ["per-module"]
+    ports: ["5439:5432"]

@@ -6,7 +6,7 @@ Drives orders.placeOrder against the running demo mode with N concurrent clients
   2. the latency of every module-to-module call inside those orders, from the /demo/trace records of every process,
      grouped by caller -> callee.method and binding.
 
-  perf_tools.py [--orders N | --duration S] [--concurrency C] [--warmup W] [--settle S] [--drain S] [--modes M,M|all] [--cache on|off|both] [--parallel on|off|both] [--async outbox|events|both] [--wire json|gzip|bson|bson-gzip|all] [--no-trace] [--no-stock] [--out DIR]
+  perf_tools.py [--orders N | --duration S] [--concurrency C] [--warmup W] [--settle S] [--drain S] [--modes M,M|all] [--cache on|off|both] [--parallel on|off|both] [--async outbox|events|both] [--dbs shared|split|both] [--wire json|gzip|bson|bson-gzip|all] [--no-trace] [--no-stock] [--out DIR]
 """
 import argparse
 import bisect
@@ -100,25 +100,43 @@ class Workload:
 
 
 def psql(instance, sql):
-    compose = ["docker", "compose", "-f", str(ROOT / "docker-compose.demo.yml")]
+    compose = ["docker", "compose", "-f", str(ROOT / "docker-compose.demo.yml"), "--profile", "per-module"]
     result = subprocess.run(compose + ["exec", "-T", instance, "psql", "-U", "postgres", "-d", "macro", "-v", "ON_ERROR_STOP=1", "-q"],
                             input=sql, capture_output=True, text=True)
     if result.returncode != 0:
         sys.exit(f"could not load the perf data into {instance} (use --no-seed to skip): " + result.stderr.strip())
 
 
+DB_LAYOUTS = {      # which PostgreSQL instance holds each module, per --dbs layout (the same as demo.sh)
+    "shared": {m: "pg-a" for m in ("orders", "notifications", "catalog", "pricing", "inventory", "shipping", "customers", "payments")},
+    "split": {"orders": "pg-a", "notifications": "pg-a", "catalog": "pg-b", "pricing": "pg-b", "inventory": "pg-b", "shipping": "pg-b",
+              "customers": "pg-c", "payments": "pg-c"},
+    "per-module": {"orders": "pg-a", "catalog": "pg-b", "customers": "pg-c", "pricing": "pg-d", "inventory": "pg-e", "payments": "pg-f",
+                   "shipping": "pg-g", "notifications": "pg-h"},
+}
+
+
+def db_layout(mode):
+    """The database layout of the running demo: with split databases every deployable unit has its own instance (three for the groups,
+    eight for the services); a one-process mode has one unit, so one instance."""
+    settings = DEMO / "settings"
+    split = mode == "split-dbs" or (settings.exists() and "dbs=split" in settings.read_text())
+    if not split:
+        return "shared"
+    return "split" if mode in ("groups", "split-dbs") else "per-module" if mode.startswith("microservices") else "shared"
+
+
 def vacuum_analyze(mode):
     """VACUUM ANALYZE of the whole database on every PostgreSQL instance the mode uses, so that the measured run starts with fresh planner
     statistics and no dead rows from the seed and the warmup."""
-    for instance in (("pg-a", "pg-b", "pg-c") if mode == "split-dbs" else ("pg-a",)):
+    for instance in sorted(set(DB_LAYOUTS[db_layout(mode)].values())):
         psql(instance, "vacuum analyze;")
 
 
 def seed_data(mode, workload, planned_orders):
     """Loads the customers, products and stock the workload needs (the demo seeds only 3 customers and 4 SKUs).
     A start of any mode begins on a wiped database, so this runs once per measured mode; it is also safe to repeat."""
-    where = ({"customers": "pg-c", "catalog": "pg-b", "inventory": "pg-b"} if mode == "split-dbs"       # layout of the split-dbs profile
-             else {"customers": "pg-a", "catalog": "pg-a", "inventory": "pg-a"})
+    where = DB_LAYOUTS[db_layout(mode)]
     if workload.small:
         needed = 2 * planned_orders + 100
         psql(where["inventory"], "update inventory.stock set available = greatest(available, %d) where sku in ('sku-widget', 'sku-gadget');" % needed)
@@ -333,7 +351,7 @@ def write_report(directory, args, summaries):
         L += [f"## {title}", "", note, "", md_table(header, rows, left), ""]
     L += ["## Detail per run", "", "The same figures one run at a time, with every module-to-module call and each call's binding.", ""]
     for m in summaries:
-        title = m["mode"] + (f" (cache {m['cache']}, parallel quotes {m['parallel']}, async {m.get('async', 'outbox')})" if "cache" in m else "")
+        title = m["mode"] + (f" (cache {m['cache']}, parallel quotes {m['parallel']}, async {m.get('async', 'outbox')}, dbs {m.get('dbs', 'shared')})" if "cache" in m else "")
         L += [f"### {title}", ""]
         if "roundTripMs" not in m:
             L += [f"No measurement: {m.get('error', 'every order failed')}.", ""]
@@ -373,11 +391,11 @@ def write_report(directory, args, summaries):
     return path
 
 
-VARIED = set()      # which of "cache" / "parallel" / "async" / "wire" differ between the runs being compared; only those appear in labels
+VARIED = set()      # which of "cache" / "parallel" / "async" / "dbs" / "wire" differ between the runs being compared; only those appear in labels
 
 
 def label(m):
-    return m["mode"] + "".join(f" {k} {m[k]}" for k in ("cache", "parallel", "async", "wire") if k in VARIED and k in m)
+    return m["mode"] + "".join(f" {k} {m[k]}" for k in ("cache", "parallel", "async", "dbs", "wire") if k in VARIED and k in m)
 
 
 def change(before, after):
@@ -388,7 +406,7 @@ def comparison_tables(summaries):
     """Every table puts the measured modes side by side: [(title, note, header, rows, left-aligned columns)]."""
     measured = [m for m in summaries if "roundTripMs" in m]
     VARIED.clear()
-    VARIED.update(k for k in ("cache", "parallel", "async", "wire") if len({m.get(k) for m in summaries}) > 1)
+    VARIED.update(k for k in ("cache", "parallel", "async", "dbs", "wire") if len({m.get(k) for m in summaries}) > 1)
     tables = []
     rows = []
     for m in summaries:
@@ -402,8 +420,9 @@ def comparison_tables(summaries):
 
     for dimension, before, after, title in (("cache", "off", "on", "Cache effect (off to on)"),
                                             ("parallel", "off", "on", "Parallel quotes effect (off to on)"),
-                                            ("async", "outbox", "events", "Follow-up delivery effect (outbox to events)")):
-        others = [d for d in ("cache", "parallel", "async") if d != dimension]
+                                            ("async", "outbox", "events", "Follow-up delivery effect (outbox to events)"),
+                                            ("dbs", "shared", "split", "Database layout effect (one instance to one per deployable unit)")):
+        others = [d for d in ("cache", "parallel", "async", "dbs") if d != dimension]
         groups = collections.defaultdict(dict)
         for m in measured:
             if dimension in m:
@@ -506,6 +525,9 @@ def main():
     parser.add_argument("--wire", choices=["json", "gzip", "bson", "bson-gzip", "both", "all"], default="json",
                         help="with --modes: how HTTP calls between processes encode the JSON-RPC envelope (RPC_CLIENT_WIRE): json (default), gzip, bson, "
                              "bson-gzip, or 'all' for the four (only the HTTP bindings are affected)")
+    parser.add_argument("--dbs", choices=["shared", "split", "both"], default="shared",
+                        help="with --modes: one PostgreSQL instance with a schema per module (default), or split: every deployable unit of the mode on its own "
+                             "instance (3 for groups, 8 for the services, 1 for a one-process mode); both = shared and split (the split-dbs mode is always split)")
     parser.add_argument("--async", dest="async_mode", choices=["outbox", "events", "both"], default="outbox",
                         help="with --modes: how orders delivers its follow-ups (notification, compensations): the outbox relay (default), "
                              "Spring Modulith events, or both (modules.orders.async)")
@@ -685,28 +707,37 @@ def run_modes(args):
     cache_variants = ["off", "on"] if args.cache == "both" else [args.cache]
     parallel_variants = ["off", "on"] if args.parallel == "both" else [args.parallel]
     async_variants = ["outbox", "events"] if args.async_mode == "both" else [args.async_mode]
+    dbs_variants = ["shared", "split"] if args.dbs == "both" else [args.dbs]
     wire_variants = (["json", "gzip", "bson", "bson-gzip"] if args.wire in ("all", "both") else [args.wire])
-    for mode, variant, parallel, asynchronous, wire in [(m, c, p, a, w) for m in modes for c in cache_variants for p in parallel_variants
-                                                        for a in async_variants for w in wire_variants]:
+    for mode, variant, parallel, asynchronous, dbs, wire in [(m, c, p, a, d, w) for m in modes for c in cache_variants for p in parallel_variants
+                                                             for a in async_variants for d in dbs_variants for w in wire_variants]:
+        if mode == "split-dbs":
+            if dbs != "split" and len(dbs_variants) > 1:
+                continue                      # split-dbs is split by definition; the other variant would repeat it
+            dbs = "split"
+        elif dbs == "split" and len(dbs_variants) > 1 and not mode.startswith(("groups", "microservices")):
+            continue                          # a one-process mode has one unit, so split would repeat shared
         label = (mode + (f"-cache-{variant}" if len(cache_variants) > 1 else "") + (f"-parallel-{parallel}" if len(parallel_variants) > 1 else "")
-                 + (f"-async-{asynchronous}" if len(async_variants) > 1 else "") + (f"-wire-{wire}" if len(wire_variants) > 1 else ""))
-        print(f"\n================ {mode} (cache {variant}, parallel quotes {parallel}, async {asynchronous}, wire {wire}) ================", flush=True)
-        started = subprocess.run([demo_sh, mode, "start", "--cache", variant, "--parallel", parallel, "--async", asynchronous, "--wire", wire],
+                 + (f"-async-{asynchronous}" if len(async_variants) > 1 else "") + (f"-dbs-{dbs}" if len(dbs_variants) > 1 else "")
+                 + (f"-wire-{wire}" if len(wire_variants) > 1 else ""))
+        print(f"\n================ {mode} (cache {variant}, parallel quotes {parallel}, async {asynchronous}, dbs {dbs}, wire {wire}) ================", flush=True)
+        started = subprocess.run([demo_sh, mode, "start", "--cache", variant, "--parallel", parallel, "--async", asynchronous, "--dbs", dbs, "--wire", wire],
                                  capture_output=True, text=True)
         if started.returncode != 0:
             print(f"{mode} did not start:\n" + (started.stdout + started.stderr)[-1500:])
             subprocess.run([demo_sh, mode, "stop"], capture_output=True)
-            summaries.append({"mode": mode, "cache": variant, "parallel": parallel, "async": asynchronous, "wire": wire, "clean": False, "error": "did not start"})
+            summaries.append({"mode": mode, "cache": variant, "parallel": parallel, "async": asynchronous, "dbs": dbs, "wire": wire, "clean": False, "error": "did not start"})
             continue
         try:
             summary = measure(args, base / label)
             summary["cache"] = variant
             summary["parallel"] = parallel
             summary["async"] = asynchronous
+            summary["dbs"] = dbs
             summary["wire"] = wire
             summaries.append(summary)
         except BaseException:
-            summaries.append({"mode": mode, "cache": variant, "parallel": parallel, "async": asynchronous, "wire": wire, "clean": False, "error": "measurement failed"})
+            summaries.append({"mode": mode, "cache": variant, "parallel": parallel, "async": asynchronous, "dbs": dbs, "wire": wire, "clean": False, "error": "measurement failed"})
             raise
         finally:
             subprocess.run([demo_sh, mode, "stop"], capture_output=True)

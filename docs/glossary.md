@@ -11,11 +11,11 @@ Short definitions of the terms used across this site. Several of them sound alik
 | `loopback-codec` | `app-macro`, profile `loopback-codec` | 1 | every call encoded to JSON-RPC and decoded, in memory | one instance | one process, but every call crosses a serialisation boundary |
 | `loopback-http` | `app-macro`, profile `loopback-http` | 1 | every call a real HTTP request to the same process | one instance | one process, but every call crosses an HTTP boundary |
 | `groups` | `app-macro`, profiles `front`, `fulfilment`, `accounts` | 3 | direct inside a group, JSON-RPC over HTTP between groups | one instance | a few processes, each hosting several modules |
-| `split-dbs` | as `groups` | 3 | as `groups` | **three instances** (A, B, C), one per group | `groups`, each group on its own PostgreSQL instance |
+| `split-dbs` | as `groups` | 3 | as `groups` | **three instances** (A, B, C), one per group | `groups --dbs split`: each group on its own PostgreSQL instance |
 | `microservices` | eight `app-<module>-service` jars | 8 | all JSON-RPC over HTTP | **one instance**, a schema per module; each service has its own schema, roles and pool | one dedicated, generated jar per module |
 | `microservices-macro` | `app-macro` run eight times, profile = module | 8 | all JSON-RPC over HTTP | **one instance**, a schema per module; each process has its own schema, roles and pool | the same eight processes, built from the single configurable jar |
 
-Every mode except `split-dbs` uses **one PostgreSQL instance with one schema per module**, even the eight-process modes: separate processes do not mean separate database servers. Where a module's data lives is a separate choice (its datasource URL), and any module or group can be pointed at its own instance without a code change; `split-dbs` is the mode that demonstrates it.
+By default every mode except `split-dbs` uses **one PostgreSQL instance with one schema per module**, even the eight-process modes: separate processes do not mean separate database servers. Where a module's data lives is a separate choice (its datasource URL), and any module or group can be pointed at its own instance without a code change. `--dbs split` applies to any mode and gives every deployable unit its own instance (3 for the groups, 8 for the services, 1 for a one-process mode), so the layout follows the deployment; `split-dbs` is the name of `groups --dbs split`.
 
 Only the two loopback modes put a serialisation or network boundary between modules that share a process. `macro-modulith` does not. Every mode serves the orders entry point and the shop on port 9181.
 

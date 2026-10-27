@@ -2,6 +2,7 @@
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 demo_dir="$root/.demo"
 compose="docker compose -f $root/docker-compose.demo.yml"
+compose_all="$compose --profile per-module"      # also the five extra instances of --dbs per-module
 version="0.1.0-SNAPSHOT"
 
 jar() { echo "$root/apps/$1/target/$1-$version.jar"; }

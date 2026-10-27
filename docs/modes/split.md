@@ -42,8 +42,8 @@ Thick arrows cross a process boundary (JSON-RPC over HTTP); thin ones are direct
 
 ## split-dbs
 
-* **Run:** `scripts/demo.sh split-dbs start`
-* **What it is:** `groups`, with each group on its own PostgreSQL instance: `front` on A (5432), `fulfilment` on B (5433), `accounts` on C (5434).
+* **Run:** `scripts/demo.sh split-dbs start` (or `scripts/demo.sh groups start --dbs split`)
+* **What it is:** `groups --dbs split`, with each group on its own PostgreSQL instance: `front` on A (5432), `fulfilment` on B (5433), `accounts` on C (5434).
 * **Why it exists:** it shows that moving a group to another database server is configuration (`modules.<m>.datasource.url`), not code. Each module
   still sees only its own schema.
 
