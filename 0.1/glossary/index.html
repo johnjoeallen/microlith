@@ -1919,7 +1919,7 @@
 <td>3</td>
 <td>as <code>groups</code></td>
 <td><strong>three instances</strong> (A, B, C), one per group</td>
-<td><code>groups</code>, each group on its own PostgreSQL instance</td>
+<td><code>groups --dbs split</code>: each group on its own PostgreSQL instance</td>
 </tr>
 <tr>
 <td><code>microservices</code></td>
@@ -1939,7 +1939,7 @@
 </tr>
 </tbody>
 </table>
-<p>Every mode except <code>split-dbs</code> uses <strong>one PostgreSQL instance with one schema per module</strong>, even the eight-process modes: separate processes do not mean separate database servers. Where a module's data lives is a separate choice (its datasource URL), and any module or group can be pointed at its own instance without a code change; <code>split-dbs</code> is the mode that demonstrates it.</p>
+<p>By default every mode except <code>split-dbs</code> uses <strong>one PostgreSQL instance with one schema per module</strong>, even the eight-process modes: separate processes do not mean separate database servers. Where a module's data lives is a separate choice (its datasource URL), and any module or group can be pointed at its own instance without a code change. <code>--dbs split</code> applies to any mode and gives every deployable unit its own instance (3 for the groups, 8 for the services, 1 for a one-process mode), so the layout follows the deployment; <code>split-dbs</code> is the name of <code>groups --dbs split</code>.</p>
 <p>Only the two loopback modes put a serialisation or network boundary between modules that share a process. <code>macro-modulith</code> does not. Every mode serves the orders entry point and the shop on port 9181.</p>
 <h2 id="terms">Terms<a class="headerlink" href="#terms" title="Permanent link">&para;</a></h2>
 <dl>

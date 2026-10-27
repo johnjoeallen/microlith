@@ -1927,7 +1927,7 @@
 scripts/demo.sh<span class="w"> </span>modulith<span class="w"> </span>status
 scripts/demo.sh<span class="w"> </span>modulith<span class="w"> </span>stop<span class="w">         </span><span class="c1"># stops the processes, then PostgreSQL</span>
 </code></pre></div>
-<p>Three switches can be set when starting (they are ordinary properties, so environment variables and config files work too):</p>
+<p>Four switches can be set when starting (they are ordinary properties, so environment variables and config files work too):</p>
 <table>
 <thead>
 <tr>
@@ -1952,10 +1952,15 @@ scripts/demo.sh<span class="w"> </span>modulith<span class="w"> </span>stop<span
 <td><code>on</code> (default), <code>off</code></td>
 <td>the <a href="../features/parallel/">parallel customer check and quotes</a></td>
 </tr>
+<tr>
+<td><code>--dbs</code></td>
+<td><code>shared</code> (default), <code>split</code></td>
+<td><code>shared</code>: one PostgreSQL instance with a schema per module. <code>split</code>: every deployable unit gets its own instance, so the layout follows the mode: <code>groups</code> 3 (A 5432 for <code>front</code>, B 5433 for <code>fulfilment</code>, C 5434 for <code>accounts</code>), <code>microservices</code> and <code>microservices-macro</code> 8 (one per module, ports 5432 to 5439). A one-process mode is one unit, so it stays on one instance. <code>split-dbs</code> is <code>groups --dbs split</code></td>
+</tr>
 </tbody>
 </table>
 <div class="highlight"><pre><span></span><code>scripts/demo.sh<span class="w"> </span>groups<span class="w"> </span>start<span class="w"> </span>--async<span class="w"> </span>events<span class="w"> </span>--cache<span class="w"> </span>off<span class="w"> </span>--parallel<span class="w"> </span>off
-scripts/demo.sh<span class="w"> </span>groups<span class="w"> </span>status<span class="w">         </span><span class="c1"># mode: groups   (async=events cache=off parallel=off)</span>
+scripts/demo.sh<span class="w"> </span>groups<span class="w"> </span>status<span class="w">         </span><span class="c1"># mode: groups   (async=events cache=off parallel=off wire=json dbs=shared)</span>
 </code></pre></div>
 <p><code>start</code> resets PostgreSQL to a clean, freshly initialised state every time (schemas and roles from <code>docs/db/bootstrap.sql</code>, migrations and demo data
 when the app boots), builds the jars on first use, starts the mode and waits until every process is ready. Only one mode runs at a time.
@@ -2016,6 +2021,9 @@ scripts/perf.sh<span class="w"> </span>--modes<span class="w"> </span>groups,mic
 
 <span class="c1"># every switch: cache, parallel quotes, follow-up delivery</span>
 scripts/perf.sh<span class="w"> </span>--modes<span class="w"> </span>modulith,groups,microservices<span class="w"> </span>--cache<span class="w"> </span>both<span class="w"> </span>--parallel<span class="w"> </span>both<span class="w"> </span>--async<span class="w"> </span>both
+
+<span class="c1"># one shared PostgreSQL instance against one instance per deployable unit (both = shared and split)</span>
+scripts/perf.sh<span class="w"> </span>--modes<span class="w"> </span>groups,microservices<span class="w"> </span>--dbs<span class="w"> </span>both
 </code></pre></div>
 <p>Each run writes a timestamped markdown report with the modes side by side to <code>.demo/perf/&lt;timestamp&gt;/</code>. How the numbers are produced is in
 <a href="../performance/method/">Method</a>.</p>

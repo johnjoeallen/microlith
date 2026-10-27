@@ -1941,8 +1941,8 @@
 </ul>
 <h2 id="split-dbs">split-dbs<a class="headerlink" href="#split-dbs" title="Permanent link">&para;</a></h2>
 <ul>
-<li><strong>Run:</strong> <code>scripts/demo.sh split-dbs start</code></li>
-<li><strong>What it is:</strong> <code>groups</code>, with each group on its own PostgreSQL instance: <code>front</code> on A (5432), <code>fulfilment</code> on B (5433), <code>accounts</code> on C (5434).</li>
+<li><strong>Run:</strong> <code>scripts/demo.sh split-dbs start</code> (or <code>scripts/demo.sh groups start --dbs split</code>)</li>
+<li><strong>What it is:</strong> <code>groups --dbs split</code>, with each group on its own PostgreSQL instance: <code>front</code> on A (5432), <code>fulfilment</code> on B (5433), <code>accounts</code> on C (5434).</li>
 <li><strong>Why it exists:</strong> it shows that moving a group to another database server is configuration (<code>modules.&lt;m&gt;.datasource.url</code>), not code. Each module
   still sees only its own schema.</li>
 </ul>

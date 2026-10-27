@@ -1931,6 +1931,10 @@
 </tbody>
 </table>
 <p>All of them serve the orders entry point and the demo shop on <strong>port 9181</strong>, so a client or a load test is pointed at the same URL in every mode.</p>
+<div class="admonition tip">
+<p class="admonition-title">Shared or split databases</p>
+<p>The Databases column is each mode's default (<code>--dbs shared</code>: one instance, a schema per module). <code>scripts/demo.sh &lt;mode&gt; start --dbs split</code> gives every <strong>deployable unit</strong> its own PostgreSQL instance, so the database layout follows the deployment: <code>groups</code> uses 3 instances (one per group), <code>microservices</code> and <code>microservices-macro</code> 8 (one per service, ports 5432 to 5439), and a one-process mode stays on one. No code changes: it only sets each module's datasource URL. <code>split-dbs</code> is the name of <code>groups --dbs split</code>. The eight-instance layout starts eight PostgreSQL containers, so it needs the memory for them.</p>
+</div>
 <h2 id="picking-one">Picking one<a class="headerlink" href="#picking-one" title="Permanent link">&para;</a></h2>
 <pre class="mermaid"><code>flowchart TD
   Q1{"Need independent&lt;br/&gt;scaling or deployment&lt;br/&gt;of parts?"}
