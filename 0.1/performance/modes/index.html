@@ -1080,10 +1080,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#one-database-instance-or-one-per-deployable-unit" class="md-nav__link">
+  <a href="#one-database-instance-one-per-deployable-unit-or-one-per-module" class="md-nav__link">
     <span class="md-ellipsis">
       
-        One database instance or one per deployable unit
+        One database instance, one per deployable unit, or one per module
       
     </span>
   </a>
@@ -1624,6 +1624,290 @@
     
   
     microservices-macro
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reports/matrix/modulith-8db/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    modulith, 8 instances
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reports/matrix/macro-modulith-8db/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    macro-modulith, 8 instances
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reports/matrix/loopback-codec-8db/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    loopback-codec, 8 instances
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reports/matrix/loopback-http-8db/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    loopback-http, 8 instances
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reports/matrix/groups-8db/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    groups, 8 instances
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7_9_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_7_9_4" id="__nav_7_9_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Alternating shared and 8 instances
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_7_9_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7_9_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Alternating shared and 8 instances
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reports/alternating/rep1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Repetition 1
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reports/alternating/rep2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Repetition 2
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reports/alternating/rep3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Repetition 3
   
 
     
@@ -2198,10 +2482,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#one-database-instance-or-one-per-deployable-unit" class="md-nav__link">
+  <a href="#one-database-instance-one-per-deployable-unit-or-one-per-module" class="md-nav__link">
     <span class="md-ellipsis">
       
-        One database instance or one per deployable unit
+        One database instance, one per deployable unit, or one per module
       
     </span>
   </a>
@@ -2240,7 +2524,7 @@
 
 
 <h1 id="the-eight-modes-compared">The eight modes compared<a class="headerlink" href="#the-eight-modes-compared" title="Permanent link">&para;</a></h1>
-<p>Same code, same API, same tests, same workload, and (except <code>split-dbs</code>) the <strong>same single PostgreSQL instance</strong>: the eight-process modes share one database server, so the comparison measures the cost of the process boundary, not of separate databases. Separate instances per deployable unit are compared <a href="#one-database-instance-or-one-per-deployable-unit">at the end of this page</a>. Sixteen concurrent clients, 1,500 measured orders per run, result cache on, parallel quotes on,
+<p>Same code, same API, same tests, same workload, and (except <code>split-dbs</code>) the <strong>same single PostgreSQL instance</strong>: the eight-process modes share one database server, so the comparison measures the cost of the process boundary, not of separate databases. Separate instances per deployable unit or per module are compared <a href="#one-database-instance-one-per-deployable-unit-or-one-per-module">at the end of this page</a>. Sixteen concurrent clients, 1,500 measured orders per run, result cache on, parallel quotes on,
 follow-ups through the outbox, a <code>VACUUM ANALYZE</code> after the warm-up (<a href="../method/">method</a>). The charts and the first table are means over 5 runs; the table under "All numbers" is the first of those runs, which also holds the call counts.</p>
 <figure class="viz"><figcaption><strong>Throughput by mode</strong><span>orders per second, 16 clients, result cache on, mean of 5 runs; larger is better</span></figcaption><svg viewBox="0 0 760 320" role="img" aria-label="Throughput by mode: orders per second, 16 clients, result cache on, mean of 5 runs; larger is better"><line class="grid" x1="143.4" y1="6" x2="143.4" y2="294"/><text class="tick" x="143.4" y="312" text-anchor="middle">0</text><line class="grid" x1="253.9" y1="6" x2="253.9" y2="294"/><text class="tick" x="253.9" y="312" text-anchor="middle">100</text><line class="grid" x1="364.4" y1="6" x2="364.4" y2="294"/><text class="tick" x="364.4" y="312" text-anchor="middle">200</text><line class="grid" x1="475.0" y1="6" x2="475.0" y2="294"/><text class="tick" x="475.0" y="312" text-anchor="middle">300</text><line class="grid" x1="585.5" y1="6" x2="585.5" y2="294"/><text class="tick" x="585.5" y="312" text-anchor="middle">400</text><line class="grid" x1="696.0" y1="6" x2="696.0" y2="294"/><text class="tick" x="696.0" y="312" text-anchor="middle">500</text><line class="axis" x1="143.39999999999998" y1="6" x2="143.39999999999998" y2="294"/><g class="row"><title>modulith: orders/s 445 orders/s</title><rect class="hit" x="0" y="6" width="760" height="36"/><text class="cat" x="135.39999999999998" y="28.0" text-anchor="end">modulith</text><path class="mark s1" d="M143.4,14.0h487.3a4.0,4.0 0 0 1 4.0,4.0v12.0a4.0,4.0 0 0 1 -4.0,4.0h-487.3z"><title>orders/s: 445 orders/s</title></path><text class="val" x="640.7" y="28.0">445</text></g><g class="row"><title>macro-modulith: orders/s 442 orders/s</title><rect class="hit" x="0" y="42" width="760" height="36"/><text class="cat" x="135.39999999999998" y="64.0" text-anchor="end">macro-modulith</text><path class="mark s1" d="M143.4,50.0h484.2a4.0,4.0 0 0 1 4.0,4.0v12.0a4.0,4.0 0 0 1 -4.0,4.0h-484.2z"><title>orders/s: 442 orders/s</title></path><text class="val" x="637.6" y="64.0">442</text></g><g class="row"><title>loopback-codec: orders/s 434 orders/s</title><rect class="hit" x="0" y="78" width="760" height="36"/><text class="cat" x="135.39999999999998" y="100.0" text-anchor="end">loopback-codec</text><path class="mark s1" d="M143.4,86.0h475.2a4.0,4.0 0 0 1 4.0,4.0v12.0a4.0,4.0 0 0 1 -4.0,4.0h-475.2z"><title>orders/s: 434 orders/s</title></path><text class="val" x="628.6" y="100.0">434</text></g><g class="row"><title>loopback-http: orders/s 312 orders/s</title><rect class="hit" x="0" y="114" width="760" height="36"/><text class="cat" x="135.39999999999998" y="136.0" text-anchor="end">loopback-http</text><path class="mark s1" d="M143.4,122.0h341.0a4.0,4.0 0 0 1 4.0,4.0v12.0a4.0,4.0 0 0 1 -4.0,4.0h-341.0z"><title>orders/s: 312 orders/s</title></path><text class="val" x="494.4" y="136.0">312</text></g><g class="row"><title>groups: orders/s 247 orders/s</title><rect class="hit" x="0" y="150" width="760" height="36"/><text class="cat" x="135.39999999999998" y="172.0" text-anchor="end">groups</text><path class="mark s1" d="M143.4,158.0h268.9a4.0,4.0 0 0 1 4.0,4.0v12.0a4.0,4.0 0 0 1 -4.0,4.0h-268.9z"><title>orders/s: 247 orders/s</title></path><text class="val" x="422.3" y="172.0">247</text></g><g class="row"><title>split-dbs: orders/s 250 orders/s</title><rect class="hit" x="0" y="186" width="760" height="36"/><text class="cat" x="135.39999999999998" y="208.0" text-anchor="end">split-dbs</text><path class="mark s1" d="M143.4,194.0h272.1a4.0,4.0 0 0 1 4.0,4.0v12.0a4.0,4.0 0 0 1 -4.0,4.0h-272.1z"><title>orders/s: 250 orders/s</title></path><text class="val" x="425.5" y="208.0">250</text></g><g class="row"><title>microservices: orders/s 159 orders/s</title><rect class="hit" x="0" y="222" width="760" height="36"/><text class="cat" x="135.39999999999998" y="244.0" text-anchor="end">microservices</text><path class="mark s1" d="M143.4,230.0h171.7a4.0,4.0 0 0 1 4.0,4.0v12.0a4.0,4.0 0 0 1 -4.0,4.0h-171.7z"><title>orders/s: 159 orders/s</title></path><text class="val" x="325.1" y="244.0">159</text></g><g class="row"><title>microservices-macro: orders/s 156 orders/s</title><rect class="hit" x="0" y="258" width="760" height="36"/><text class="cat" x="135.39999999999998" y="280.0" text-anchor="end">microservices-macro</text><path class="mark s1" d="M143.4,266.0h169.0a4.0,4.0 0 0 1 4.0,4.0v12.0a4.0,4.0 0 0 1 -4.0,4.0h-169.0z"><title>orders/s: 156 orders/s</title></path><text class="val" x="322.4" y="280.0">156</text></g></svg><details class="viz-data"><summary>Show the numbers</summary><table><thead><tr><th></th><th>orders/s (orders/s)</th></tr></thead><tbody><tr><td>modulith</td><td>445</td></tr><tr><td>macro-modulith</td><td>442</td></tr><tr><td>loopback-codec</td><td>434</td></tr><tr><td>loopback-http</td><td>312</td></tr><tr><td>groups</td><td>247</td></tr><tr><td>split-dbs</td><td>250</td></tr><tr><td>microservices</td><td>159</td></tr><tr><td>microservices-macro</td><td>156</td></tr></tbody></table></details></figure>
 
@@ -2549,67 +2833,99 @@ a call between modules in the same process is <code>local</code>; the other bind
 <p>Read across a row: <code>orders -&gt; shipping.quote</code> takes 0.70 ms inside one process and 4.69 ms between eight services. Reading down the table shows that a "local"
 call is not free either: even in <code>modulith</code> each call is one database query, which is why the expensive rows (quote, create shipment, reserve) are the ones
 that do the most work.</p>
-<h2 id="one-database-instance-or-one-per-deployable-unit">One database instance or one per deployable unit<a class="headerlink" href="#one-database-instance-or-one-per-deployable-unit" title="Permanent link">&para;</a></h2>
-<p>The tables and charts above are the <strong>shared</strong> layout: one PostgreSQL instance with a schema per module. Every mode that has more than one deployable unit was also run with <strong>split</strong> databases (<code>--dbs split</code>), where each unit has its own instance: three for <code>groups</code> and eight for the services (<a href="../../running/">how</a>). The one-process modes have a single unit, so they have no split run. The comparison below is cache on, parallel quotes on, outbox; the <a href="../matrix/">full matrix</a> has both layouts in every combination of the other switches (24 pairs: split was between 7% below and 5% above shared, 1% below at the median):</p>
-<figure class="viz"><figcaption><strong>Databases: throughput</strong><span>orders per second, 16 clients; larger is better</span></figcaption><ul class="viz-legend"><li><span class="sw s1"></span>one instance</li><li><span class="sw s2"></span>one per unit</li></ul><svg viewBox="0 0 760 182" role="img" aria-label="Databases: throughput: orders per second, 16 clients; larger is better"><line class="grid" x1="143.4" y1="6" x2="143.4" y2="156"/><text class="tick" x="143.4" y="174" text-anchor="middle">0</text><line class="grid" x1="327.6" y1="6" x2="327.6" y2="156"/><text class="tick" x="327.6" y="174" text-anchor="middle">100</text><line class="grid" x1="511.8" y1="6" x2="511.8" y2="156"/><text class="tick" x="511.8" y="174" text-anchor="middle">200</text><line class="grid" x1="696.0" y1="6" x2="696.0" y2="156"/><text class="tick" x="696.0" y="174" text-anchor="middle">300</text><line class="axis" x1="143.39999999999998" y1="6" x2="143.39999999999998" y2="156"/><g class="row"><title>groups: one instance 245 orders/s, one per unit 245 orders/s</title><rect class="hit" x="0" y="6" width="760" height="50"/><text class="cat" x="135.39999999999998" y="35.0" text-anchor="end">groups</text><path class="mark s1" d="M143.4,14.0h447.4a4.0,4.0 0 0 1 4.0,4.0v8.0a4.0,4.0 0 0 1 -4.0,4.0h-447.4z"><title>one instance: 245 orders/s</title></path><text class="val" x="600.8" y="26.0">245</text><path class="mark s2" d="M143.4,32.0h446.6a4.0,4.0 0 0 1 4.0,4.0v8.0a4.0,4.0 0 0 1 -4.0,4.0h-446.6z"><title>one per unit: 245 orders/s</title></path><text class="val" x="600.0" y="44.0">245</text></g><g class="row"><title>microservices: one instance 161 orders/s, one per unit 159 orders/s</title><rect class="hit" x="0" y="56" width="760" height="50"/><text class="cat" x="135.39999999999998" y="85.0" text-anchor="end">microservices</text><path class="mark s1" d="M143.4,64.0h292.5a4.0,4.0 0 0 1 4.0,4.0v8.0a4.0,4.0 0 0 1 -4.0,4.0h-292.5z"><title>one instance: 161 orders/s</title></path><text class="val" x="445.9" y="76.0">161</text><path class="mark s2" d="M143.4,82.0h289.4a4.0,4.0 0 0 1 4.0,4.0v8.0a4.0,4.0 0 0 1 -4.0,4.0h-289.4z"><title>one per unit: 159 orders/s</title></path><text class="val" x="442.8" y="94.0">159</text></g><g class="row"><title>microservices-macro: one instance 161 orders/s, one per unit 157 orders/s</title><rect class="hit" x="0" y="106" width="760" height="50"/><text class="cat" x="135.39999999999998" y="135.0" text-anchor="end">microservices-macro</text><path class="mark s1" d="M143.4,114.0h292.2a4.0,4.0 0 0 1 4.0,4.0v8.0a4.0,4.0 0 0 1 -4.0,4.0h-292.2z"><title>one instance: 161 orders/s</title></path><text class="val" x="445.6" y="126.0">161</text><path class="mark s2" d="M143.4,132.0h285.1a4.0,4.0 0 0 1 4.0,4.0v8.0a4.0,4.0 0 0 1 -4.0,4.0h-285.1z"><title>one per unit: 157 orders/s</title></path><text class="val" x="438.5" y="144.0">157</text></g></svg><details class="viz-data"><summary>Show the numbers</summary><table><thead><tr><th></th><th>one instance (orders/s)</th><th>one per unit (orders/s)</th></tr></thead><tbody><tr><td>groups</td><td>245</td><td>245</td></tr><tr><td>microservices</td><td>161</td><td>159</td></tr><tr><td>microservices-macro</td><td>161</td><td>157</td></tr></tbody></table></details></figure>
+<h2 id="one-database-instance-one-per-deployable-unit-or-one-per-module">One database instance, one per deployable unit, or one per module<a class="headerlink" href="#one-database-instance-one-per-deployable-unit-or-one-per-module" title="Permanent link">&para;</a></h2>
+<p>The tables and charts above use the <strong>shared</strong> layout: one PostgreSQL instance with a schema per module. Two other layouts were measured in every mode and every combination of the other switches (<a href="../matrix/">the full matrix</a>):</p>
+<ul>
+<li><strong><code>split</code></strong> gives every deployable unit its own instance: three for <code>groups</code>, eight for the services. A one-process mode has a single unit, so for it split is the same as shared and was not repeated.</li>
+<li><strong><code>per-module</code></strong> gives each of the eight modules its own instance in any mode, so even <code>modulith</code> (one process) talks to eight database servers. For the services it is the same as <code>split</code>.</li>
+</ul>
+<p>Cache on, parallel quotes on, outbox (<a href="../../running/">how to run them</a>):</p>
+<figure class="viz"><figcaption><strong>Database layout: throughput</strong><span>orders per second, 16 clients; larger is better</span></figcaption><ul class="viz-legend"><li><span class="sw s1"></span>one instance</li><li><span class="sw s2"></span>one per deployable unit</li><li><span class="sw s3"></span>eight, one per module</li></ul><svg viewBox="0 0 760 508" role="img" aria-label="Database layout: throughput: orders per second, 16 clients; larger is better"><line class="grid" x1="143.4" y1="6" x2="143.4" y2="482"/><text class="tick" x="143.4" y="500" text-anchor="middle">0</text><line class="grid" x1="253.9" y1="6" x2="253.9" y2="482"/><text class="tick" x="253.9" y="500" text-anchor="middle">100</text><line class="grid" x1="364.4" y1="6" x2="364.4" y2="482"/><text class="tick" x="364.4" y="500" text-anchor="middle">200</text><line class="grid" x1="475.0" y1="6" x2="475.0" y2="482"/><text class="tick" x="475.0" y="500" text-anchor="middle">300</text><line class="grid" x1="585.5" y1="6" x2="585.5" y2="482"/><text class="tick" x="585.5" y="500" text-anchor="middle">400</text><line class="grid" x1="696.0" y1="6" x2="696.0" y2="482"/><text class="tick" x="696.0" y="500" text-anchor="middle">500</text><line class="axis" x1="143.39999999999998" y1="6" x2="143.39999999999998" y2="482"/><g class="row"><title>modulith: one instance 450 orders/s, one per deployable unit 450 orders/s, eight, one per module 440 orders/s</title><rect class="hit" x="0" y="6" width="760" height="68"/><text class="cat" x="135.39999999999998" y="44.0" text-anchor="end">modulith</text><path class="mark s1" d="M143.4,14.0h493.2a4.0,4.0 0 0 1 4.0,4.0v8.0a4.0,4.0 0 0 1 -4.0,4.0h-493.2z"><title>one instance: 450 orders/s</title></path><text class="val" x="646.6" y="26.0">450</text><path class="mark s2" d="M143.4,32.0h493.2a4.0,4.0 0 0 1 4.0,4.0v8.0a4.0,4.0 0 0 1 -4.0,4.0h-493.2z"><title>one per deployable unit: 450 orders/s</title></path><text class="val" x="646.6" y="44.0">450</text><path class="mark s3" d="M143.4,50.0h482.2a4.0,4.0 0 0 1 4.0,4.0v8.0a4.0,4.0 0 0 1 -4.0,4.0h-482.2z"><title>eight, one per module: 440 orders/s</title></path><text class="val" x="635.6" y="62.0">440</text></g><g class="row"><title>macro-modulith: one instance 444 orders/s, one per deployable unit 444 orders/s, eight, one per module 434 orders/s</title><rect class="hit" x="0" y="74" width="760" height="68"/><text class="cat" x="135.39999999999998" y="112.0" text-anchor="end">macro-modulith</text><path class="mark s1" d="M143.4,82.0h486.6a4.0,4.0 0 0 1 4.0,4.0v8.0a4.0,4.0 0 0 1 -4.0,4.0h-486.6z"><title>one instance: 444 orders/s</title></path><text class="val" x="640.0" y="94.0">444</text><path class="mark s2" d="M143.4,100.0h486.6a4.0,4.0 0 0 1 4.0,4.0v8.0a4.0,4.0 0 0 1 -4.0,4.0h-486.6z"><title>one per deployable unit: 444 orders/s</title></path><text class="val" x="640.0" y="112.0">444</text><path class="mark s3" d="M143.4,118.0h475.6a4.0,4.0 0 0 1 4.0,4.0v8.0a4.0,4.0 0 0 1 -4.0,4.0h-475.6z"><title>eight, one per module: 434 orders/s</title></path><text class="val" x="629.0" y="130.0">434</text></g><g class="row"><title>loopback-codec: one instance 449 orders/s, one per deployable unit 449 orders/s, eight, one per module 405 orders/s</title><rect class="hit" x="0" y="142" width="760" height="68"/><text class="cat" x="135.39999999999998" y="180.0" text-anchor="end">loopback-codec</text><path class="mark s1" d="M143.4,150.0h492.8a4.0,4.0 0 0 1 4.0,4.0v8.0a4.0,4.0 0 0 1 -4.0,4.0h-492.8z"><title>one instance: 449 orders/s</title></path><text class="val" x="646.2" y="162.0">449</text><path class="mark s2" d="M143.4,168.0h492.8a4.0,4.0 0 0 1 4.0,4.0v8.0a4.0,4.0 0 0 1 -4.0,4.0h-492.8z"><title>one per deployable unit: 449 orders/s</title></path><text class="val" x="646.2" y="180.0">449</text><path class="mark s3" d="M143.4,186.0h443.2a4.0,4.0 0 0 1 4.0,4.0v8.0a4.0,4.0 0 0 1 -4.0,4.0h-443.2z"><title>eight, one per module: 405 orders/s</title></path><text class="val" x="596.6" y="198.0">405</text></g><g class="row"><title>loopback-http: one instance 326 orders/s, one per deployable unit 326 orders/s, eight, one per module 279 orders/s</title><rect class="hit" x="0" y="210" width="760" height="68"/><text class="cat" x="135.39999999999998" y="248.0" text-anchor="end">loopback-http</text><path class="mark s1" d="M143.4,218.0h356.1a4.0,4.0 0 0 1 4.0,4.0v8.0a4.0,4.0 0 0 1 -4.0,4.0h-356.1z"><title>one instance: 326 orders/s</title></path><text class="val" x="509.5" y="230.0">326</text><path class="mark s2" d="M143.4,236.0h356.1a4.0,4.0 0 0 1 4.0,4.0v8.0a4.0,4.0 0 0 1 -4.0,4.0h-356.1z"><title>one per deployable unit: 326 orders/s</title></path><text class="val" x="509.5" y="248.0">326</text><path class="mark s3" d="M143.4,254.0h304.5a4.0,4.0 0 0 1 4.0,4.0v8.0a4.0,4.0 0 0 1 -4.0,4.0h-304.5z"><title>eight, one per module: 279 orders/s</title></path><text class="val" x="457.9" y="266.0">279</text></g><g class="row"><title>groups: one instance 245 orders/s, one per deployable unit 245 orders/s, eight, one per module 251 orders/s</title><rect class="hit" x="0" y="278" width="760" height="68"/><text class="cat" x="135.39999999999998" y="316.0" text-anchor="end">groups</text><path class="mark s1" d="M143.4,286.0h266.9a4.0,4.0 0 0 1 4.0,4.0v8.0a4.0,4.0 0 0 1 -4.0,4.0h-266.9z"><title>one instance: 245 orders/s</title></path><text class="val" x="420.3" y="298.0">245</text><path class="mark s2" d="M143.4,304.0h266.4a4.0,4.0 0 0 1 4.0,4.0v8.0a4.0,4.0 0 0 1 -4.0,4.0h-266.4z"><title>one per deployable unit: 245 orders/s</title></path><text class="val" x="419.8" y="316.0">245</text><path class="mark s3" d="M143.4,322.0h272.9a4.0,4.0 0 0 1 4.0,4.0v8.0a4.0,4.0 0 0 1 -4.0,4.0h-272.9z"><title>eight, one per module: 251 orders/s</title></path><text class="val" x="426.3" y="334.0">251</text></g><g class="row"><title>microservices: one instance 161 orders/s, one per deployable unit 159 orders/s, eight, one per module 159 orders/s</title><rect class="hit" x="0" y="346" width="760" height="68"/><text class="cat" x="135.39999999999998" y="384.0" text-anchor="end">microservices</text><path class="mark s1" d="M143.4,354.0h173.9a4.0,4.0 0 0 1 4.0,4.0v8.0a4.0,4.0 0 0 1 -4.0,4.0h-173.9z"><title>one instance: 161 orders/s</title></path><text class="val" x="327.3" y="366.0">161</text><path class="mark s2" d="M143.4,372.0h172.0a4.0,4.0 0 0 1 4.0,4.0v8.0a4.0,4.0 0 0 1 -4.0,4.0h-172.0z"><title>one per deployable unit: 159 orders/s</title></path><text class="val" x="325.4" y="384.0">159</text><path class="mark s3" d="M143.4,390.0h172.0a4.0,4.0 0 0 1 4.0,4.0v8.0a4.0,4.0 0 0 1 -4.0,4.0h-172.0z"><title>eight, one per module: 159 orders/s</title></path><text class="val" x="325.4" y="402.0">159</text></g><g class="row"><title>microservices-macro: one instance 161 orders/s, one per deployable unit 157 orders/s, eight, one per module 157 orders/s</title><rect class="hit" x="0" y="414" width="760" height="68"/><text class="cat" x="135.39999999999998" y="452.0" text-anchor="end">microservices-macro</text><path class="mark s1" d="M143.4,422.0h173.7a4.0,4.0 0 0 1 4.0,4.0v8.0a4.0,4.0 0 0 1 -4.0,4.0h-173.7z"><title>one instance: 161 orders/s</title></path><text class="val" x="327.1" y="434.0">161</text><path class="mark s2" d="M143.4,440.0h169.4a4.0,4.0 0 0 1 4.0,4.0v8.0a4.0,4.0 0 0 1 -4.0,4.0h-169.4z"><title>one per deployable unit: 157 orders/s</title></path><text class="val" x="322.8" y="452.0">157</text><path class="mark s3" d="M143.4,458.0h169.4a4.0,4.0 0 0 1 4.0,4.0v8.0a4.0,4.0 0 0 1 -4.0,4.0h-169.4z"><title>eight, one per module: 157 orders/s</title></path><text class="val" x="322.8" y="470.0">157</text></g></svg><details class="viz-data"><summary>Show the numbers</summary><table><thead><tr><th></th><th>one instance (orders/s)</th><th>one per deployable unit (orders/s)</th><th>eight, one per module (orders/s)</th></tr></thead><tbody><tr><td>modulith</td><td>450</td><td>450</td><td>440</td></tr><tr><td>macro-modulith</td><td>444</td><td>444</td><td>434</td></tr><tr><td>loopback-codec</td><td>449</td><td>449</td><td>405</td></tr><tr><td>loopback-http</td><td>326</td><td>326</td><td>279</td></tr><tr><td>groups</td><td>245</td><td>245</td><td>251</td></tr><tr><td>microservices</td><td>161</td><td>159</td><td>159</td></tr><tr><td>microservices-macro</td><td>161</td><td>157</td><td>157</td></tr></tbody></table></details></figure>
 
-<div class="wide-table">
 <table>
 <thead>
 <tr>
 <th>Mode</th>
 <th style="text-align: right;">orders/s shared</th>
 <th style="text-align: right;">split</th>
-<th style="text-align: right;">Δ</th>
+<th style="text-align: right;">per-module</th>
 <th style="text-align: right;">p50 shared</th>
 <th style="text-align: right;">split</th>
-<th style="text-align: right;">Δ</th>
-<th style="text-align: right;">p99 shared</th>
-<th style="text-align: right;">split</th>
-<th style="text-align: right;">Δ</th>
+<th style="text-align: right;">per-module</th>
 </tr>
 </thead>
 <tbody>
 <tr>
+<td>modulith</td>
+<td style="text-align: right;">450</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">440 (-2%)</td>
+<td style="text-align: right;">34.1</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">34.7</td>
+</tr>
+<tr>
+<td>macro-modulith</td>
+<td style="text-align: right;">444</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">434 (-2%)</td>
+<td style="text-align: right;">34.2</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">34.5</td>
+</tr>
+<tr>
+<td>loopback-codec</td>
+<td style="text-align: right;">449</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">405 (-10%)</td>
+<td style="text-align: right;">33.3</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">36.0</td>
+</tr>
+<tr>
+<td>loopback-http</td>
+<td style="text-align: right;">326</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">279 (-14%)</td>
+<td style="text-align: right;">46.4</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">52.7</td>
+</tr>
+<tr>
 <td>groups</td>
 <td style="text-align: right;">245</td>
-<td style="text-align: right;">245</td>
-<td style="text-align: right;">-0%</td>
+<td style="text-align: right;">245 (-0%)</td>
+<td style="text-align: right;">251 (+2%)</td>
 <td style="text-align: right;">62.7</td>
 <td style="text-align: right;">63.0</td>
-<td style="text-align: right;">+0%</td>
-<td style="text-align: right;">103.2</td>
-<td style="text-align: right;">115.1</td>
-<td style="text-align: right;">+11%</td>
+<td style="text-align: right;">60.8</td>
 </tr>
 <tr>
 <td>microservices</td>
 <td style="text-align: right;">161</td>
-<td style="text-align: right;">159</td>
-<td style="text-align: right;">-1%</td>
+<td style="text-align: right;">159 (-1%)</td>
+<td style="text-align: right;">159 (-1%)</td>
 <td style="text-align: right;">96.4</td>
 <td style="text-align: right;">96.1</td>
-<td style="text-align: right;">-0%</td>
-<td style="text-align: right;">174.0</td>
-<td style="text-align: right;">179.8</td>
-<td style="text-align: right;">+3%</td>
+<td style="text-align: right;">96.1</td>
 </tr>
 <tr>
 <td>microservices-macro</td>
 <td style="text-align: right;">161</td>
-<td style="text-align: right;">157</td>
-<td style="text-align: right;">-2%</td>
+<td style="text-align: right;">157 (-2%)</td>
+<td style="text-align: right;">157 (-2%)</td>
 <td style="text-align: right;">94.4</td>
 <td style="text-align: right;">97.5</td>
-<td style="text-align: right;">+3%</td>
-<td style="text-align: right;">170.7</td>
-<td style="text-align: right;">174.0</td>
-<td style="text-align: right;">+2%</td>
+<td style="text-align: right;">97.5</td>
 </tr>
 </tbody>
 </table>
-</div>
-<p>One run per cell, so these are within noise: on this machine, with the database servers sharing the same CPUs and memory and the same loopback, giving each unit its own server cost nothing measurable. A real split adds what one machine cannot show: network latency to each database, and a server per service to provision, secure, back up and size. Treat it as a floor (<a href="../../case/#where-the-evidence-stops">where the evidence stops</a>).</p>
+<p><strong>What it shows</strong></p>
+<ul>
+<li><strong>Where processes already cross the network, more database instances cost nothing measurable.</strong> <code>groups</code> and the two eight-service modes were within 2% of shared in this table, and across all 8 switch combinations between 23% below and 4% above, 1% below at the median (<code>groups</code> has one low cell, cache and parallel quotes both off with the outbox: 165 against 214 orders/s, which its three-instance run, 213, does not repeat).</li>
+<li><strong>In one process the batch figures read 3 to 10% lower on eight instances (median across the combinations), but most of that was drift.</strong> The shared and the eight-instance runs of those modes were made about two hours apart. Repeating <code>modulith</code>, <code>loopback-codec</code> and <code>loopback-http</code> three times with shared and eight instances alternating gave means of 449 against 449, 440 against 418 and 324 against 319 orders/s (+0%, -5% and -2%; the -5% comes from a single slow run, 364 orders/s, and the medians of the three runs differ by 1%) (<a href="../reports/">reports</a>). Treat the cost of eight instances in one process as at most a few percent.</li>
+<li><strong>One machine.</strong> The database servers share the same CPUs, memory and loopback, so a server per unit or per module costs only its own overhead here. A real split adds what one machine cannot show: network latency to each database, and a server per service to provision, secure, back up and size. Treat it as a floor (<a href="../../case/#where-the-evidence-stops">where the evidence stops</a>).</li>
+</ul>
 <h2 id="choosing">Choosing<a class="headerlink" href="#choosing" title="Permanent link">&para;</a></h2>
 <table>
 <thead>

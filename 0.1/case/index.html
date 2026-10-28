@@ -1684,6 +1684,290 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../performance/reports/matrix/modulith-8db/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    modulith, 8 instances
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../performance/reports/matrix/macro-modulith-8db/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    macro-modulith, 8 instances
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../performance/reports/matrix/loopback-codec-8db/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    loopback-codec, 8 instances
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../performance/reports/matrix/loopback-http-8db/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    loopback-http, 8 instances
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../performance/reports/matrix/groups-8db/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    groups, 8 instances
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7_9_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_7_9_4" id="__nav_7_9_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Alternating shared and 8 instances
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_7_9_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7_9_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Alternating shared and 8 instances
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../performance/reports/alternating/rep1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Repetition 1
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../performance/reports/alternating/rep2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Repetition 2
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../performance/reports/alternating/rep3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Repetition 3
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2586,7 +2870,7 @@ Review:       every &lt;n&gt; sprints, with the boundary metrics
   validation on each call, no load balancer, gateway or service-mesh sidecar adding hops, no service discovery, and no real network latency, packet loss, retries or timeouts, and no cross-zone traffic. Real deployments have most of these. That makes
   the measured cost of splitting a <strong>floor</strong> for its network and security part, and the extra hops, handshakes and proxies come on top of every boundary you add.</li>
 <li><strong>Database servers on one machine.</strong> The headline figures use one shared PostgreSQL instance with a schema per module, so even the eight services shared one database server. That isolates the cost of the
-  <em>process</em> boundary, which is the point of the comparison. Each split shape was also run with its own instance per deployable unit (three for <code>groups</code>, eight for the services) and it cost nothing measurable (<code>groups</code> 245 against 245 orders/s, <code>microservices</code> 161 against 159; <a href="../performance/modes/#one-database-instance-or-one-per-deployable-unit">the comparison</a>).
+  <em>process</em> boundary, which is the point of the comparison. Each shape was also run with its own instance per deployable unit (three for <code>groups</code>, eight for the services) or per module (eight, in any mode), and it cost nothing measurable where processes already cross the network (<code>groups</code> 245 against 245 orders/s, <code>microservices</code> 161 against 159; at most a few percent in one process; <a href="../performance/modes/#one-database-instance-one-per-deployable-unit-or-one-per-module">the comparison</a>).
   That is still on one machine, with every server sharing the same CPUs and loopback, and it does not charge the services for what real microservices usually add: a database server per service to provision, secure, back up, monitor and size, and a network path to each. So again the cost measured for the split shapes is a floor.</li>
 <li><strong>Cheap calls.</strong> The demo's calls are one primary-key query each, so the network share of an order is larger than in services that do real work per call. This pushes the other way, and is why the relative cost measured here may overstate
   what a heavy-calls domain would see. The two effects are real and run in opposite directions; measure your own journeys.</li>
