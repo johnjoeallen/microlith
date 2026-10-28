@@ -18,5 +18,13 @@
 | split | off | on | events | - | - | - | - | 66.1 | 66.2 | 117.2 | 118.0 |
 | split | off | off | outbox | - | - | - | - | 69.8 | 72.9 | 134.5 | 134.2 |
 | split | off | off | events | - | - | - | - | 71.7 | 72.3 | 136.6 | 139.1 |
+| per-module | on | on | outbox | 34.7 | 34.5 | 36.0 | 52.7 | 60.8 | - | 96.1 | 97.5 |
+| per-module | on | on | events | 36.0 | 36.1 | 36.3 | 51.0 | 63.1 | - | 102.4 | 101.7 |
+| per-module | on | off | outbox | 34.0 | 33.8 | 38.0 | 53.0 | 67.6 | - | 109.1 | 111.6 |
+| per-module | on | off | events | 36.4 | 36.6 | 36.9 | 52.1 | 64.3 | - | 113.8 | 114.0 |
+| per-module | off | on | outbox | 37.2 | 37.4 | 38.3 | 56.5 | 64.1 | - | 114.6 | 116.3 |
+| per-module | off | on | events | 38.5 | 38.7 | 43.8 | 65.3 | 67.0 | - | 117.2 | 118.0 |
+| per-module | off | off | outbox | 39.1 | 39.5 | 42.3 | 63.1 | 93.2 | - | 134.5 | 134.2 |
+| per-module | off | off | events | 41.9 | 41.3 | 43.0 | 78.2 | 74.7 | - | 136.6 | 139.1 |
 
 </div>

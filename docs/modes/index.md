@@ -17,7 +17,7 @@ The same modules, the same API interfaces and the same tests run in eight shapes
 All of them serve the orders entry point and the demo shop on **port 9181**, so a client or a load test is pointed at the same URL in every mode.
 
 !!! tip "Shared or split databases"
-    The Databases column is each mode's default (`--dbs shared`: one instance, a schema per module). `scripts/demo.sh <mode> start --dbs split` gives every **deployable unit** its own PostgreSQL instance, so the database layout follows the deployment: `groups` uses 3 instances (one per group), `microservices` and `microservices-macro` 8 (one per service, ports 5432 to 5439), and a one-process mode stays on one. No code changes: it only sets each module's datasource URL. `split-dbs` is the name of `groups --dbs split`. The eight-instance layout starts eight PostgreSQL containers, so it needs the memory for them.
+    The Databases column is each mode's default (`--dbs shared`: one instance, a schema per module). `scripts/demo.sh <mode> start --dbs split` gives every **deployable unit** its own PostgreSQL instance, so the database layout follows the deployment: `groups` uses 3 instances (one per group), `microservices` and `microservices-macro` 8 (one per service, ports 5432 to 5439), and a one-process mode stays on one. `--dbs per-module` gives each of the eight modules its own instance in any mode. No code changes: it only sets each module's datasource URL. `split-dbs` is the name of `groups --dbs split`. The eight-instance layout starts eight PostgreSQL containers, so it needs the memory for them.
 
 ## Picking one
 

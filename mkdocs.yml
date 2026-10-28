@@ -109,6 +109,15 @@ nav:
               - split-dbs: performance/reports/matrix/split-dbs.md
               - microservices: performance/reports/matrix/microservices.md
               - microservices-macro: performance/reports/matrix/microservices-macro.md
+              - modulith, 8 instances: performance/reports/matrix/modulith-8db.md
+              - macro-modulith, 8 instances: performance/reports/matrix/macro-modulith-8db.md
+              - loopback-codec, 8 instances: performance/reports/matrix/loopback-codec-8db.md
+              - loopback-http, 8 instances: performance/reports/matrix/loopback-http-8db.md
+              - groups, 8 instances: performance/reports/matrix/groups-8db.md
+          - Alternating shared and 8 instances:
+              - Repetition 1: performance/reports/alternating/rep1.md
+              - Repetition 2: performance/reports/alternating/rep2.md
+              - Repetition 3: performance/reports/alternating/rep3.md
           - Wire formats, realistic orders: performance/reports/wire-small.md
           - Wire formats, 40 lines: performance/reports/wire-lines40.md
           - Wire formats, 150 lines: performance/reports/wire-lines150.md

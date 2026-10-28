@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Runs one demo mode on this machine. Gives every start clean, freshly initialised databases (scripts/db.sh reset) and builds the jars on first use.
 #
-#   scripts/demo.sh <mode> start [--async outbox|events] [--cache on|off] [--parallel on|off] [--wire json|gzip|bson|bson-gzip] [--dbs shared|split]
+#   scripts/demo.sh <mode> start [--async outbox|events] [--cache on|off] [--parallel on|off] [--wire json|gzip|bson|bson-gzip] [--dbs shared|split|per-module]
 #   scripts/demo.sh <mode> stop|status
 #
 # options (start only; each overrides the environment variable named here, which still works):
@@ -11,7 +11,8 @@
 #   --dbs shared|split      shared: one PostgreSQL instance with a schema per module (default). split: every deployable unit gets its own instance, so
 #                           the layout follows the mode: groups 3 (front on A 5432, fulfilment on B 5433, accounts on C 5434), microservices and
 #                           microservices-macro 8 (orders 5432, catalog 5433, customers 5434, pricing 5435, inventory 5436, payments 5437,
-#                           shipping 5438, notifications 5439); a one-process mode is one unit, so one instance   (DEMO_DBS)
+#                           shipping 5438, notifications 5439); a one-process mode is one unit, so one instance.
+#                           per-module: eight instances, one per module, in any mode (the same as split for the services)   (DEMO_DBS)
 #   --wire json|gzip|bson|bson-gzip   how HTTP calls between processes encode the JSON-RPC envelope, default json (RPC_CLIENT_WIRE); HTTP bindings only
 #
 # modes: modulith  macro-modulith  groups  microservices  microservices-macro  loopback-codec  loopback-http  split-dbs (= groups --dbs split)
@@ -30,7 +31,7 @@ java_opts="${DEMO_JAVA_OPTS:--Xmx2g -XX:+UseParallelGC}"
 
 usage() {
   echo "usage: $0 <modulith|macro-modulith|groups|microservices|microservices-macro|loopback-codec|loopback-http|split-dbs> start [options] | stop | status" >&2
-  echo "options (start only): --async outbox|events   --cache on|off   --parallel on|off   --wire json|gzip|bson|bson-gzip   --dbs shared|split" >&2
+  echo "options (start only): --async outbox|events   --cache on|off   --parallel on|off   --wire json|gzip|bson|bson-gzip   --dbs shared|split|per-module" >&2
   exit 2
 }
 [ -n "$mode" ] && [ -n "$action" ] || usage
@@ -44,7 +45,7 @@ while [ $# -gt 0 ]; do
     --async)    [ "$2" = outbox ] || [ "$2" = events ] || { echo "--async must be outbox or events, not '$2'" >&2; usage; }; opt_async="$2" ;;
     --cache)    [ "$2" = on ] || [ "$2" = off ] || { echo "--cache must be on or off, not '$2'" >&2; usage; }; opt_cache="$2" ;;
     --wire)     case "$2" in json|gzip|bson|bson-gzip) opt_wire="$2" ;; *) echo "--wire must be json, gzip, bson or bson-gzip, not '$2'" >&2; usage ;; esac ;;
-    --dbs)      case "$2" in shared|split) opt_dbs="$2" ;; *) echo "--dbs must be shared or split, not '$2'" >&2; usage ;; esac ;;
+    --dbs)      case "$2" in shared|split|per-module) opt_dbs="$2" ;; *) echo "--dbs must be shared, split or per-module, not '$2'" >&2; usage ;; esac ;;
     --parallel) [ "$2" = on ] || [ "$2" = off ] || { echo "--parallel must be on or off, not '$2'" >&2; usage; }; opt_parallel="$2" ;;
     *) echo "unknown option '$1'" >&2; usage ;;
   esac
@@ -56,19 +57,26 @@ onoff() { [ "$1" = on ] && echo true || echo false; }
 [ -z "$opt_parallel" ] || export MODULES_ORDERS_PARALLEL_QUOTES="$(onoff "$opt_parallel")"
 [ -z "$opt_wire" ] || export RPC_CLIENT_WIRE="$opt_wire"
 dbs="${opt_dbs:-${DEMO_DBS:-shared}}"
-case "$dbs" in shared|split) ;; *) echo "DEMO_DBS must be shared or split, not '$dbs'" >&2; usage ;; esac
+case "$dbs" in shared|split|per-module) ;; *) echo "DEMO_DBS must be shared, split or per-module, not '$dbs'" >&2; usage ;; esac
 [ "$mode" != split-dbs ] || dbs=split            # split-dbs is groups with split databases
 # split databases: every deployable unit of the mode gets its own PostgreSQL instance, so the layout follows the deployment. Environment
 # variables override the datasource of every app, so this works for all of them. A one-process mode is one unit: one instance, as shared.
 db_instances=1
-if [ "$dbs" = split ]; then
+eight_ports='([orders]=5432 [catalog]=5433 [customers]=5434 [pricing]=5435 [inventory]=5436 [payments]=5437 [shipping]=5438 [notifications]=5439)'
+if [ "$dbs" = per-module ]; then
+  declare -A instance_port="$eight_ports"
+  db_instances=8
+  for m in "${!instance_port[@]}"; do
+    export "MODULES_${m^^}_DATASOURCE_URL=jdbc:postgresql://localhost:${instance_port[$m]}/macro"
+  done
+elif [ "$dbs" = split ]; then
   declare -A instance_port
   case "$mode" in
     groups|split-dbs)
       instance_port=([orders]=5432 [notifications]=5432 [catalog]=5433 [pricing]=5433 [inventory]=5433 [shipping]=5433 [customers]=5434 [payments]=5434)
       db_instances=3 ;;
     microservices|microservices-macro)
-      instance_port=([orders]=5432 [catalog]=5433 [customers]=5434 [pricing]=5435 [inventory]=5436 [payments]=5437 [shipping]=5438 [notifications]=5439)
+      declare -A instance_port="$eight_ports"
       db_instances=8 ;;
     *) [ "$action" != start ] || echo "note: $mode is one deployable unit, so --dbs split means one PostgreSQL instance, as shared" >&2
        dbs=shared ;;

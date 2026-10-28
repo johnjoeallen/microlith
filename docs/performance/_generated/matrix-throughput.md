@@ -18,5 +18,13 @@
 | split | off | on | events | - | - | - | - | 226 | 229 | 130 | 129 |
 | split | off | off | outbox | - | - | - | - | 213 | 208 | 114 | 114 |
 | split | off | off | events | - | - | - | - | 207 | 204 | 111 | 110 |
+| per-module | on | on | outbox | 440 | 434 | 405 | 279 | 251 | - | 159 | 157 |
+| per-module | on | on | events | 422 | 421 | 406 | 295 | 244 | - | 150 | 150 |
+| per-module | on | off | outbox | 447 | 442 | 399 | 284 | 227 | - | 139 | 135 |
+| per-module | on | off | events | 418 | 417 | 400 | 271 | 233 | - | 132 | 131 |
+| per-module | off | on | outbox | 417 | 414 | 399 | 272 | 239 | - | 135 | 132 |
+| per-module | off | on | events | 399 | 395 | 351 | 237 | 227 | - | 130 | 129 |
+| per-module | off | off | outbox | 394 | 391 | 366 | 243 | 165 | - | 114 | 114 |
+| per-module | off | off | events | 368 | 372 | 358 | 194 | 200 | - | 111 | 110 |
 
 </div>

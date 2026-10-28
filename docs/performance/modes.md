@@ -1,6 +1,6 @@
 # The eight modes compared
 
-Same code, same API, same tests, same workload, and (except `split-dbs`) the **same single PostgreSQL instance**: the eight-process modes share one database server, so the comparison measures the cost of the process boundary, not of separate databases. Separate instances per deployable unit are compared [at the end of this page](#one-database-instance-or-one-per-deployable-unit). Sixteen concurrent clients, 1,500 measured orders per run, result cache on, parallel quotes on,
+Same code, same API, same tests, same workload, and (except `split-dbs`) the **same single PostgreSQL instance**: the eight-process modes share one database server, so the comparison measures the cost of the process boundary, not of separate databases. Separate instances per deployable unit or per module are compared [at the end of this page](#one-database-instance-one-per-deployable-unit-or-one-per-module). Sixteen concurrent clients, 1,500 measured orders per run, result cache on, parallel quotes on,
 follow-ups through the outbox, a `VACUUM ANALYZE` after the warm-up ([method](method.md)). The charts and the first table are means over 5 runs; the table under "All numbers" is the first of those runs, which also holds the call counts.
 
 --8<-- "performance/_generated/headline-chart-throughput.md"
@@ -49,15 +49,24 @@ Read across a row: `orders -> shipping.quote` takes 0.70 ms inside one process a
 call is not free either: even in `modulith` each call is one database query, which is why the expensive rows (quote, create shipment, reserve) are the ones
 that do the most work.
 
-## One database instance or one per deployable unit
+## One database instance, one per deployable unit, or one per module
 
-The tables and charts above are the **shared** layout: one PostgreSQL instance with a schema per module. Every mode that has more than one deployable unit was also run with **split** databases (`--dbs split`), where each unit has its own instance: three for `groups` and eight for the services ([how](../running.md)). The one-process modes have a single unit, so they have no split run. The comparison below is cache on, parallel quotes on, outbox; the [full matrix](matrix.md) has both layouts in every combination of the other switches (24 pairs: split was between 7% below and 5% above shared, 1% below at the median):
+The tables and charts above use the **shared** layout: one PostgreSQL instance with a schema per module. Two other layouts were measured in every mode and every combination of the other switches ([the full matrix](matrix.md)):
+
+* **`split`** gives every deployable unit its own instance: three for `groups`, eight for the services. A one-process mode has a single unit, so for it split is the same as shared and was not repeated.
+* **`per-module`** gives each of the eight modules its own instance in any mode, so even `modulith` (one process) talks to eight database servers. For the services it is the same as `split`.
+
+Cache on, parallel quotes on, outbox ([how to run them](../running.md)):
 
 --8<-- "performance/_generated/dbs-chart.md"
 
 --8<-- "performance/_generated/dbs-table.md"
 
-One run per cell, so these are within noise: on this machine, with the database servers sharing the same CPUs and memory and the same loopback, giving each unit its own server cost nothing measurable. A real split adds what one machine cannot show: network latency to each database, and a server per service to provision, secure, back up and size. Treat it as a floor ([where the evidence stops](../case.md#where-the-evidence-stops)).
+**What it shows**
+
+* **Where processes already cross the network, more database instances cost nothing measurable.** `groups` and the two eight-service modes were within 2% of shared in this table, and across all 8 switch combinations between 23% below and 4% above, 1% below at the median (`groups` has one low cell, cache and parallel quotes both off with the outbox: 165 against 214 orders/s, which its three-instance run, 213, does not repeat).
+* **In one process the batch figures read 3 to 10% lower on eight instances (median across the combinations), but most of that was drift.** The shared and the eight-instance runs of those modes were made about two hours apart. Repeating `modulith`, `loopback-codec` and `loopback-http` three times with shared and eight instances alternating gave means of 449 against 449, 440 against 418 and 324 against 319 orders/s (+0%, -5% and -2%; the -5% comes from a single slow run, 364 orders/s, and the medians of the three runs differ by 1%) ([reports](reports.md)). Treat the cost of eight instances in one process as at most a few percent.
+* **One machine.** The database servers share the same CPUs, memory and loopback, so a server per unit or per module costs only its own overhead here. A real split adds what one machine cannot show: network latency to each database, and a server per service to provision, secure, back up and size. Treat it as a floor ([where the evidence stops](../case.md#where-the-evidence-stops)).
 
 ## Choosing
 

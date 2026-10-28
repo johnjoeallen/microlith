@@ -6,7 +6,7 @@ Drives orders.placeOrder against the running demo mode with N concurrent clients
   2. the latency of every module-to-module call inside those orders, from the /demo/trace records of every process,
      grouped by caller -> callee.method and binding.
 
-  perf_tools.py [--orders N | --duration S] [--concurrency C] [--warmup W] [--settle S] [--drain S] [--modes M,M|all] [--cache on|off|both] [--parallel on|off|both] [--async outbox|events|both] [--dbs shared|split|both] [--wire json|gzip|bson|bson-gzip|all] [--no-trace] [--no-stock] [--out DIR]
+  perf_tools.py [--orders N | --duration S] [--concurrency C] [--warmup W] [--settle S] [--drain S] [--modes M,M|all] [--cache on|off|both] [--parallel on|off|both] [--async outbox|events|both] [--dbs shared|split|per-module|both|all] [--wire json|gzip|bson|bson-gzip|all] [--no-trace] [--no-stock] [--out DIR]
 """
 import argparse
 import bisect
@@ -120,8 +120,10 @@ def db_layout(mode):
     """The database layout of the running demo: with split databases every deployable unit has its own instance (three for the groups,
     eight for the services); a one-process mode has one unit, so one instance."""
     settings = DEMO / "settings"
-    split = mode == "split-dbs" or (settings.exists() and "dbs=split" in settings.read_text())
-    if not split:
+    text = settings.read_text() if settings.exists() else ""
+    if "dbs=per-module" in text:
+        return "per-module"
+    if not (mode == "split-dbs" or "dbs=split" in text):
         return "shared"
     return "split" if mode in ("groups", "split-dbs") else "per-module" if mode.startswith("microservices") else "shared"
 
@@ -525,9 +527,10 @@ def main():
     parser.add_argument("--wire", choices=["json", "gzip", "bson", "bson-gzip", "both", "all"], default="json",
                         help="with --modes: how HTTP calls between processes encode the JSON-RPC envelope (RPC_CLIENT_WIRE): json (default), gzip, bson, "
                              "bson-gzip, or 'all' for the four (only the HTTP bindings are affected)")
-    parser.add_argument("--dbs", choices=["shared", "split", "both"], default="shared",
-                        help="with --modes: one PostgreSQL instance with a schema per module (default), or split: every deployable unit of the mode on its own "
-                             "instance (3 for groups, 8 for the services, 1 for a one-process mode); both = shared and split (the split-dbs mode is always split)")
+    parser.add_argument("--dbs", choices=["shared", "split", "per-module", "both", "all"], default="shared",
+                        help="with --modes: one PostgreSQL instance with a schema per module (default); split: every deployable unit of the mode on its own "
+                             "instance (3 for groups, 8 for the services, 1 for a one-process mode); per-module: eight instances in any mode; "
+                             "both = shared and split, all = all three (the split-dbs mode is always split)")
     parser.add_argument("--async", dest="async_mode", choices=["outbox", "events", "both"], default="outbox",
                         help="with --modes: how orders delivers its follow-ups (notification, compensations): the outbox relay (default), "
                              "Spring Modulith events, or both (modules.orders.async)")
@@ -707,7 +710,7 @@ def run_modes(args):
     cache_variants = ["off", "on"] if args.cache == "both" else [args.cache]
     parallel_variants = ["off", "on"] if args.parallel == "both" else [args.parallel]
     async_variants = ["outbox", "events"] if args.async_mode == "both" else [args.async_mode]
-    dbs_variants = ["shared", "split"] if args.dbs == "both" else [args.dbs]
+    dbs_variants = {"both": ["shared", "split"], "all": ["shared", "split", "per-module"]}.get(args.dbs, [args.dbs])
     wire_variants = (["json", "gzip", "bson", "bson-gzip"] if args.wire in ("all", "both") else [args.wire])
     for mode, variant, parallel, asynchronous, dbs, wire in [(m, c, p, a, d, w) for m in modes for c in cache_variants for p in parallel_variants
                                                              for a in async_variants for d in dbs_variants for w in wire_variants]:
@@ -717,6 +720,8 @@ def run_modes(args):
             dbs = "split"
         elif dbs == "split" and len(dbs_variants) > 1 and not mode.startswith(("groups", "microservices")):
             continue                          # a one-process mode has one unit, so split would repeat shared
+        elif dbs == "per-module" and len(dbs_variants) > 1 and mode.startswith("microservices"):
+            continue                          # the services already have one instance per module under split
         label = (mode + (f"-cache-{variant}" if len(cache_variants) > 1 else "") + (f"-parallel-{parallel}" if len(parallel_variants) > 1 else "")
                  + (f"-async-{asynchronous}" if len(async_variants) > 1 else "") + (f"-dbs-{dbs}" if len(dbs_variants) > 1 else "")
                  + (f"-wire-{wire}" if len(wire_variants) > 1 else ""))

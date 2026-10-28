@@ -164,11 +164,18 @@ def modes_fragments(runs, out):
 DEFAULTS = {"cache": "on", "parallel": "on", "async": "outbox"}
 
 
+def find(runs, mode, **want):
+    """pick() that knows the services have one instance per module under split, so their per-module run is their split run."""
+    if want.get("dbs") == "per-module" and mode.startswith("microservices"):
+        want = {**want, "dbs": "split"}
+    return pick(runs, mode=mode, **want)
+
+
 def std(runs, mode, **over):
     """The run of a mode with the default switches (cache on, parallel quotes on, outbox, shared databases; split-dbs is always split),
     with the switches named in `over` changed."""
     want = {**DEFAULTS, "dbs": "split" if mode == "split-dbs" else "shared", **over}
-    return pick(runs, mode=mode, **want)
+    return find(runs, mode, **want)
 
 
 def effect_rows(runs, dimension, before, after, modes=MODE_ORDER, **over):
@@ -190,37 +197,59 @@ def effect_table(pairs, before, after, name):
     return md_table(["Mode", f"orders/s {before}", after, "Δ", f"p50 {before}", after, "Δ", f"p99 {before}", after, "Δ"], rows)
 
 
+def dbs_fragments(runs, out):
+    """Database layouts side by side (cache on, parallel quotes on, outbox): one instance, one per deployable unit (split: 3 for the groups,
+    8 for the services) and one per module (8 in any mode). A dash is a layout that would repeat another for that mode."""
+    c = clients(runs)
+    rows, cats, series = [], [], ([], [], [])
+    for m in MODE_ORDER:
+        if m == "split-dbs":
+            continue
+        got = [find(runs, m, **{**DEFAULTS, "dbs": d}) for d in ("shared", "split", "per-module")]
+        if not got[0]:
+            continue
+        base = got[0]["ordersPerSecond"]
+        cells = [nice(r["ordersPerSecond"]) + (f" ({change(base, r['ordersPerSecond'])})" if r is not got[0] else "") if r else "-" for r in got]
+        p50 = [f"{r['roundTripMs']['p50']:.1f}" if r else "-" for r in got]
+        rows.append([f"{m}", *cells, *p50])
+        cats.append(m)
+        for i, r in enumerate(got):
+            series[i].append((r or got[0])["ordersPerSecond"])
+    (out / "dbs-table.md").write_text(md_table(["Mode", "orders/s shared", "split", "per-module", "p50 shared", "split", "per-module"], rows))
+    (out / "dbs-chart.md").write_text(hbar("Database layout: throughput", f"orders per second, {c}; larger is better", cats,
+                                           [("one instance", series[0]), ("one per deployable unit", series[1]), ("eight, one per module", series[2])], "orders/s"))
+
+
 def matrix_fragments(runs, out):
     """The effect of each switch (the others at their defaults) and every combination, from one run of each."""
     c = clients(runs)
     for name, dim, before, after, labels, extra in (("cache", "cache", "off", "on", ("cache off", "cache on"), {}),
                                                     ("parallel", "parallel", "off", "on", ("sequential", "parallel"), {}),
-                                                    ("async", "async", "outbox", "events", ("outbox", "events"), {}),
-                                                    ("dbs", "dbs", "shared", "split", ("one instance", "one per unit"), {})):
-        modes = [m for m in MODE_ORDER if m not in ("split-dbs",)] if dim == "dbs" else MODE_ORDER
-        if dim == "dbs":
-            modes = ["groups", "microservices", "microservices-macro"]
+                                                    ("async", "async", "outbox", "events", ("outbox", "events"), {})):
+        modes = MODE_ORDER
         pairs = effect_rows(runs, dim, before, after, modes)
         (out / f"{name}-table.md").write_text(effect_table(pairs, before, after, name))
-        title = {"cache": "Result cache", "parallel": "Parallel quotes", "async": "Follow-up delivery", "dbs": "Databases"}[name]
+        title = {"cache": "Result cache", "parallel": "Parallel quotes", "async": "Follow-up delivery"}[name]
         (out / f"{name}-chart.md").write_text(hbar(f"{title}: throughput", f"orders per second, {c}; larger is better", [m for m, _, _ in pairs],
                                                    [(labels[0], [a["ordersPerSecond"] for _, a, _ in pairs]),
                                                     (labels[1], [b["ordersPerSecond"] for _, _, b in pairs])], "orders/s"))
+    dbs_fragments(runs, out)
     on = {m: std(runs, m) for m in MODE_ORDER}
     methods = sorted({k for r in on.values() if r for k in r.get("cacheHitRate", {})})
     shown = [m for m in MODE_ORDER if on[m] and on[m].get("cacheHitRate")]
     rows = [[f"{k}", *[f"{on[m]['cacheHitRate'][k]['rate']:.0%}" if k in on[m]["cacheHitRate"] else "-" for m in shown]] for k in methods]
     (out / "cache-hits.md").write_text(md_table(["Cached method", *[f"{m}" for m in shown]], rows))
     # every combination: one row per (databases, cache, parallel quotes, follow-ups), one column per mode
+    DBS = ("shared", "split", "per-module")
     for name, value in (("throughput", lambda r: nice(r["ordersPerSecond"])), ("p50", lambda r: f"{r['roundTripMs']['p50']:.1f}")):
         rows = []
-        for dbs in ("shared", "split"):
+        for dbs in DBS:
             for cache in ("on", "off"):
                 for parallel in ("on", "off"):
                     for asynchronous in ("outbox", "events"):
                         cells = []
                         for m in MODE_ORDER:
-                            r = pick(runs, mode=m, cache=cache, parallel=parallel, dbs=dbs, **{"async": asynchronous})
+                            r = find(runs, m, cache=cache, parallel=parallel, dbs=dbs, **{"async": asynchronous})
                             cells.append(value(r) if r else "-")
                         rows.append([dbs, cache, parallel, asynchronous, *cells])
         (out / f"matrix-{name}.md").write_text(md_table(["Databases", "Cache", "Parallel", "Follow-ups", *MODE_ORDER], rows, left=4))

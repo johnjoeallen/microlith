@@ -13,7 +13,7 @@ Needs a JDK 25, Docker, `curl` and `python3` (Maven comes from `./mvnw`).
 
 ```bash
 scripts/demo.sh modulith start     # or: groups, microservices, ... (any of the eight modes); starts PostgreSQL too
-                                   # options: --async outbox|events  --cache on|off  --parallel on|off  --dbs shared|split
+                                   # options: --async outbox|events  --cache on|off  --parallel on|off  --dbs shared|split|per-module
 # then browse http://localhost:9181/shop  (also /swagger-ui and /demo/topology)
 scripts/smoke.sh                   # the scenarios, checked in the running mode
 scripts/perf.sh                    # a load run against it, with per-call latencies
